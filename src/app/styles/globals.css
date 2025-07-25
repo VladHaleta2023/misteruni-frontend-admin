@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+:root {
+  --main-width: calc(100vw - var(--dropdown-width));
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  scrollbar-width: none !important;
+}
+
+*::-webkit-scrollbar {
+  width: 0px !important;
+  background: transparent !important;
+}
+
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
+main {
+  margin-left: var(--dropdown-width);
+  width: calc(100vw - var(--dropdown-width));
+  height: calc(100vh - var(--header-height));
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+  word-wrap: break-word;
+  word-break: break-word;
+}
