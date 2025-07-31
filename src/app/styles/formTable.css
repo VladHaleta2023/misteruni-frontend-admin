@@ -1,0 +1,55 @@
+.formTable {
+    display: flex;
+    flex-direction: column;
+    white-space: pre-line;
+}
+
+.formTable > .element {
+    width: 100%;
+    font-size: 20px;
+    padding: 16px;
+    outline: none;
+    transition: all .3s ease;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.btnFormTableAdd {
+    user-select: none;
+    outline: none;
+    transition: all .3s ease;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, .1);
+    padding: 8px;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.btnFormTable {
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    padding: 0px 8px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.formTable > .elementTitle {
+    font-weight: 700;
+    background-color: #e7e7e7;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .formTable > .element {
+        font-size: 18px !important;
+    }
+}

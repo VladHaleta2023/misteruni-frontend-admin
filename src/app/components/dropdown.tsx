@@ -7,6 +7,7 @@ import api from "@/app/utils/api";
 import showAlert from "@/app/scripts/showAlert";
 import axios from "axios";
 import Spinner from "@/app/components/spinner";
+import FormatText from "@/app/components/formatText";
 
 interface Topic {
   id: number;
@@ -213,7 +214,9 @@ export default function Dropdown({ onUpdate }: DropdownProps) {
                     }
                   }}
                 >
-                  <span>{subject.name}</span>
+                  <span>
+                    <FormatText content={subject.name} />
+                  </span>
                   {hasSections && <span className="dropIcon">▼</span>}
                 </div>
 
@@ -236,7 +239,9 @@ export default function Dropdown({ onUpdate }: DropdownProps) {
                             }
                           }}
                         >
-                          <span>{section.name}</span>
+                          <span>
+                            <FormatText content={section.name} />
+                          </span>
                           {hasTopics && <span className="dropIcon">▼</span>}
                         </div>
 
@@ -256,7 +261,7 @@ export default function Dropdown({ onUpdate }: DropdownProps) {
                                   }
                                 }}
                               >
-                                {topic.name}
+                                <FormatText content={topic.name} />
                               </div>
                             );
                           })}
