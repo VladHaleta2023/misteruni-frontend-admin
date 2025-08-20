@@ -23,6 +23,14 @@
   -ms-user-select: none;
 }
 
+.own {
+  background-color: #d0f0d0;
+}
+
+.changed {
+  background-color: #f7f7c1 !important;
+}
+
 .label {
   font-size: 18px;
   font-weight: 700;

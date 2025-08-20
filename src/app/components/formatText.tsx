@@ -19,6 +19,7 @@ export default function FormatText({ content }: FormatTextProps) {
         delimiters: [
           { left: '$$', right: '$$', display: true },
           { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true },
           { left: '$', right: '$', display: false }
         ],
         throwOnError: false,

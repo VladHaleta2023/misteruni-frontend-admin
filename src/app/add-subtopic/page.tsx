@@ -7,8 +7,9 @@ import Spinner from "../components/spinner";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import "@/app/styles/components.css";
 import "@/app/styles/main.css";
+import "@/app/styles/alert.css";
 import api from "../utils/api";
-import showAlert from "../scripts/showAlert";
+import { showAlert } from "../scripts/showAlert";
 import axios from "axios";
 
 export default function AddSubtopic() {

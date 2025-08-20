@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "@/app/styles/globals.css";
 import "@/app/styles/dropdown.css";
 import api from "@/app/utils/api";
-import showAlert from "@/app/scripts/showAlert";
+import { showAlert } from "@/app/scripts/showAlert";
 import axios from "axios";
 import Spinner from "@/app/components/spinner";
 import FormatText from "@/app/components/formatText";
@@ -47,6 +47,19 @@ export default function Dropdown({ onUpdate }: DropdownProps) {
   const toggleDropdown = () => {
     setIsOpen((prev) => !prev);
   };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const selectSubject = (id: number) => {
     setActiveSubjectId(id);
