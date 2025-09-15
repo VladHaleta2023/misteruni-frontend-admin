@@ -29,12 +29,16 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSolutionText, setPromptSolutionText] = useState(["", ""]);
   const [promptAnswersText, setPromptAnswersText] = useState(["", ""]);
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
+  const [promptSubQuestionsText, setPromptSubQuestionsText] = useState(["", ""]);
+  const [promptVocabluaryText, setPromptVocabluaryText] = useState(["", ""]);
 
   const [promptSubtopicsTextOwn, setPromptSubtopicsTextOwn] = useState(true);
   const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
   const [promptSolutionTextOwn, setPromptSolutionTextOwn] = useState(true);
   const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
+  const [promptSubQuestionsTextOwn, setPromptSubQuestionsTextOwn] = useState(true);
+  const [promptVocabluaryTextOwn, setPromptVocabluaryTextOwn] = useState(true);
 
   const [subjectName, setSubjectName] = useState("");
   const [msgPlanVisible, setMsgPlanVisible] = useState(false);
@@ -66,6 +70,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptClosedSubtopicsTextareaExpanded, setPromptClosedSubtopicsTextareaExpanded] = useState(false);
   const [promptClosedSubtopicsTextareaRows, setPromptClosedSubtopicsTextareaRows] = useState(5);
 
+  const promptSubQuestionsTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptSubQuestionsTextareaExpanded, setPromptSubQuestionsTextareaExpanded] = useState(false);
+  const [promptSubQuestionsTextareaRows, setPromptSubQuestionsTextareaRows] = useState(5);
+
+  const promptVocabluaryTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptVocabluaryTextareaExpanded, setPromptVocabluaryTextareaExpanded] = useState(false);
+  const [promptVocabluaryTextareaRows, setPromptVocabluaryTextareaRows] = useState(5);
+
   useEffect(() => {
     async function fetchSubjectPromptById() {
       if (subjectId === -1) {
@@ -77,11 +89,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptSolutionText(["", ""]);
         setPromptAnswersText(["", ""]);
         setPromptClosedSubtopicsText(["", ""]);
+        setPromptSubQuestionsText(["", ""]);
+        setPromptVocabluaryText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
+        setPromptSubQuestionsTextOwn(true);
+        setPromptVocabluaryTextOwn(true);
         resetSpinner();
         return;
       }
@@ -98,12 +114,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptQuestionText([response.data.subject.questionPrompt, response.data.subject.questionPrompt]);
           setPromptSolutionText([response.data.subject.solutionPrompt, response.data.subject.solutionPrompt]);
           setPromptAnswersText([response.data.subject.answersPrompt, response.data.subject.answersPrompt]);
+          setPromptSubQuestionsText([response.data.subject.subQuestionsPrompt, response.data.subject.subQuestionsPrompt]);
+          setPromptVocabluaryText([response.data.subject.vocabluaryPrompt, response.data.subject.vocabluaryPrompt]);
           setPromptClosedSubtopicsText([response.data.subject.closedSubtopicsPrompt, response.data.subject.closedSubtopicsPrompt]);
           setPromptSubtopicsTextOwn(response.data.subject.subtopicsPromptOwn);
           setPromptQuestionTextOwn(response.data.subject.questionPromptOwn);
           setPromptSolutionTextOwn(response.data.subject.solutionPromptOwn);
           setPromptAnswersTextOwn(response.data.subject.answersPromptOwn);
-          setPromptClosedSubtopicsTextOwn(response.data.subject.closedSubtopicsPromptOwn);
+          setPromptSubQuestionsTextOwn(response.data.subject.subQuestionsPromptOwn);
+          setPromptVocabluaryTextOwn(response.data.subject.vocabluaryPromptOwn);
         } else {
           setTypeSubjectText(["", ""]);
           setSubjectName("");
@@ -113,11 +132,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptSolutionText(["", ""]);
           setPromptAnswersText(["", ""]);
           setPromptClosedSubtopicsText(["", ""]);
+          setPromptSubQuestionsText(["", ""]);
+          setPromptVocabluaryText(["", ""]);
           setPromptSubtopicsTextOwn(true);
           setPromptQuestionTextOwn(true);
           setPromptSolutionTextOwn(true);
           setPromptAnswersTextOwn(true);
           setPromptClosedSubtopicsTextOwn(true);
+          setPromptSubQuestionsTextOwn(true);
+          setPromptVocabluaryTextOwn(true);
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
@@ -129,11 +152,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptSolutionText(["", ""]);
         setPromptAnswersText(["", ""]);
         setPromptClosedSubtopicsText(["", ""]);
+        setPromptSubQuestionsText(["", ""]);
+        setPromptVocabluaryText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
+        setPromptSubQuestionsTextOwn(true);
+        setPromptVocabluaryTextOwn(true);
         handleApiError(error);
       } finally {
         setTimeout(() => {
@@ -298,6 +325,32 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setPromptClosedSubtopicsTextareaExpanded(prev => !prev);
   }
 
+  function toggleSubQuestionsPromptTextareaSize() {
+    if (promptSubQuestionsTextareaRef.current) {
+      if (!promptSubQuestionsTextareaExpanded) {
+        const rows = calculateRows(promptSubQuestionsTextareaRef.current);
+        setPromptSubQuestionsTextareaRows(rows);
+      } else {
+        setPromptSubQuestionsTextareaRows(5);
+      }
+    }
+
+    setPromptSubQuestionsTextareaExpanded(prev => !prev);
+  }
+
+  function toggleVocabluaryPromptTextareaSize() {
+    if (promptVocabluaryTextareaRef.current) {
+      if (!promptVocabluaryTextareaExpanded) {
+        const rows = calculateRows(promptVocabluaryTextareaRef.current);
+        setPromptVocabluaryTextareaRows(rows);
+      } else {
+        setPromptVocabluaryTextareaRows(5);
+      }
+    }
+
+    setPromptVocabluaryTextareaExpanded(prev => !prev);
+  }
+
   function handleOpenMessageSaveSubjectData() {
     setMsgSubjectDataVisible(true);
   }
@@ -348,7 +401,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         let subtopics: [string, number][] = [];
         let errors: string[] = [];
         const prompt: string = topicsResponse.data.topics[i].subtopicsPrompt;
-        const MAX_ATTEMPTS = 10;
+        const MAX_ATTEMPTS = 5;
 
         while (changed === "true" && attempt <= MAX_ATTEMPTS) {
           const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
@@ -421,7 +474,9 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     questionPrompt: promptQuestionText,
     solutionPrompt: promptSolutionText,
     answersPrompt: promptAnswersText,
-    closedSubtopicsPrompt: promptClosedSubtopicsText
+    closedSubtopicsPrompt: promptClosedSubtopicsText,
+    subQuestionsPrompt: promptSubQuestionsText,
+    vocabluaryPrompt: promptVocabluaryText
   }) {
     try {
       const processedData = {
@@ -432,6 +487,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         solutionPrompt: (Array.isArray(data.solutionPrompt) && data.solutionPrompt[0] !== data.solutionPrompt[1]) ? data.solutionPrompt[0] : undefined,
         answersPrompt: (Array.isArray(data.answersPrompt) && data.answersPrompt[0] !== data.answersPrompt[1]) ? data.answersPrompt[0] : undefined,
         closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
+        subQuestionsPrompt: (Array.isArray(data.subQuestionsPrompt) && data.subQuestionsPrompt[0] !== data.subQuestionsPrompt[1]) ? data.subQuestionsPrompt[0] : undefined,
+        vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
       };
 
       return await api.put(`/subjects/${subjectId}`, processedData);
@@ -611,6 +668,66 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   placeholder="Proszę napisać prompt zamykania podtematów..."
                 />
               </div>
+              {typeSubjectText[0] == "Language" ? (<div className="options-container">
+                {promptSubQuestionsTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSubQuestionsPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSubQuestionsPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptSubQuestions" className="label">Pytania Etapowe:</label>
+                <textarea
+                  id="promptSubQuestions"
+                  rows={promptSubQuestionsTextareaRows}
+                  ref={promptSubQuestionsTextareaRef}
+                  name="text-container"
+                  value={promptSubQuestionsText[0]}
+                  onInput={(e) => {
+                    setPromptSubQuestionsText([(e.target as HTMLTextAreaElement).value, promptSubQuestionsText[1]])
+                  }}
+                  className={`text-container ${promptSubQuestionsTextOwn ? "own" : ""} ${(promptSubQuestionsText[0] !== promptSubQuestionsText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt pytań etapowych..."
+                />
+              </div>) : null}
+              {typeSubjectText[0] == "Language" ? (<div className="options-container">
+                {promptVocabluaryTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleVocabluaryPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleVocabluaryPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptVocabluary" className="label">Słownictwo:</label>
+                <textarea
+                  id="promptVocabluary"
+                  rows={promptVocabluaryTextareaRows}
+                  ref={promptVocabluaryTextareaRef}
+                  name="text-container"
+                  value={promptVocabluaryText[0]}
+                  onInput={(e) => {
+                    setPromptVocabluaryText([(e.target as HTMLTextAreaElement).value, promptVocabluaryText[1]])
+                  }}
+                  className={`text-container ${promptVocabluaryTextOwn ? "own" : ""} ${(promptVocabluaryText[0] !== promptVocabluaryText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt słownictwa..."
+                />
+              </div>) : null}
               <div style={{ marginTop: "4px" }}>
                 <button
                   className="button"
@@ -661,47 +778,49 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   Generuj Treść
                 </button>
               </div>
-              <br />
-              <br />
-              <div className="options-container">
-                {promptSubtopicsTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSubtopicsPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSubtopicsPromptTextareaSize}
+              {typeSubjectText[0] != "Language" ?  (<>
+                <br />
+                <br />
+                <div className="options-container">
+                  {promptSubtopicsTextareaExpanded ?
+                    <ChevronUp
+                      size={28}
+                      style={{top: "28px"}}
+                      className="btnTextAreaOpen"
+                      onClick={toggleSubtopicsPromptTextareaSize}
+                    /> :
+                    <ChevronDown
+                      size={28}
+                      style={{top: "28px"}}
+                      className="btnTextAreaOpen"
+                      onClick={toggleSubtopicsPromptTextareaSize}
+                    />
+                  }
+                  <label htmlFor="subjectSubtopics" className="label">Podtematy:</label>
+                  <textarea
+                    id="subjectSubtopics"
+                    rows={promptSubtopicsTextareaRows}
+                    ref={promptSubtopicsTextareaRef}
+                    name="text-container"
+                    value={promptSubtopicsText[0]}
+                    onInput={(e) => {
+                      setPromptSubtopicsText([(e.target as HTMLTextAreaElement).value, promptSubtopicsText[1]]);
+                    }}
+                    className={`text-container ${promptSubtopicsTextOwn ? "own" : ""} ${(promptSubtopicsText[0] !== promptSubtopicsText[1]) ? ' changed' : ''}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać prompt dla podtematów..."
                   />
-                }
-                <label htmlFor="subjectSubtopics" className="label">Podtematy:</label>
-                <textarea
-                  id="subjectSubtopics"
-                  rows={promptSubtopicsTextareaRows}
-                  ref={promptSubtopicsTextareaRef}
-                  name="text-container"
-                  value={promptSubtopicsText[0]}
-                  onInput={(e) => {
-                    setPromptSubtopicsText([(e.target as HTMLTextAreaElement).value, promptSubtopicsText[1]]);
-                  }}
-                  className={`text-container ${promptSubtopicsTextOwn ? "own" : ""} ${(promptSubtopicsText[0] !== promptSubtopicsText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt dla podtematów..."
-                />
-              </div>
-              <div style={{ marginTop: "4px" }}>
-                <button
-                  className="button"
-                  style={{ padding: "10px 54px" }}
-                  onClick={handleOpenMessageSubtopicsGenerate}
-                >
-                  Generuj Podtematy
-                </button>
-              </div>
+                </div>
+                <div style={{ marginTop: "4px" }}>
+                  <button
+                    className="button"
+                    style={{ padding: "10px 54px" }}
+                    onClick={handleOpenMessageSubtopicsGenerate}
+                  >
+                    Generuj Podtematy
+                  </button>
+                </div>
+              </>) : null}
             </>
           )}
         </div>
