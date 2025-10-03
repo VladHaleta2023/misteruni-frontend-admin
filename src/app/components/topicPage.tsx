@@ -431,7 +431,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         let subtopics: [string, number][] = [];
         let errors: string[] = [];
         const prompt: string = topics[i].subtopicsPrompt;
-        const MAX_ATTEMPTS = 5;
+        const MAX_ATTEMPTS = 2;
 
         while (changed === "true" && attempt <= MAX_ATTEMPTS) {
           const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
@@ -812,12 +812,12 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
               </div>
                   {subtopics.map(({ id, name }) => (
                       <div className="element" key={id}>
-                          <div>
+                          <div className="text">
                               <FormatText content={name} />
                           </div>
                           <button
                               id={id}
-                              className="btnFormTable"
+                              className="btn btnFormTable"
                               onClick={(e) => handleOpenMessageDeleteSubtopic(Number(e.currentTarget.id))}
                           >
                               <Trash2 size={28} />

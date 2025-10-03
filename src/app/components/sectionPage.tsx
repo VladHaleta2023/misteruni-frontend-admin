@@ -350,7 +350,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         let subtopics: [string, number][] = [];
         let errors: string[] = [];
         const prompt: string = topicsResponse.data.topics[i].subtopicsPrompt;
-        const MAX_ATTEMPTS = 5;
+        const MAX_ATTEMPTS = 2;
 
         while (changed === "true" && attempt <= MAX_ATTEMPTS) {
           const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {

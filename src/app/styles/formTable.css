@@ -19,6 +19,19 @@
     align-items: flex-start;
 }
 
+.formTable > .element .text {
+    flex: 1 1 0;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.formTable > .element .btn {
+    flex: 0 0 auto;
+    margin-left: 10px;
+}
+
 .btnFormTableAdd {
     user-select: none;
     outline: none;
