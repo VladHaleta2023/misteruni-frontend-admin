@@ -5,10 +5,10 @@
 
 .text-container {
   width: 100%;
-  padding: 8px 14px;
+  padding: 6px 14px;
   padding-right: 40px;
   box-sizing: border-box;
-  font-size: 20px;
+  font-size: 16px;
   line-height: 1.6;
   background-color: #f3f3f3;
   border-radius: 8px;
@@ -32,7 +32,7 @@
 }
 
 .label {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
 }
 
