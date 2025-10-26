@@ -669,7 +669,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   placeholder="Proszę napisać prompt słownictwa..."
                 />
               </div>) : null}
-              <div style={{ marginTop: "4px" }}>
+              <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"
                   style={{ padding: "10px 54px" }}
@@ -678,7 +678,6 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   Zapisz
                 </button>
               </div>
-              <br />
               <br />
               {typeSectionText[0] != "InteractiveQuestion" ? (<>
               <div className="options-container">
@@ -711,7 +710,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   placeholder="Proszę napisać prompt dla podtematów..."
                 />
               </div>
-              <div style={{ marginTop: "4px" }}>
+              <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"
                   style={{ padding: "10px 54px" }}

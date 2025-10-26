@@ -1,6 +1,7 @@
 import { toast } from "react-toastify";
+import React from "react";
 
-export function showAlert(statusCode: number, message: string) {
+export function showAlert(statusCode: number, message: React.ReactNode) {
   if (statusCode >= 200 && statusCode < 300) {
     toast.success(message, { autoClose: 3000 });
   } else if (statusCode >= 400 && statusCode < 500) {

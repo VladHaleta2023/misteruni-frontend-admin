@@ -36,6 +36,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [subtopicId, setSubtopicId] = useState(-1);
 
   const [subjectName, setSubjectName] = useState("");
+  const [subjectType, setSubjectType] = useState("");
   const [sectionName, setSectionName] = useState("");
   const [topicName, setTopicName] = useState("");
   const [sectionType, setSectionType] = useState("");
@@ -86,6 +87,12 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [promptVocabluaryTextareaExpanded, setPromptVocabluaryTextareaExpanded] = useState(false);
   const [promptVocabluaryTextareaRows, setPromptVocabluaryTextareaRows] = useState(5);
 
+  const promptLiteratureTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptLiteratureTextareaExpanded, setLiteratureTextareaExpanded] = useState(false);
+  const [promptLiteratureTextareaRows, setLiteratureTextareaRows] = useState(5);
+
+  const [literatureText, setLiteratureText] = useState(["", ""]);
+
   useEffect(() => {
     setSubtopicId(-1);
 
@@ -94,6 +101,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setSubjectName("");
         setSectionName("");
         setTopicName("");
+        setSubjectType("");
         setPromptQuestionText(["", ""]);
         setPromptSolutionText(["", ""]);
         setPromptAnswersText(["", ""]);
@@ -102,6 +110,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setPromptSubQuestionsText(["", ""]);
         setPromptVocabluaryText(["", ""]);
         setSectionType("");
+        setLiteratureText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
@@ -138,6 +147,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setSubjectName("");
         setSectionName("");
         setTopicName("");
+        setSubjectType("");
         setPromptQuestionText(["", ""]);
         setPromptSolutionText(["", ""]);
         setPromptAnswersText(["", ""]);
@@ -146,6 +156,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setPromptSubQuestionsText(["", ""]);
         setPromptVocabluaryText(["", ""]);
         setSectionType("");
+        setLiteratureText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
@@ -166,6 +177,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setSubjectName(response.data.subject.name);
           setSectionName(response.data.section.name);
           setTopicName(response.data.topic.name);
+          setSubjectType(response.data.subject.type);
           setPromptQuestionText([response.data.topic.questionPrompt, response.data.topic.questionPrompt]);
           setPromptSolutionText([response.data.topic.solutionPrompt, response.data.topic.solutionPrompt]);
           setPromptAnswersText([response.data.topic.answersPrompt, response.data.topic.answersPrompt]);
@@ -173,6 +185,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setPromptSubtopicsText([response.data.topic.subtopicsPrompt, response.data.topic.subtopicsPrompt]);
           setPromptSubQuestionsText([response.data.topic.subQuestionsPrompt, response.data.topic.subQuestionsPrompt]);
           setPromptVocabluaryText([response.data.topic.vocabluaryPrompt, response.data.topic.vocabluaryPrompt]);
+          setLiteratureText([response.data.topic.literature, response.data.topic.literature]);
           setSectionType(response.data.section.type);
           setPromptSubtopicsTextOwn(response.data.topic.subtopicsPromptOwn);
           setPromptQuestionTextOwn(response.data.topic.questionPromptOwn);
@@ -185,6 +198,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setSectionName("");
           setSubjectName("");
           setTopicName("");
+          setSubjectType("");
           setPromptQuestionText(["", ""]);
           setPromptSolutionText(["", ""]);
           setPromptAnswersText(["", ""]);
@@ -192,6 +206,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setPromptSubtopicsText(["", ""]);
           setPromptSubQuestionsText(["", ""]);
           setPromptVocabluaryText(["", ""]);
+          setLiteratureText(["", ""]);
           setSectionType("");
           setPromptSubtopicsTextOwn(true);
           setPromptQuestionTextOwn(true);
@@ -386,6 +401,19 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     setPromptVocabluaryTextareaExpanded(prev => !prev);
   }
 
+  function toggleLiteratureTextareaSize() {
+    if (promptLiteratureTextareaRef.current) {
+      if (!promptLiteratureTextareaExpanded) {
+        const rows = calculateRows(promptLiteratureTextareaRef.current);
+        setLiteratureTextareaRows(rows);
+      } else {
+        setLiteratureTextareaRows(5);
+      }
+    }
+
+    setLiteratureTextareaExpanded(prev => !prev);
+  }
+
   async function handleSaveTopicData() {
     setMsgTopicDataVisible(false);
     showSpinner(true, "Trwa zapisywanie danych...");
@@ -510,7 +538,8 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     subQuestionsPrompt: promptSubQuestionsText,
-    vocabluaryPrompt: promptVocabluaryText
+    vocabluaryPrompt: promptVocabluaryText,
+    literatureText: literatureText
   }) {
     try {
       const processedData = {
@@ -521,6 +550,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
         subQuestionsPrompt: (Array.isArray(data.subQuestionsPrompt) && data.subQuestionsPrompt[0] !== data.subQuestionsPrompt[1]) ? data.subQuestionsPrompt[0] : undefined,
         vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
+        literature: (Array.isArray(data.literatureText) && data.literatureText[0] !== data.literatureText[1]) ? data.literatureText[0] : undefined,
       };
 
       return await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, processedData);
@@ -566,6 +596,38 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
             </div>
           ) : (
             <>
+              {subjectType == "Polski" ? (
+              <div className="options-container">
+                {promptLiteratureTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleLiteratureTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleLiteratureTextareaSize}
+                  />
+                }
+                <label htmlFor="promptLiterature" className="label">Literatura:</label>
+                <textarea
+                   id="promptLiterature"
+                   rows={promptLiteratureTextareaRows}
+                   ref={promptLiteratureTextareaRef}
+                   name="text-container"
+                   value={literatureText[0]}
+                   onInput={(e) => {
+                    setLiteratureText([(e.target as HTMLTextAreaElement).value, literatureText[1]])
+                   }}
+                   className={`text-container own ${(literatureText[0] !== literatureText[1]) ? ' changed' : ''}`}
+                   spellCheck={true}
+                   placeholder="Proszę napisać literaturę..."
+                />
+              </div>
+              ) : null}
               <div className="options-container">
                 {promptQuestionTextareaExpanded ?
                   <ChevronUp
@@ -746,7 +808,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   placeholder="Proszę napisać prompt słownictwa..."
                 />
               </div>) : null}
-              <div style={{ marginTop: "4px" }}>
+              <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"
                   style={{ padding: "10px 54px" }}
@@ -755,7 +817,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   Zapisz
                 </button>
               </div>
-              <br />
               <br />
               {sectionType != "InteractiveQuestion" ? (<>
               <div className="options-container">
@@ -788,7 +849,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   placeholder="Proszę napisać prompt dla podtematów..."
                 />
               </div>
-              <div style={{ marginTop: "4px" }}>
+              <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"
                   style={{ padding: "10px 54px" }}

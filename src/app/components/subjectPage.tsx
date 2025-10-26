@@ -12,6 +12,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 type SubjectPageProps = {
   subjectId: number;
+  subjectName: string;
 };
 
 type Subtopic = {
@@ -19,6 +20,18 @@ type Subtopic = {
   subjectId: number;
   sectionId: number;
   subtopics: [string, number][];
+};
+
+type Topic = {
+  id: number;
+  name: string;
+  section: Section;
+  subtopicsPrompt: string;
+};
+
+type Section = {
+  id: number;
+  name: string;
 };
 
 export default function SubjectPage({ subjectId }: SubjectPageProps) {
@@ -385,87 +398,148 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
 
   async function handleSubtopicsGenerate() {
     setMsgSubtopicsPromptVisible(false);
-
     await saveSubjectData();
 
+    const successfulSections: string[] = [];
+
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/topics`);
+      const topicsResponse = await api.get<{ topics: Topic[] }>(`/subjects/${subjectId}/topics`);
+      const topics = topicsResponse.data.topics;
 
-      const allSubtopics: Subtopic[] = [];
+      const sectionsMap = new Map<number, { name: string; topics: Topic[] }>();
+      topics.forEach((topic: Topic) => {
+        const sectionId = topic.section.id;
+        if (!sectionsMap.has(sectionId)) {
+          sectionsMap.set(sectionId, { name: topic.section.name, topics: [] });
+        }
+        sectionsMap.get(sectionId)!.topics.push(topic);
+      });
 
-      for (let i = 0; i < topicsResponse.data.topics.length; i++) {
-        const topicId: number = topicsResponse.data.topics[i].id;
-        const sectionId: number = topicsResponse.data.topics[i].section.id;
-        showSpinner(true, `Trwa generacja podtematów przedmiotu ${subjectName}, rozdziału ${topicsResponse.data.topics[i].section.name}, tematu ${topicsResponse.data.topics[i].name}...`);
-        
-        let changed: string = "true";
-        let attempt: number = 0;
-        let subtopics: [string, number][] = [];
-        let errors: string[] = [];
-        const prompt: string = topicsResponse.data.topics[i].subtopicsPrompt;
-        const MAX_ATTEMPTS = 2;
+      for (const [sectionId, sectionData] of sectionsMap.entries()) {
+        const sectionSubtopics: Subtopic[] = [];
+        let sectionFailed = false;
 
-        while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-          const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
-            changed,
-            subtopics,
-            errors,
-            attempt,
-            prompt
-          });
+        for (const topic of sectionData.topics) {
+          showSpinner(true, `Generacja podtematów dla przedmiotu ${subjectName}, rozdziału ${sectionData.name}, tematu ${topic.name}`);
 
-          if (subtopicsResponse.data?.statusCode === 201) {
-            changed = subtopicsResponse.data.changed;
-            subtopics = subtopicsResponse.data.subtopics;
-            errors = subtopicsResponse.data.errors;
-            attempt = subtopicsResponse.data.attempt;
-            console.log(`Temat ${topicsResponse.data.topics[i].name}: Próba ${attempt}`);
+          const topicId = topic.id;
+          let changed = "true";
+          let attempt = 0;
+          let subtopics: [string, number][] = [];
+          let errors: string[] = [];
+          const prompt = topic.subtopicsPrompt;
+          const MAX_ATTEMPTS = 2;
+
+          while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+            const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
+              changed,
+              subtopics,
+              errors,
+              attempt,
+              prompt
+            });
+
+            if (subtopicsResponse.data?.statusCode === 201) {
+              changed = subtopicsResponse.data.changed;
+              subtopics = subtopicsResponse.data.subtopics;
+              errors = subtopicsResponse.data.errors;
+              attempt = subtopicsResponse.data.attempt;
+            } else {
+              showAlert(400, `Nie udało się wygenerować podtematów dla przedmiotu ${subjectName}, rozdziału ${sectionData.name}, tematu ${topic.name}`);
+              sectionFailed = true;
+              break;
+            }
           }
-          else {
-            showAlert(400, `Nie udało się zgenerować podtamaty przedmiotu ${subjectName}, rozdziału ${topicsResponse.data.topics[i].section.name}, tematu ${topicsResponse.data.topics[i].name}`);
+
+          if (
+            subtopics.length === 0 ||
+            subtopics.some(
+              s =>
+                !Array.isArray(s) ||
+                s.length !== 2 ||
+                typeof s[0] !== "string" ||
+                s[0].trim() === "" ||
+                typeof s[1] !== "number"
+            )
+          ) {
+            showAlert(400, `Nie udało się poprawnie wygenerować podtematów dla przedmiotu ${subjectName}, rozdziału ${sectionData.name}, tematu ${topic.name}`);
+            sectionFailed = true;
             break;
           }
+
+          sectionSubtopics.push({
+            subjectId,
+            sectionId,
+            topicId,
+            subtopics
+          });
         }
 
-        if (
-          subtopics.length === 0 ||
-          subtopics.some(s => 
-            !Array.isArray(s) || 
-            s.length !== 2 || 
-            typeof s[0] !== 'string' || 
-            s[0].trim() === '' || 
-            typeof s[1] !== 'number'
-          )
-        ) {
-          showAlert(
-            400, 
-            `Nie udało się poprawnie wygenerować podtematów dla tematu ${topicsResponse.data.topics[i].name}`
-          );
-          continue;
-        }
+        if (!sectionFailed && sectionSubtopics.length > 0) {
+          await api.post(`/options/subtopics`, { subtopics: sectionSubtopics });
+          successfulSections.push(sectionData.name);
+        } else {
+          const successMsg = successfulSections.length
+            ? formatSuccessSections(successfulSections, subjectName)
+            : `Nie zapisano żadnego rozdziału przedmiotu ${subjectName}`;
+          showAlert(400, successMsg);
 
-        allSubtopics.push({
-          subjectId: subjectId,
-          sectionId: sectionId,
-          topicId: topicId,
-          subtopics: subtopics
-        })
+          resetSpinner();
+          return;
+        }
       }
 
-      await api.post(`/options/subtopics`, {
-        subtopics: allSubtopics
-      });
+      const successMsg = successfulSections.length
+        ? `Poprawnie zapisano wszystkie działy przedmiotu ${subjectName}`
+        : `Brak zapisanych rozdziałów przedmiotu ${subjectName}`;
+      const statusCode = successfulSections.length > 0 ? 200 : 400;
+      showAlert(statusCode, successMsg);
 
       setTimeout(() => {
         resetSpinner();
         window.location.reload();
       }, 3000);
-    }
-    catch (error: unknown) {
+
+    } catch (error: unknown) {
       handleApiError(error);
-      setTimeout(() => {
-        resetSpinner();
-      }, 3000);
+
+      const successMsg = successfulSections.length
+        ? formatSuccessSections(successfulSections, subjectName)
+        : `Nie zapisano żadnego rozdziału przedmiotu ${subjectName}`;
+      showAlert(400, successMsg);
+
+      setTimeout(() => resetSpinner(), 3000);
+    }
+  }
+
+  function formatSuccessSections(
+    sections: string[],
+    subjectName: string
+  ): React.ReactNode {
+    if (sections.length === 1) {
+      return <div>Poprawnie zapisano dział {sections[0]} przedmiotu {subjectName}</div>;
+    } else if (sections.length === 2) {
+      return (
+        <div style={{ whiteSpace: "pre-line" }}>
+          Poprawnie zapisano działy przedmiotu {subjectName}:
+          <br /><br />
+          {sections[0]}
+          <br />
+          {sections[1]}
+        </div>
+      );
+    } else {
+      return (
+        <div style={{ whiteSpace: "pre-line" }}>
+          Poprawnie zapisano działy przedmiotu {subjectName}:
+          <br /><br />
+          {sections[0]}
+          <br />
+          ...
+          <br />
+          {sections[sections.length - 1]}
+        </div>
+      );
     }
   }
 
@@ -730,7 +804,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   placeholder="Proszę napisać prompt słownictwa..."
                 />
               </div>) : null}
-              <div style={{ marginTop: "4px" }}>
+              <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"
                   style={{ padding: "10px 54px" }}
@@ -739,7 +813,6 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   Zapisz
                 </button>
               </div>
-              <br />
               <br />
               <div className="options-container">
                 {promptTextareaExpanded ?
@@ -771,7 +844,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   placeholder="Proszę napisać prompt dla treści..."
                 />
               </div>
-              <div style={{ marginTop: "4px" }}>
+              <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"
                   style={{ padding: "10px 54px" }}
@@ -780,39 +853,38 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   Generuj Treść
                 </button>
               </div>
-              {typeSubjectText[0] != "Language" ?  (<>
-                <br />
-                <br />
-                <div className="options-container">
-                  {promptSubtopicsTextareaExpanded ?
-                    <ChevronUp
-                      size={28}
-                      style={{top: "28px"}}
-                      className="btnTextAreaOpen"
-                      onClick={toggleSubtopicsPromptTextareaSize}
-                    /> :
-                    <ChevronDown
-                      size={28}
-                      style={{top: "28px"}}
-                      className="btnTextAreaOpen"
-                      onClick={toggleSubtopicsPromptTextareaSize}
-                    />
-                  }
-                  <label htmlFor="subjectSubtopics" className="label">Podtematy:</label>
-                  <textarea
-                    id="subjectSubtopics"
-                    rows={promptSubtopicsTextareaRows}
-                    ref={promptSubtopicsTextareaRef}
-                    name="text-container"
-                    value={promptSubtopicsText[0]}
-                    onInput={(e) => {
-                      setPromptSubtopicsText([(e.target as HTMLTextAreaElement).value, promptSubtopicsText[1]]);
-                    }}
-                    className={`text-container ${promptSubtopicsTextOwn ? "own" : ""} ${(promptSubtopicsText[0] !== promptSubtopicsText[1]) ? ' changed' : ''}`}
-                    spellCheck={true}
-                    placeholder="Proszę napisać prompt dla podtematów..."
+              <br />
+              <div className="options-container">
+                {promptSubtopicsTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSubtopicsPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSubtopicsPromptTextareaSize}
                   />
-                </div>
+                }
+                <label htmlFor="subjectSubtopics" className="label">Podtematy:</label>
+                <textarea
+                  id="subjectSubtopics"
+                  rows={promptSubtopicsTextareaRows}
+                  ref={promptSubtopicsTextareaRef}
+                  name="text-container"
+                  value={promptSubtopicsText[0]}
+                  onInput={(e) => {
+                    setPromptSubtopicsText([(e.target as HTMLTextAreaElement).value, promptSubtopicsText[1]]);
+                  }}
+                  className={`text-container ${promptSubtopicsTextOwn ? "own" : ""} ${(promptSubtopicsText[0] !== promptSubtopicsText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt dla podtematów..."
+                />
+              </div>
+              {typeSubjectText[0] != "Language" ?  (
                 <div style={{ marginTop: "4px" }}>
                   <button
                     className="button"
@@ -822,7 +894,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                     Generuj Podtematy
                   </button>
                 </div>
-              </>) : null}
+              ) : null}
             </>
           )}
         </div>
