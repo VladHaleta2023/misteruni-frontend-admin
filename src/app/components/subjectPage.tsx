@@ -12,7 +12,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 type SubjectPageProps = {
   subjectId: number;
-  subjectName: string;
+  subjectName?: string;
 };
 
 type Subtopic = {
