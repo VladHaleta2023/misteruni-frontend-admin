@@ -27,8 +27,8 @@ export default function Message({
   return (
     <div className="popup-overlay">
       <div className="switchPopUp" style={{ maxWidth: bodyMaxWidth }}>
-        <div className="text">
-          <label>{message}</label>
+        <div className="text" style={{ whiteSpace: "pre-wrap" }}>
+          {message}
         </div>
         <div className="btnsSwitchPopUp">
           <button

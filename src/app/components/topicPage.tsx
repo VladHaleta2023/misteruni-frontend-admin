@@ -8,7 +8,7 @@ import api from "@/app/utils/api";
 import { showAlert } from "@/app/scripts/showAlert";
 import axios from "axios";
 import Spinner from "@/app/components/spinner";
-import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Plus, Trash2, Edit } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import Message from "./message";
 import FormatText from "./formatText";
@@ -49,7 +49,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptSubtopicsText, setPromptSubtopicsText] = useState(["", ""]);
   const [promptSubQuestionsText, setPromptSubQuestionsText] = useState(["", ""]);
-  const [promptVocabluaryText, setPromptVocabluaryText] = useState(["", ""]);
+  const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
 
   const [promptSubtopicsTextOwn, setPromptSubtopicsTextOwn] = useState(true);
   const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
@@ -57,7 +57,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptSubQuestionsTextOwn, setPromptSubQuestionsTextOwn] = useState(true);
-  const [promptVocabluaryTextOwn, setPromptVocabluaryTextOwn] = useState(true);
+  const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
 
   const promptSubtopicsTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptSubtopicsTextareaExpanded, setPromptSubtopicsTextareaExpanded] = useState(false);
@@ -83,9 +83,9 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [promptSubQuestionsTextareaExpanded, setPromptSubQuestionsTextareaExpanded] = useState(false);
   const [promptSubQuestionsTextareaRows, setPromptSubQuestionsTextareaRows] = useState(5);
 
-  const promptVocabluaryTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptVocabluaryTextareaExpanded, setPromptVocabluaryTextareaExpanded] = useState(false);
-  const [promptVocabluaryTextareaRows, setPromptVocabluaryTextareaRows] = useState(5);
+  const promptStoriesTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptStoriesTextareaExpanded, setPromptStoriesTextareaExpanded] = useState(false);
+  const [promptStoriesTextareaRows, setPromptStoriesTextareaRows] = useState(5);
 
   const promptLiteratureTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptLiteratureTextareaExpanded, setLiteratureTextareaExpanded] = useState(false);
@@ -108,7 +108,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setPromptClosedSubtopicsText(["", ""]);
         setPromptSubtopicsText(["", ""]);
         setPromptSubQuestionsText(["", ""]);
-        setPromptVocabluaryText(["", ""]);
+        setPromptStoriesText(["", ""]);
         setSectionType("");
         setLiteratureText(["", ""]);
         setPromptSubtopicsTextOwn(true);
@@ -117,7 +117,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
-        setPromptVocabluaryTextOwn(true);
+        setPromptStoriesTextOwn(true);
         resetSpinner();
         return;
       }
@@ -154,7 +154,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setPromptClosedSubtopicsText(["", ""]);
         setPromptSubtopicsText(["", ""]);
         setPromptSubQuestionsText(["", ""]);
-        setPromptVocabluaryText(["", ""]);
+        setPromptStoriesText(["", ""]);
         setSectionType("");
         setLiteratureText(["", ""]);
         setPromptSubtopicsTextOwn(true);
@@ -163,7 +163,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
-        setPromptVocabluaryTextOwn(true);
+        setPromptStoriesTextOwn(true);
         resetSpinner();
         return;
       }
@@ -172,7 +172,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
       try {
         const response = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
-        
+
         if (response.data?.statusCode === 200) {
           setSubjectName(response.data.subject.name);
           setSectionName(response.data.section.name);
@@ -184,7 +184,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setPromptClosedSubtopicsText([response.data.topic.closedSubtopicsPrompt, response.data.topic.closedSubtopicsPrompt]);
           setPromptSubtopicsText([response.data.topic.subtopicsPrompt, response.data.topic.subtopicsPrompt]);
           setPromptSubQuestionsText([response.data.topic.subQuestionsPrompt, response.data.topic.subQuestionsPrompt]);
-          setPromptVocabluaryText([response.data.topic.vocabluaryPrompt, response.data.topic.vocabluaryPrompt]);
+          setPromptStoriesText([response.data.topic.vocabluaryPrompt, response.data.topic.vocabluaryPrompt]);
           setLiteratureText([response.data.topic.literature, response.data.topic.literature]);
           setSectionType(response.data.section.type);
           setPromptSubtopicsTextOwn(response.data.topic.subtopicsPromptOwn);
@@ -193,7 +193,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setPromptAnswersTextOwn(response.data.topic.answersPromptOwn);
           setPromptClosedSubtopicsTextOwn(response.data.topic.closedSubtopicsPromptOwn);
           setPromptSubQuestionsTextOwn(response.data.topic.subQuestionsPromptOwn);
-          setPromptVocabluaryTextOwn(response.data.topic.vocabluaryPromptOwn);
+          setPromptStoriesTextOwn(response.data.topic.vocabluaryPromptOwn);
       } else {
           setSectionName("");
           setSubjectName("");
@@ -205,7 +205,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setPromptClosedSubtopicsText(["", ""]);
           setPromptSubtopicsText(["", ""]);
           setPromptSubQuestionsText(["", ""]);
-          setPromptVocabluaryText(["", ""]);
+          setPromptStoriesText(["", ""]);
           setLiteratureText(["", ""]);
           setSectionType("");
           setPromptSubtopicsTextOwn(true);
@@ -214,7 +214,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setPromptAnswersTextOwn(true);
           setPromptClosedSubtopicsTextOwn(true);
           setPromptSubQuestionsTextOwn(true);
-          setPromptVocabluaryTextOwn(true);
+          setPromptStoriesTextOwn(true);
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
@@ -256,6 +256,11 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
   function handleAddSubtopic() {
     router.push("/add-subtopic");
+  }
+
+  function handleEditSubtopic(id: number) {
+    localStorage.setItem("subtopicId", String(id));
+    router.push("/edit-subtopic");
   }
 
   function handleSubtopicDeleteMsgCancel() {
@@ -388,17 +393,17 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     setPromptSubQuestionsTextareaExpanded(prev => !prev);
   }
 
-  function toggleVocabluaryPromptTextareaSize() {
-    if (promptVocabluaryTextareaRef.current) {
-      if (!promptVocabluaryTextareaExpanded) {
-        const rows = calculateRows(promptVocabluaryTextareaRef.current);
-        setPromptVocabluaryTextareaRows(rows);
+  function toggleStoriesPromptTextareaSize() {
+    if (promptStoriesTextareaRef.current) {
+      if (!promptStoriesTextareaExpanded) {
+        const rows = calculateRows(promptStoriesTextareaRef.current);
+        setPromptStoriesTextareaRows(rows);
       } else {
-        setPromptVocabluaryTextareaRows(5);
+        setPromptStoriesTextareaRows(5);
       }
     }
 
-    setPromptVocabluaryTextareaExpanded(prev => !prev);
+    setPromptStoriesTextareaExpanded(prev => !prev);
   }
 
   function toggleLiteratureTextareaSize() {
@@ -454,7 +459,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       topics.push(topicsResponse.data.topic);
 
       for (let i = 0; i < topics.length; i++) {
-        showSpinner(true, `Trwa generacja podtematów przedmiotu ${subjectName}, rozdziału ${sectionName}, tematu ${topicName}...`);
+        showSpinner(true, `Trwa generacja podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
         
         let changed: string = "true";
         let attempt: number = 0;
@@ -480,7 +485,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
             console.log(`Temat ${topics[i].name}: Próba ${attempt}`);
           }
           else {
-            showAlert(400, `Nie udało się zgenerować podtamaty przedmiotu ${subjectName}, rozdziału ${sectionName}, tematu ${topicName}`);
+            showAlert(400, `Nie udało się zgenerować podtamaty\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
             break;
           }
         }
@@ -538,7 +543,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     subQuestionsPrompt: promptSubQuestionsText,
-    vocabluaryPrompt: promptVocabluaryText,
+    vocabluaryPrompt: promptStoriesText,
     literatureText: literatureText
   }) {
     try {
@@ -572,7 +577,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         />
 
         <Message 
-          message={`Czy na pewno chcesz zapisać dane dla przedmiotu ${subjectName}, rozdziału ${sectionName}, tematu ${topicName}?`}
+          message={`Czy na pewno chcesz zapisać dane dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}?`}
           textConfirm="Tak"
           textCancel="Nie"
           onConfirm={handleSaveTopicData}
@@ -581,7 +586,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         />
 
         <Message 
-            message={`Czy na pewno chcesz ponownie wygenerować podtematy dla przedmiotu ${subjectName}, rozdziału ${sectionName}, tematu ${topicName}?`}
+            message={`Czy na pewno chcesz ponownie wygenerować podtematy dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}?`}
             textConfirm="Tak"
             textCancel="Nie"
             onConfirm={handleSubtopicsGenerate}
@@ -658,7 +663,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   placeholder="Proszę napisać prompt tekst zadania..."
                 />
               </div>
-              {sectionType != "InteractiveQuestion" ? (<div className="options-container">
+              {sectionType != "Stories" ? (<div className="options-container">
                 {promptSolutionTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -718,7 +723,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   placeholder="Proszę napisać prompt warianty odpowiedzi..."
                 />
               </div>
-              {sectionType != "InteractiveQuestion" ? (<div className="options-container">
+              {sectionType != "Stories" ? (<div className="options-container">
                 {promptClosedSubtopicsTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -748,7 +753,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   placeholder="Proszę napisać prompt zamykania podtematów..."
                 />
               </div>) : null}
-              {sectionType == "InteractiveQuestion" ? (<div className="options-container">
+              {sectionType == "Stories" ? (<div className="options-container">
                 {promptSubQuestionsTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -778,32 +783,32 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   placeholder="Proszę napisać prompt pytań etapowych..."
                 />
               </div>) : null}
-              {sectionType == "InteractiveQuestion" ? (<div className="options-container">
-                {promptVocabluaryTextareaExpanded ?
+              {sectionType == "Stories" ? (<div className="options-container">
+                {promptStoriesTextareaExpanded ?
                   <ChevronUp
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleVocabluaryPromptTextareaSize}
+                    onClick={toggleStoriesPromptTextareaSize}
                   /> :
                   <ChevronDown
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleVocabluaryPromptTextareaSize}
+                    onClick={toggleStoriesPromptTextareaSize}
                   />
                 }
-                <label htmlFor="promptVocabluary" className="label">Słownictwo:</label>
+                <label htmlFor="promptStories" className="label">Słownictwo:</label>
                 <textarea
-                  id="promptVocabluary"
-                  rows={promptVocabluaryTextareaRows}
-                  ref={promptVocabluaryTextareaRef}
+                  id="promptStories"
+                  rows={promptStoriesTextareaRows}
+                  ref={promptStoriesTextareaRef}
                   name="text-container"
-                  value={promptVocabluaryText[0]}
+                  value={promptStoriesText[0]}
                   onInput={(e) => {
-                    setPromptVocabluaryText([(e.target as HTMLTextAreaElement).value, promptVocabluaryText[1]])
+                    setPromptStoriesText([(e.target as HTMLTextAreaElement).value, promptStoriesText[1]])
                   }}
-                  className={`text-container ${promptVocabluaryTextOwn ? "own" : ""} ${(promptVocabluaryText[0] !== promptVocabluaryText[1]) ? ' changed' : ''}`}
+                  className={`text-container ${promptStoriesTextOwn ? "own" : ""} ${(promptStoriesText[0] !== promptStoriesText[1]) ? ' changed' : ''}`}
                   spellCheck={true}
                   placeholder="Proszę napisać prompt słownictwa..."
                 />
@@ -818,7 +823,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 </button>
               </div>
               <br />
-              {sectionType != "InteractiveQuestion" ? (<>
+              {sectionType != "Stories" ? (<>
               <div className="options-container">
                 {promptSubtopicsTextareaExpanded ?
                   <ChevronUp
@@ -878,6 +883,13 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                           <div className="text">
                               <FormatText content={name} />
                           </div>
+                          <button
+                              id={id}
+                              className="btn btnFormTable"
+                              onClick={(e) => handleEditSubtopic(Number(e.currentTarget.id))}
+                          >
+                              <Edit size={28} />
+                          </button>
                           <button
                               id={id}
                               className="btn btnFormTable"

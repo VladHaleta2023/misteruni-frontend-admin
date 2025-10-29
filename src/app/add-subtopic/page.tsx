@@ -82,12 +82,14 @@ export default function AddSubtopic() {
     }
 
     function calculateRows(textarea: HTMLTextAreaElement): number {
-        const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight || "210");
-        const paddingTop = parseFloat(getComputedStyle(textarea).paddingTop || "0");
-        const paddingBottom = parseFloat(getComputedStyle(textarea).paddingBottom || "0");
+        const style = getComputedStyle(textarea);
+        const fontSize = parseFloat(style.fontSize);
+        const lineHeight = parseFloat(style.lineHeight) || fontSize * 1.6;
+        const paddingTop = parseFloat(style.paddingTop || "0");
+        const paddingBottom = parseFloat(style.paddingBottom || "0");
         const totalPadding = paddingTop + paddingBottom;
 
-        const rows = Math.floor((textarea.scrollHeight - totalPadding) / lineHeight);
+        const rows = Math.ceil((textarea.scrollHeight - totalPadding) / lineHeight);
         return rows;
     }
 
@@ -109,17 +111,13 @@ export default function AddSubtopic() {
 
             showAlert(response.data.statusCode, response.data.message);
 
-            setTimeout(() => {
-                resetSpinner();
-                if (response.data.statusCode === 201)
-                    router.push("/");
-            }, 1000);
+            resetSpinner();
+            if (response.data.statusCode === 201)
+                router.push("/");
         }
         catch (error: unknown) {
             handleApiError(error);
-            setTimeout(() => {
-                resetSpinner();
-            }, 1000);
+            resetSpinner();
         }
     }
 

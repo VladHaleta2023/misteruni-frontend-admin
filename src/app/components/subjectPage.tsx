@@ -43,7 +43,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptAnswersText, setPromptAnswersText] = useState(["", ""]);
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptSubQuestionsText, setPromptSubQuestionsText] = useState(["", ""]);
-  const [promptVocabluaryText, setPromptVocabluaryText] = useState(["", ""]);
+  const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
 
   const [promptSubtopicsTextOwn, setPromptSubtopicsTextOwn] = useState(true);
   const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
@@ -51,7 +51,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptSubQuestionsTextOwn, setPromptSubQuestionsTextOwn] = useState(true);
-  const [promptVocabluaryTextOwn, setPromptVocabluaryTextOwn] = useState(true);
+  const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
 
   const [subjectName, setSubjectName] = useState("");
   const [msgPlanVisible, setMsgPlanVisible] = useState(false);
@@ -87,9 +87,9 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubQuestionsTextareaExpanded, setPromptSubQuestionsTextareaExpanded] = useState(false);
   const [promptSubQuestionsTextareaRows, setPromptSubQuestionsTextareaRows] = useState(5);
 
-  const promptVocabluaryTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptVocabluaryTextareaExpanded, setPromptVocabluaryTextareaExpanded] = useState(false);
-  const [promptVocabluaryTextareaRows, setPromptVocabluaryTextareaRows] = useState(5);
+  const promptStoriesTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptStoriesTextareaExpanded, setPromptStoriesTextareaExpanded] = useState(false);
+  const [promptStoriesTextareaRows, setPromptStoriesTextareaRows] = useState(5);
 
   useEffect(() => {
     async function fetchSubjectPromptById() {
@@ -103,14 +103,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptAnswersText(["", ""]);
         setPromptClosedSubtopicsText(["", ""]);
         setPromptSubQuestionsText(["", ""]);
-        setPromptVocabluaryText(["", ""]);
+        setPromptStoriesText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
-        setPromptVocabluaryTextOwn(true);
+        setPromptStoriesTextOwn(true);
         resetSpinner();
         return;
       }
@@ -128,14 +128,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptSolutionText([response.data.subject.solutionPrompt, response.data.subject.solutionPrompt]);
           setPromptAnswersText([response.data.subject.answersPrompt, response.data.subject.answersPrompt]);
           setPromptSubQuestionsText([response.data.subject.subQuestionsPrompt, response.data.subject.subQuestionsPrompt]);
-          setPromptVocabluaryText([response.data.subject.vocabluaryPrompt, response.data.subject.vocabluaryPrompt]);
+          setPromptStoriesText([response.data.subject.vocabluaryPrompt, response.data.subject.vocabluaryPrompt]);
           setPromptClosedSubtopicsText([response.data.subject.closedSubtopicsPrompt, response.data.subject.closedSubtopicsPrompt]);
           setPromptSubtopicsTextOwn(response.data.subject.subtopicsPromptOwn);
           setPromptQuestionTextOwn(response.data.subject.questionPromptOwn);
           setPromptSolutionTextOwn(response.data.subject.solutionPromptOwn);
           setPromptAnswersTextOwn(response.data.subject.answersPromptOwn);
           setPromptSubQuestionsTextOwn(response.data.subject.subQuestionsPromptOwn);
-          setPromptVocabluaryTextOwn(response.data.subject.vocabluaryPromptOwn);
+          setPromptStoriesTextOwn(response.data.subject.vocabluaryPromptOwn);
         } else {
           setTypeSubjectText(["", ""]);
           setSubjectName("");
@@ -146,14 +146,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptAnswersText(["", ""]);
           setPromptClosedSubtopicsText(["", ""]);
           setPromptSubQuestionsText(["", ""]);
-          setPromptVocabluaryText(["", ""]);
+          setPromptStoriesText(["", ""]);
           setPromptSubtopicsTextOwn(true);
           setPromptQuestionTextOwn(true);
           setPromptSolutionTextOwn(true);
           setPromptAnswersTextOwn(true);
           setPromptClosedSubtopicsTextOwn(true);
           setPromptSubQuestionsTextOwn(true);
-          setPromptVocabluaryTextOwn(true);
+          setPromptStoriesTextOwn(true);
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
@@ -166,14 +166,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptAnswersText(["", ""]);
         setPromptClosedSubtopicsText(["", ""]);
         setPromptSubQuestionsText(["", ""]);
-        setPromptVocabluaryText(["", ""]);
+        setPromptStoriesText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
-        setPromptVocabluaryTextOwn(true);
+        setPromptStoriesTextOwn(true);
         handleApiError(error);
       } finally {
         setTimeout(() => {
@@ -353,17 +353,17 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setPromptSubQuestionsTextareaExpanded(prev => !prev);
   }
 
-  function toggleVocabluaryPromptTextareaSize() {
-    if (promptVocabluaryTextareaRef.current) {
-      if (!promptVocabluaryTextareaExpanded) {
-        const rows = calculateRows(promptVocabluaryTextareaRef.current);
-        setPromptVocabluaryTextareaRows(rows);
+  function toggleStoriesPromptTextareaSize() {
+    if (promptStoriesTextareaRef.current) {
+      if (!promptStoriesTextareaExpanded) {
+        const rows = calculateRows(promptStoriesTextareaRef.current);
+        setPromptStoriesTextareaRows(rows);
       } else {
-        setPromptVocabluaryTextareaRows(5);
+        setPromptStoriesTextareaRows(5);
       }
     }
 
-    setPromptVocabluaryTextareaExpanded(prev => !prev);
+    setPromptStoriesTextareaExpanded(prev => !prev);
   }
 
   function handleOpenMessageSaveSubjectData() {
@@ -420,7 +420,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         let sectionFailed = false;
 
         for (const topic of sectionData.topics) {
-          showSpinner(true, `Generacja podtematów dla przedmiotu ${subjectName}, rozdziału ${sectionData.name}, tematu ${topic.name}`);
+          showSpinner(true, `Generacja podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
 
           const topicId = topic.id;
           let changed = "true";
@@ -445,7 +445,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
               errors = subtopicsResponse.data.errors;
               attempt = subtopicsResponse.data.attempt;
             } else {
-              showAlert(400, `Nie udało się wygenerować podtematów dla przedmiotu ${subjectName}, rozdziału ${sectionData.name}, tematu ${topic.name}`);
+              showAlert(400, `Nie udało się wygenerować podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
               sectionFailed = true;
               break;
             }
@@ -462,7 +462,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                 typeof s[1] !== "number"
             )
           ) {
-            showAlert(400, `Nie udało się poprawnie wygenerować podtematów dla przedmiotu ${subjectName}, rozdziału ${sectionData.name}, tematu ${topic.name}`);
+            showAlert(400, `Nie udało się poprawnie wygenerować podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
             sectionFailed = true;
             break;
           }
@@ -552,7 +552,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     subQuestionsPrompt: promptSubQuestionsText,
-    vocabluaryPrompt: promptVocabluaryText
+    vocabluaryPrompt: promptStoriesText
   }) {
     try {
       const processedData = {
@@ -775,31 +775,31 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                 />
               </div>) : null}
               {typeSubjectText[0] == "Language" ? (<div className="options-container">
-                {promptVocabluaryTextareaExpanded ?
+                {promptStoriesTextareaExpanded ?
                   <ChevronUp
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleVocabluaryPromptTextareaSize}
+                    onClick={toggleStoriesPromptTextareaSize}
                   /> :
                   <ChevronDown
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleVocabluaryPromptTextareaSize}
+                    onClick={toggleStoriesPromptTextareaSize}
                   />
                 }
-                <label htmlFor="promptVocabluary" className="label">Słownictwo:</label>
+                <label htmlFor="promptStories" className="label">Słownictwo:</label>
                 <textarea
-                  id="promptVocabluary"
-                  rows={promptVocabluaryTextareaRows}
-                  ref={promptVocabluaryTextareaRef}
+                  id="promptStories"
+                  rows={promptStoriesTextareaRows}
+                  ref={promptStoriesTextareaRef}
                   name="text-container"
-                  value={promptVocabluaryText[0]}
+                  value={promptStoriesText[0]}
                   onInput={(e) => {
-                    setPromptVocabluaryText([(e.target as HTMLTextAreaElement).value, promptVocabluaryText[1]])
+                    setPromptStoriesText([(e.target as HTMLTextAreaElement).value, promptStoriesText[1]])
                   }}
-                  className={`text-container ${promptVocabluaryTextOwn ? "own" : ""} ${(promptVocabluaryText[0] !== promptVocabluaryText[1]) ? ' changed' : ''}`}
+                  className={`text-container ${promptStoriesTextOwn ? "own" : ""} ${(promptStoriesText[0] !== promptStoriesText[1]) ? ' changed' : ''}`}
                   spellCheck={true}
                   placeholder="Proszę napisać prompt słownictwa..."
                 />
@@ -884,17 +884,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   placeholder="Proszę napisać prompt dla podtematów..."
                 />
               </div>
-              {typeSubjectText[0] != "Language" ?  (
-                <div style={{ marginTop: "4px" }}>
-                  <button
-                    className="button"
-                    style={{ padding: "10px 54px" }}
-                    onClick={handleOpenMessageSubtopicsGenerate}
-                  >
-                    Generuj Podtematy
-                  </button>
-                </div>
-              ) : null}
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageSubtopicsGenerate}
+                >
+                  Generuj Podtematy
+                </button>
+              </div>
             </>
           )}
         </div>

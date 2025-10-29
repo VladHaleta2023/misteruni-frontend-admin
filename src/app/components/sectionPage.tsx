@@ -30,7 +30,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   const [promptAnswersText, setPromptAnswersText] = useState(["", ""]);
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptSubQuestionsText, setPromptSubQuestionsText] = useState(["", ""]);
-  const [promptVocabluaryText, setPromptVocabluaryText] = useState(["", ""]);
+  const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
   const [subjectName, setSubjectName] = useState("");
   const [sectionName, setSectionName] = useState("");
   const [msgSectionDataVisible, setMsgSectionDataVisible] = useState(false);
@@ -47,7 +47,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptSubQuestionsTextOwn, setPromptSubQuestionsTextOwn] = useState(true);
-  const [promptVocabluaryTextOwn, setPromptVocabluaryTextOwn] = useState(true);
+  const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
 
   const promptQuestionTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptQuestionTextareaExpanded, setPromptQuestionTextareaExpanded] = useState(false);
@@ -69,9 +69,9 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   const [promptSubQuestionsTextareaExpanded, setPromptSubQuestionsTextareaExpanded] = useState(false);
   const [promptSubQuestionsTextareaRows, setPromptSubQuestionsTextareaRows] = useState(5);
 
-  const promptVocabluaryTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptVocabluaryTextareaExpanded, setPromptVocabluaryTextareaExpanded] = useState(false);
-  const [promptVocabluaryTextareaRows, setPromptVocabluaryTextareaRows] = useState(5);
+  const promptStoriesTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptStoriesTextareaExpanded, setPromptStoriesTextareaExpanded] = useState(false);
+  const [promptStoriesTextareaRows, setPromptStoriesTextareaRows] = useState(5);
 
   useEffect(() => {
     async function fetchSectionPromptById() {
@@ -85,14 +85,14 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         setPromptSubtopicsText(["", ""]);
         setTypeSectionText(["", ""]);
         setPromptSubQuestionsText(["", ""]);
-        setPromptVocabluaryText(["", ""]);
+        setPromptStoriesText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
-        setPromptVocabluaryTextOwn(true);
+        setPromptStoriesTextOwn(true);
         resetSpinner();
         return;
       }
@@ -111,14 +111,14 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           setPromptAnswersText([response.data.section.answersPrompt, response.data.section.answersPrompt]);
           setPromptClosedSubtopicsText([response.data.section.closedSubtopicsPrompt, response.data.section.closedSubtopicsPrompt]);
           setPromptSubQuestionsText([response.data.section.subQuestionsPrompt, response.data.section.subQuestionsPrompt]);
-          setPromptVocabluaryText([response.data.section.vocabluaryPrompt, response.data.section.vocabluaryPrompt]);
+          setPromptStoriesText([response.data.section.vocabluaryPrompt, response.data.section.vocabluaryPrompt]);
           setPromptSubtopicsTextOwn(response.data.section.subtopicsPromptOwn);
           setPromptQuestionTextOwn(response.data.section.questionPromptOwn);
           setPromptSolutionTextOwn(response.data.section.solutionPromptOwn);
           setPromptAnswersTextOwn(response.data.section.answersPromptOwn);
           setPromptClosedSubtopicsTextOwn(response.data.section.closedSubtopicsPromptOwn);
           setPromptSubQuestionsTextOwn(response.data.section.subQuestionsPromptOwn);
-          setPromptVocabluaryTextOwn(response.data.section.vocabluaryPromptOwn);
+          setPromptStoriesTextOwn(response.data.section.vocabluaryPromptOwn);
         } else {
           setSectionName("");
           setTypeSectionText(["", ""]);
@@ -129,14 +129,14 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           setPromptAnswersText(["", ""]);
           setPromptClosedSubtopicsText(["", ""]);
           setPromptSubQuestionsText(["", ""]);
-          setPromptVocabluaryText(["", ""]);
+          setPromptStoriesText(["", ""]);
           setPromptSubtopicsTextOwn(true);
           setPromptQuestionTextOwn(true);
           setPromptSolutionTextOwn(true);
           setPromptAnswersTextOwn(true);
           setPromptClosedSubtopicsTextOwn(true);
           setPromptSubQuestionsTextOwn(true);
-          setPromptVocabluaryTextOwn(true);
+          setPromptStoriesTextOwn(true);
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
@@ -149,14 +149,14 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         setPromptAnswersText(["", ""]);
         setPromptClosedSubtopicsText(["", ""]);
         setPromptSubQuestionsText(["", ""]);
-        setPromptVocabluaryText(["", ""]);
+        setPromptStoriesText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
         setPromptAnswersTextOwn(true);
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
-        setPromptVocabluaryTextOwn(true);
+        setPromptStoriesTextOwn(true);
         handleApiError(error);
       } finally {
         setTimeout(() => {
@@ -290,17 +290,17 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     setPromptSubQuestionsTextareaExpanded(prev => !prev);
   }
 
-  function toggleVocabluaryPromptTextareaSize() {
-    if (promptVocabluaryTextareaRef.current) {
-      if (!promptVocabluaryTextareaExpanded) {
-        const rows = calculateRows(promptVocabluaryTextareaRef.current);
-        setPromptVocabluaryTextareaRows(rows);
+  function toggleStoriesPromptTextareaSize() {
+    if (promptStoriesTextareaRef.current) {
+      if (!promptStoriesTextareaExpanded) {
+        const rows = calculateRows(promptStoriesTextareaRef.current);
+        setPromptStoriesTextareaRows(rows);
       } else {
-        setPromptVocabluaryTextareaRows(5);
+        setPromptStoriesTextareaRows(5);
       }
     }
 
-    setPromptVocabluaryTextareaExpanded(prev => !prev);
+    setPromptStoriesTextareaExpanded(prev => !prev);
   }
 
   function handleOpenMessageSaveSectionData() {
@@ -345,7 +345,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
 
       for (let i = 0; i < topicsResponse.data.topics.length; i++) {
         const topicId: number = topicsResponse.data.topics[i].id;
-        showSpinner(true, `Trwa generacja podtematów przedmiotu ${subjectName}, rozdziału ${topicsResponse.data.section.name}, tematu ${topicsResponse.data.topics[i].name}...`);
+        showSpinner(true, `Trwa generacja podtematów dla \nPrzedmiot: ${subjectName}\nRozdział: ${topicsResponse.data.section.name}\nTemat: ${topicsResponse.data.topics[i].name}`);
         
         let changed: string = "true";
         let attempt: number = 0;
@@ -371,7 +371,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
             console.log(`Temat ${topicsResponse.data.topics[i].name}: Próba ${attempt}`);
           }
           else {
-            showAlert(400, `Nie udało się zgenerować podtamaty przedmiotu ${subjectName}, rozdziału ${topicsResponse.data.section.name}, tematu ${topicsResponse.data.topics[i].name}`);
+            showAlert(400, `Nie udało się zgenerować podtamaty\nPrzedmiot: ${subjectName}\nRozdział: ${topicsResponse.data.section.name}\nTemat: ${topicsResponse.data.topics[i].name}`);
             break;
           }
         }
@@ -426,7 +426,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     subQuestionsPrompt: promptSubQuestionsText,
-    vocabluaryPrompt: promptVocabluaryText
+    vocabluaryPrompt: promptStoriesText
   }) {
     try {
       const processedData = {
@@ -450,7 +450,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     <>
       <main>
         <Message 
-          message={`Czy na pewno chcesz zapisać dane dla przedmiotu ${subjectName}, rozdziału ${sectionName}?`}
+          message={`Czy na pewno chcesz zapisać dane dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}?`}
           textConfirm="Tak"
           textCancel="Nie"
           onConfirm={handleSaveSectionData}
@@ -459,7 +459,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         />
 
         <Message 
-          message={`Czy na pewno chcesz ponownie wygenerować podtematy dla przedmiotu ${subjectName}, rozdziału ${sectionName}?`}
+          message={`Czy na pewno chcesz ponownie wygenerować podtematy dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}?`}
           textConfirm="Tak"
           textCancel="Nie"
           onConfirm={handleSubtopicsGenerate}
@@ -511,7 +511,6 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   name="text-container"
                   value={promptQuestionText[0]}
                   onInput={(e) => {
-                    console.log(promptQuestionTextOwn);
                     setPromptQuestionText([(e.target as HTMLTextAreaElement).value, promptQuestionText[1]])
                   }}
                   className={`text-container ${promptQuestionTextOwn ? "own" : ""} ${(promptQuestionText[0] !== promptQuestionText[1]) ? ' changed' : ''}`}
@@ -519,7 +518,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   placeholder="Proszę napisać prompt tekst zadania..."
                 />
               </div>
-              {typeSectionText[0] != "InteractiveQuestion" ? (<div className="options-container">
+              {typeSectionText[0] != "Stories" ? (<div className="options-container">
                 {promptSolutionTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -579,7 +578,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   placeholder="Proszę napisać prompt warianty odpowiedzi..."
                 />
               </div>
-              {typeSectionText[0] != "InteractiveQuestion" ? (<div className="options-container">
+              {typeSectionText[0] != "Stories" ? (<div className="options-container">
                 {promptClosedSubtopicsTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -609,7 +608,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   placeholder="Proszę napisać prompt zamykania podtematów..."
                 />
               </div>) : null}
-              {typeSectionText[0] == "InteractiveQuestion" ? (<div className="options-container">
+              {typeSectionText[0] == "Stories" ? (<div className="options-container">
                 {promptSubQuestionsTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -639,32 +638,32 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   placeholder="Proszę napisać prompt pytań etapowych..."
                 />
               </div>) : null}
-              {typeSectionText[0] == "InteractiveQuestion" ? (<div className="options-container">
-                {promptVocabluaryTextareaExpanded ?
+              {typeSectionText[0] == "Stories" ? (<div className="options-container">
+                {promptStoriesTextareaExpanded ?
                   <ChevronUp
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleVocabluaryPromptTextareaSize}
+                    onClick={toggleStoriesPromptTextareaSize}
                   /> :
                   <ChevronDown
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleVocabluaryPromptTextareaSize}
+                    onClick={toggleStoriesPromptTextareaSize}
                   />
                 }
-                <label htmlFor="promptVocabluary" className="label">Słownictwo:</label>
+                <label htmlFor="promptStories" className="label">Słownictwo:</label>
                 <textarea
-                  id="promptVocabluary"
-                  rows={promptVocabluaryTextareaRows}
-                  ref={promptVocabluaryTextareaRef}
+                  id="promptStories"
+                  rows={promptStoriesTextareaRows}
+                  ref={promptStoriesTextareaRef}
                   name="text-container"
-                  value={promptVocabluaryText[0]}
+                  value={promptStoriesText[0]}
                   onInput={(e) => {
-                    setPromptVocabluaryText([(e.target as HTMLTextAreaElement).value, promptVocabluaryText[1]])
+                    setPromptStoriesText([(e.target as HTMLTextAreaElement).value, promptStoriesText[1]])
                   }}
-                  className={`text-container ${promptVocabluaryTextOwn ? "own" : ""} ${(promptVocabluaryText[0] !== promptVocabluaryText[1]) ? ' changed' : ''}`}
+                  className={`text-container ${promptStoriesTextOwn ? "own" : ""} ${(promptStoriesText[0] !== promptStoriesText[1]) ? ' changed' : ''}`}
                   spellCheck={true}
                   placeholder="Proszę napisać prompt słownictwa..."
                 />
@@ -679,7 +678,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                 </button>
               </div>
               <br />
-              {typeSectionText[0] != "InteractiveQuestion" ? (<>
+              {typeSectionText[0] != "Stories" ? (<>
               <div className="options-container">
                 {promptSubtopicsTextareaExpanded ?
                   <ChevronUp
