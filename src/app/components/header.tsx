@@ -13,7 +13,7 @@ export default function Header({ onUpdate }: HeaderProps) {
   return (
     <header className="header">
       <Dropdown onUpdate={onUpdate} />
-      <span style={{ fontSize: "24px" }}>MisterUniAdmin</span>
+      <span className="misterUniLogo">MisterUniAdmin</span>
     </header>
   );
 }

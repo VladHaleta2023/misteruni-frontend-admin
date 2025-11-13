@@ -16,12 +16,12 @@
   cursor: pointer !important;
   user-select: none;
   display: none;
-  margin-right: 24px;
+  margin-right: 16px;
 }
 
 .menuLine {
-  width: 35px;
-  height: 3px;
+  width: 28px;
+  height: 2px;
   margin: 5px 0;
   background-color: white;
 }
@@ -108,7 +108,7 @@
     opacity: 0;
     transform: translateX(-20px);
     pointer-events: none;
-    top: 46px;
+    top: 45px;
     width: 80vw;
   }
 

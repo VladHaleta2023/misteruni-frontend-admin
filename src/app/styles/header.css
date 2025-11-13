@@ -12,3 +12,7 @@
   width: 100%;
   height: var(--header-height);
 }
+
+.misterUniLogo {
+  font-size: 22px;
+}

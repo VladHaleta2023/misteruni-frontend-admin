@@ -19,13 +19,6 @@ type TopicPageProps = {
   topicId: number;
 };
 
-type Subtopic = {
-  topicId: number;
-  subjectId: number;
-  sectionId: number;
-  subtopics: [string, number][];
-};
-
 export default function TopicPage({ subjectId, sectionId, topicId }: TopicPageProps) {
   const router = useRouter();
   const [spinnerVisible, setSpinnerVisible] = useState(false);
@@ -38,60 +31,24 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [subjectName, setSubjectName] = useState("");
   const [subjectType, setSubjectType] = useState("");
   const [sectionName, setSectionName] = useState("");
-  const [topicName, setTopicName] = useState("");
   const [sectionType, setSectionType] = useState("");
+  const [topicName, setTopicName] = useState("");
 
-  const [msgSubtopicsPromptVisible, setMsgSubtopicsPromptVisible] = useState(false);
-
-  const [promptQuestionText, setPromptQuestionText] = useState(["", ""]);
-  const [promptSolutionText, setPromptSolutionText] = useState(["", ""]);
-  const [promptAnswersText, setPromptAnswersText] = useState(["", ""]);
-  const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
-  const [promptSubtopicsText, setPromptSubtopicsText] = useState(["", ""]);
-  const [promptSubQuestionsText, setPromptSubQuestionsText] = useState(["", ""]);
-  const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
-
-  const [promptSubtopicsTextOwn, setPromptSubtopicsTextOwn] = useState(true);
-  const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
-  const [promptSolutionTextOwn, setPromptSolutionTextOwn] = useState(true);
-  const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
-  const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
-  const [promptSubQuestionsTextOwn, setPromptSubQuestionsTextOwn] = useState(true);
-  const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
-
-  const promptSubtopicsTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptSubtopicsTextareaExpanded, setPromptSubtopicsTextareaExpanded] = useState(false);
-  const [promptSubtopicsTextareaRows, setPromptSubtopicsTextareaRows] = useState(5);
-
-  const promptQuestionTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptQuestionTextareaExpanded, setPromptQuestionTextareaExpanded] = useState(false);
-  const [promptQuestionTextareaRows, setPromptQuestionTextareaRows] = useState(5);
-
-  const promptSolutionTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptSolutionTextareaExpanded, setPromptSolutionTextareaExpanded] = useState(false);
-  const [promptSolutionTextareaRows, setPromptSolutionTextareaRows] = useState(5);
-
-  const promptAnswersTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptAnswersTextareaExpanded, setPromptAnswersTextareaExpanded] = useState(false);
-  const [promptAnswersTextareaRows, setPromptAnswersTextareaRows] = useState(5);
-
-  const promptClosedSubtopicsTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptClosedSubtopicsTextareaExpanded, setPromptClosedSubtopicsTextareaExpanded] = useState(false);
-  const [promptClosedSubtopicsTextareaRows, setPromptClosedSubtopicsTextareaRows] = useState(5);
-  
-  const promptSubQuestionsTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptSubQuestionsTextareaExpanded, setPromptSubQuestionsTextareaExpanded] = useState(false);
-  const [promptSubQuestionsTextareaRows, setPromptSubQuestionsTextareaRows] = useState(5);
-
-  const promptStoriesTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptStoriesTextareaExpanded, setPromptStoriesTextareaExpanded] = useState(false);
-  const [promptStoriesTextareaRows, setPromptStoriesTextareaRows] = useState(5);
+  const [frequencyText, setFrequencyText] = useState([0, 0]);
 
   const promptLiteratureTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptLiteratureTextareaExpanded, setLiteratureTextareaExpanded] = useState(false);
   const [promptLiteratureTextareaRows, setLiteratureTextareaRows] = useState(5);
 
+  const [promptNoteExpanded, setPromptNoteExpanded] = useState(false);
+  const [noteHeight, setNoteHeight] = useState(100);
+  const noteRef = useRef<HTMLDivElement>(null);
+
   const [literatureText, setLiteratureText] = useState(["", ""]);
+  const [note, setNote] = useState("");
+
+  const [msgSubtopicsPromptVisible, setMsgSubtopicsPromptVisible] = useState(false);
+  const [msgTopicExpansionPromptVisible, setMsgTopicExpansionPromptVisible] = useState(false);
 
   useEffect(() => {
     setSubtopicId(-1);
@@ -100,24 +57,12 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       if (subjectId === -1 || sectionId === -1 || topicId === -1) {
         setSubjectName("");
         setSectionName("");
+        setSectionType("");
         setTopicName("");
         setSubjectType("");
-        setPromptQuestionText(["", ""]);
-        setPromptSolutionText(["", ""]);
-        setPromptAnswersText(["", ""]);
-        setPromptClosedSubtopicsText(["", ""]);
-        setPromptSubtopicsText(["", ""]);
-        setPromptSubQuestionsText(["", ""]);
-        setPromptStoriesText(["", ""]);
-        setSectionType("");
+        setFrequencyText([0, 0]);
         setLiteratureText(["", ""]);
-        setPromptSubtopicsTextOwn(true);
-        setPromptQuestionTextOwn(true);
-        setPromptSolutionTextOwn(true);
-        setPromptAnswersTextOwn(true);
-        setPromptClosedSubtopicsTextOwn(true);
-        setPromptSubQuestionsTextOwn(true);
-        setPromptStoriesTextOwn(true);
+        setNote("");
         resetSpinner();
         return;
       }
@@ -146,24 +91,12 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       if (subjectId === -1 || sectionId === -1 || topicId === -1) {
         setSubjectName("");
         setSectionName("");
+        setSectionType("");
         setTopicName("");
         setSubjectType("");
-        setPromptQuestionText(["", ""]);
-        setPromptSolutionText(["", ""]);
-        setPromptAnswersText(["", ""]);
-        setPromptClosedSubtopicsText(["", ""]);
-        setPromptSubtopicsText(["", ""]);
-        setPromptSubQuestionsText(["", ""]);
-        setPromptStoriesText(["", ""]);
-        setSectionType("");
+        setFrequencyText([0, 0]);
         setLiteratureText(["", ""]);
-        setPromptSubtopicsTextOwn(true);
-        setPromptQuestionTextOwn(true);
-        setPromptSolutionTextOwn(true);
-        setPromptAnswersTextOwn(true);
-        setPromptClosedSubtopicsTextOwn(true);
-        setPromptSubQuestionsTextOwn(true);
-        setPromptStoriesTextOwn(true);
+        setNote("");
         resetSpinner();
         return;
       }
@@ -176,45 +109,21 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         if (response.data?.statusCode === 200) {
           setSubjectName(response.data.subject.name);
           setSectionName(response.data.section.name);
+          setSectionType(response.data.section.type);
           setTopicName(response.data.topic.name);
           setSubjectType(response.data.subject.type);
-          setPromptQuestionText([response.data.topic.questionPrompt, response.data.topic.questionPrompt]);
-          setPromptSolutionText([response.data.topic.solutionPrompt, response.data.topic.solutionPrompt]);
-          setPromptAnswersText([response.data.topic.answersPrompt, response.data.topic.answersPrompt]);
-          setPromptClosedSubtopicsText([response.data.topic.closedSubtopicsPrompt, response.data.topic.closedSubtopicsPrompt]);
-          setPromptSubtopicsText([response.data.topic.subtopicsPrompt, response.data.topic.subtopicsPrompt]);
-          setPromptSubQuestionsText([response.data.topic.subQuestionsPrompt, response.data.topic.subQuestionsPrompt]);
-          setPromptStoriesText([response.data.topic.vocabluaryPrompt, response.data.topic.vocabluaryPrompt]);
           setLiteratureText([response.data.topic.literature, response.data.topic.literature]);
-          setSectionType(response.data.section.type);
-          setPromptSubtopicsTextOwn(response.data.topic.subtopicsPromptOwn);
-          setPromptQuestionTextOwn(response.data.topic.questionPromptOwn);
-          setPromptSolutionTextOwn(response.data.topic.solutionPromptOwn);
-          setPromptAnswersTextOwn(response.data.topic.answersPromptOwn);
-          setPromptClosedSubtopicsTextOwn(response.data.topic.closedSubtopicsPromptOwn);
-          setPromptSubQuestionsTextOwn(response.data.topic.subQuestionsPromptOwn);
-          setPromptStoriesTextOwn(response.data.topic.vocabluaryPromptOwn);
+          setNote(response.data.topic.note);
+          setFrequencyText([response.data.topic.frequency, response.data.topic.frequency]);
       } else {
           setSectionName("");
           setSubjectName("");
+          setSectionType("");
           setTopicName("");
           setSubjectType("");
-          setPromptQuestionText(["", ""]);
-          setPromptSolutionText(["", ""]);
-          setPromptAnswersText(["", ""]);
-          setPromptClosedSubtopicsText(["", ""]);
-          setPromptSubtopicsText(["", ""]);
-          setPromptSubQuestionsText(["", ""]);
-          setPromptStoriesText(["", ""]);
+          setFrequencyText([0, 0]);
           setLiteratureText(["", ""]);
-          setSectionType("");
-          setPromptSubtopicsTextOwn(true);
-          setPromptQuestionTextOwn(true);
-          setPromptSolutionTextOwn(true);
-          setPromptAnswersTextOwn(true);
-          setPromptClosedSubtopicsTextOwn(true);
-          setPromptSubQuestionsTextOwn(true);
-          setPromptStoriesTextOwn(true);
+          setNote("");
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
@@ -252,6 +161,14 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     } else {
       showAlert(500, "Unknown error");
     }
+  }
+
+  function handleSubtopicsPromptMsgCancel() {
+    setMsgSubtopicsPromptVisible(false);
+  }
+
+  function handleTopicExpansionPromptMsgCancel() {
+    setMsgTopicExpansionPromptVisible(false);
   }
 
   function handleAddSubtopic() {
@@ -315,97 +232,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     return rows;
   }
 
-  function toggleQuestionPromptTextareaSize() {
-    if (promptQuestionTextareaRef.current) {
-      if (!promptQuestionTextareaExpanded) {
-        const rows = calculateRows(promptQuestionTextareaRef.current);
-        setPromptQuestionTextareaRows(rows);
-      } else {
-        setPromptQuestionTextareaRows(5);
-      }
-    }
-
-    setPromptQuestionTextareaExpanded(prev => !prev);
-  }
-
-  function toggleSolutionPromptTextareaSize() {
-    if (promptSolutionTextareaRef.current) {
-      if (!promptSolutionTextareaExpanded) {
-        const rows = calculateRows(promptSolutionTextareaRef.current);
-        setPromptSolutionTextareaRows(rows);
-      } else {
-        setPromptSolutionTextareaRows(5);
-      }
-    }
-
-    setPromptSolutionTextareaExpanded(prev => !prev);
-  }
-
-  function toggleAnswersPromptTextareaSize() {
-    if (promptAnswersTextareaRef.current) {
-      if (!promptAnswersTextareaExpanded) {
-        const rows = calculateRows(promptAnswersTextareaRef.current);
-        setPromptAnswersTextareaRows(rows);
-      } else {
-        setPromptAnswersTextareaRows(5);
-      }
-    }
-
-    setPromptAnswersTextareaExpanded(prev => !prev);
-  }
-
-  function toggleClosedSubtopicsPromptTextareaSize() {
-    if (promptClosedSubtopicsTextareaRef.current) {
-      if (!promptClosedSubtopicsTextareaExpanded) {
-        const rows = calculateRows(promptClosedSubtopicsTextareaRef.current);
-        setPromptClosedSubtopicsTextareaRows(rows);
-      } else {
-        setPromptClosedSubtopicsTextareaRows(5);
-      }
-    }
-
-    setPromptClosedSubtopicsTextareaExpanded(prev => !prev);
-  }
-
-  function toggleSubtopicsPromptTextareaSize() {
-    if (promptSubtopicsTextareaRef.current) {
-      if (!promptSubtopicsTextareaExpanded) {
-        const rows = calculateRows(promptSubtopicsTextareaRef.current);
-        setPromptSubtopicsTextareaRows(rows);
-      } else {
-        setPromptSubtopicsTextareaRows(5);
-      }
-    }
-
-    setPromptSubtopicsTextareaExpanded(prev => !prev);
-  }
-
-  function toggleSubQuestionsPromptTextareaSize() {
-    if (promptSubQuestionsTextareaRef.current) {
-      if (!promptSubQuestionsTextareaExpanded) {
-        const rows = calculateRows(promptSubQuestionsTextareaRef.current);
-        setPromptSubQuestionsTextareaRows(rows);
-      } else {
-        setPromptSubQuestionsTextareaRows(5);
-      }
-    }
-
-    setPromptSubQuestionsTextareaExpanded(prev => !prev);
-  }
-
-  function toggleStoriesPromptTextareaSize() {
-    if (promptStoriesTextareaRef.current) {
-      if (!promptStoriesTextareaExpanded) {
-        const rows = calculateRows(promptStoriesTextareaRef.current);
-        setPromptStoriesTextareaRows(rows);
-      } else {
-        setPromptStoriesTextareaRows(5);
-      }
-    }
-
-    setPromptStoriesTextareaExpanded(prev => !prev);
-  }
-
   function toggleLiteratureTextareaSize() {
     if (promptLiteratureTextareaRef.current) {
       if (!promptLiteratureTextareaExpanded) {
@@ -417,6 +243,25 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     }
 
     setLiteratureTextareaExpanded(prev => !prev);
+  }
+
+  function toggleNoteTextareaSize() {
+    if (noteRef.current) {
+      if (!promptNoteExpanded) {
+        setNoteHeight(noteRef.current.scrollHeight);
+      } else {
+        setNoteHeight(100);
+      }
+    }
+    setPromptNoteExpanded(prev => !prev);
+  }
+
+  function handleOpenMessageTopicExpansionGenerate() {
+    setMsgTopicExpansionPromptVisible(true);
+  }
+
+  function handleOpenMessageSubtopicsGenerate() {
+    setMsgSubtopicsPromptVisible(true);
   }
 
   async function handleSaveTopicData() {
@@ -441,10 +286,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     }
   }
 
-  function handleSubtopicsPromptMsgCancel() {
-    setMsgSubtopicsPromptVisible(false);
-  }
-
   async function handleSubtopicsGenerate() {
     setMsgSubtopicsPromptVisible(false);
 
@@ -453,71 +294,63 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     try {
       const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
 
-      const allSubtopics: Subtopic[] = [];
+      showSpinner(true, `Trwa generacja podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+      
+      let changed: string = "true";
+      let attempt: number = 0;
+      let subtopics: [string, number][] = [];
+      let errors: string[] = [];
+      const prompt: string = topicsResponse.data.topic.subtopicsPrompt;
+      const MAX_ATTEMPTS = 2;
 
-      const topics = [];
-      topics.push(topicsResponse.data.topic);
+      while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+        const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
+          changed,
+          subtopics,
+          errors,
+          attempt,
+          prompt
+        });
 
-      for (let i = 0; i < topics.length; i++) {
-        showSpinner(true, `Trwa generacja podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
-        
-        let changed: string = "true";
-        let attempt: number = 0;
-        let subtopics: [string, number][] = [];
-        let errors: string[] = [];
-        const prompt: string = topics[i].subtopicsPrompt;
-        const MAX_ATTEMPTS = 2;
-
-        while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-          const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
-            changed,
-            subtopics,
-            errors,
-            attempt,
-            prompt
-          });
-
-          if (subtopicsResponse.data?.statusCode === 201) {
-            changed = subtopicsResponse.data.changed;
-            subtopics = subtopicsResponse.data.subtopics;
-            errors = subtopicsResponse.data.errors;
-            attempt = subtopicsResponse.data.attempt;
-            console.log(`Temat ${topics[i].name}: Próba ${attempt}`);
-          }
-          else {
-            showAlert(400, `Nie udało się zgenerować podtamaty\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
-            break;
-          }
+        if (subtopicsResponse.data?.statusCode === 201) {
+          changed = subtopicsResponse.data.changed;
+          subtopics = subtopicsResponse.data.subtopics;
+          errors = subtopicsResponse.data.errors;
+          attempt = subtopicsResponse.data.attempt;
+          console.log(`Temat ${topicsResponse.data.topic.name}: Próba ${attempt}`);
         }
-
-        if (
-          subtopics.length === 0 ||
-          subtopics.some(s => 
-            !Array.isArray(s) || 
-            s.length !== 2 || 
-            typeof s[0] !== 'string' || 
-            s[0].trim() === '' || 
-            typeof s[1] !== 'number'
-          )
-        ) {
-          showAlert(
-            400, 
-            `Nie udało się poprawnie wygenerować podtematów dla tematu ${topicsResponse.data.topics[i].name}`
-          );
-          continue;
+        else {
+          showAlert(400, `Nie udało się zgenerować podtamaty\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+          break;
         }
-
-        allSubtopics.push({
-          subjectId: subjectId,
-          sectionId: sectionId,
-          topicId: topicId,
-          subtopics: subtopics
-        })
       }
 
-      await api.post(`/options/subtopics`, {
-        subtopics: allSubtopics
-      });
+      if (
+        subtopics.length === 0 ||
+        subtopics.some(s => 
+          !Array.isArray(s) || 
+          s.length !== 2 || 
+          typeof s[0] !== 'string' || 
+          s[0].trim() === '' || 
+          typeof s[1] !== 'number'
+        )
+      ) {
+        showAlert(
+          400, 
+          `Nie udało się poprawnie wygenerować podtematów dla tematu ${topicsResponse.data.topic.name}`
+        );
+      }
+
+      await api.delete(
+        `subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics`
+      );
+
+      await api.post(
+        `subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/bulk`,
+        { subtopics }
+      );
+
+      showAlert(200, `Podtematy zostały zapisane dla Rozdział: ${topicsResponse.data.section.name}\nTemat: ${topicsResponse.data.topic.name}`);
 
       setTimeout(() => {
         resetSpinner();
@@ -532,30 +365,73 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     }
   }
 
-  function handleOpenMessageSubtopicsGenerate() {
-    setMsgSubtopicsPromptVisible(true);
+  async function handleTopicExpansionGenerate() {
+    setMsgTopicExpansionPromptVisible(false);
+
+    await saveTopicData();
+
+    try {
+      const topicResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+      const topic = topicResponse.data.topic;
+
+      showSpinner(true, `Trwa generacja właściwości tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+
+      let changed: string = "true";
+      let attempt: number = 0;
+      let frequency: number = 0;
+      let note: string = "";
+      let errors: string[] = [];
+      const prompt: string = topic.topicExpansionPrompt;
+      const MAX_ATTEMPTS = 2;
+
+      while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+        const topicExpansionResponse = await api.post(
+          `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/topic-expansion-generate`,
+          { changed, frequency, note, errors, attempt, prompt }
+        );
+
+        if (topicExpansionResponse.data?.statusCode === 201) {
+          changed = topicExpansionResponse.data.changed;
+          frequency = topicExpansionResponse.data.frequency;
+          note = topicExpansionResponse.data.note;
+          errors = topicExpansionResponse.data.errors;
+          attempt = topicExpansionResponse.data.attempt;
+          console.log(`Temat ${topic.name}: Próba ${attempt}`);
+        } else {
+          showAlert(400, `Nie udało się zgenerować właściwości tematu\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+          break;
+        }
+      }
+
+      if (typeof frequency !== 'number' || typeof note !== 'string') {
+        showAlert(400, `Nie udało się poprawnie wygenerować właściwości tematu dla tematu ${topicName}`);
+        return;
+      }
+
+      await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, { note, frequency });
+
+      showAlert(200, `Właściwości tematu zostały zapisane dla tematu ${topicName}`);
+
+      setTimeout(() => {
+        resetSpinner();
+        window.location.reload();
+      }, 3000);
+    } catch (error: unknown) {
+      handleApiError(error);
+      setTimeout(() => {
+        resetSpinner();
+      }, 3000);
+    }
   }
 
   async function saveTopicData(data = {
-    questionPrompt: promptQuestionText,
-    solutionPrompt: promptSolutionText,
-    subtopicsPrompt: promptSubtopicsText,
-    answersPrompt: promptAnswersText,
-    closedSubtopicsPrompt: promptClosedSubtopicsText,
-    subQuestionsPrompt: promptSubQuestionsText,
-    vocabluaryPrompt: promptStoriesText,
-    literatureText: literatureText
+    literatureText: literatureText,
+    frequencyText: frequencyText
   }) {
     try {
       const processedData = {
-        subtopicsPrompt: (Array.isArray(data.subtopicsPrompt) && data.subtopicsPrompt[0] !== data.subtopicsPrompt[1]) ? data.subtopicsPrompt[0] : undefined,
-        questionPrompt: (Array.isArray(data.questionPrompt) && data.questionPrompt[0] !== data.questionPrompt[1]) ? data.questionPrompt[0] : undefined,
-        solutionPrompt: (Array.isArray(data.solutionPrompt) && data.solutionPrompt[0] !== data.solutionPrompt[1]) ? data.solutionPrompt[0] : undefined,
-        answersPrompt: (Array.isArray(data.answersPrompt) && data.answersPrompt[0] !== data.answersPrompt[1]) ? data.answersPrompt[0] : undefined,
-        closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
-        subQuestionsPrompt: (Array.isArray(data.subQuestionsPrompt) && data.subQuestionsPrompt[0] !== data.subQuestionsPrompt[1]) ? data.subQuestionsPrompt[0] : undefined,
-        vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
         literature: (Array.isArray(data.literatureText) && data.literatureText[0] !== data.literatureText[1]) ? data.literatureText[0] : undefined,
+        frequency: (Array.isArray(data.frequencyText) && data.frequencyText[0] !== data.frequencyText[1]) ? data.frequencyText[0] : undefined,
       };
 
       return await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, processedData);
@@ -577,22 +453,31 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         />
 
         <Message 
-          message={`Czy na pewno chcesz zapisać dane dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}?`}
+          message={`Czy na pewno chcesz ponownie wygenerować podtematy dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}?`}
+          textConfirm="Tak"
+          textCancel="Nie"
+          onConfirm={handleSubtopicsGenerate}
+          onClose={handleSubtopicsPromptMsgCancel}
+          visible={msgSubtopicsPromptVisible}
+        />
+
+        <Message 
+          message={`Czy na pewno chcesz ponownie wygenerować właściwości tematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}?`}
+          textConfirm="Tak"
+          textCancel="Nie"
+          onConfirm={handleTopicExpansionGenerate}
+          onClose={handleTopicExpansionPromptMsgCancel}
+          visible={msgTopicExpansionPromptVisible}
+        />
+
+        <Message 
+          message={`Czy na pewno chcesz zapisać dane dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}?`}
           textConfirm="Tak"
           textCancel="Nie"
           onConfirm={handleSaveTopicData}
           onClose={handleTopicSaveDataMsgCancel}
           visible={msgTopicDataVisible}
         />
-
-        <Message 
-            message={`Czy na pewno chcesz ponownie wygenerować podtematy dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}?`}
-            textConfirm="Tak"
-            textCancel="Nie"
-            onConfirm={handleSubtopicsGenerate}
-            onClose={handleSubtopicsPromptMsgCancel}
-            visible={msgSubtopicsPromptVisible}
-          />
 
         <div className={spinnerVisible ? "container-center" : ""}>
           {spinnerVisible ? (
@@ -601,6 +486,20 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
             </div>
           ) : (
             <>
+              <div className="options-container">
+                <label htmlFor="SectionType" className="label">Częstotliwość Tematu:</label>
+                <input
+                    id="SectionType"
+                    name="text-container"
+                    value={Number(frequencyText[0])}
+                    onInput={(e) => {
+                      setFrequencyText([Number((e.target as HTMLTextAreaElement).value) || 0, frequencyText[1]])
+                    }}
+                    className={`text-container own ${(frequencyText[0] !== frequencyText[1]) ? ' changed' : ''}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać częstotliwość tematu na egzaminie..."
+                />
+              </div>
               {subjectType == "Polski" ? (
               <div className="options-container">
                 {promptLiteratureTextareaExpanded ?
@@ -634,185 +533,33 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
               </div>
               ) : null}
               <div className="options-container">
-                {promptQuestionTextareaExpanded ?
+                {promptNoteExpanded ?
                   <ChevronUp
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleQuestionPromptTextareaSize}
+                    onClick={toggleNoteTextareaSize}
                   /> :
                   <ChevronDown
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleQuestionPromptTextareaSize}
+                    onClick={toggleNoteTextareaSize}
                   />
                 }
-                <label htmlFor="promptQuestion" className="label">Tekst Zadania:</label>
-                <textarea
-                  id="promptQuestion"
-                  rows={promptQuestionTextareaRows}
-                  ref={promptQuestionTextareaRef}
-                  name="text-container"
-                  value={promptQuestionText[0]}
-                  onInput={(e) => {
-                    setPromptQuestionText([(e.target as HTMLTextAreaElement).value, promptQuestionText[1]])
+                <label htmlFor="promptNote" className="label">Notatka:</label>
+                <div
+                  ref={noteRef}
+                  style={{
+                    height: `${noteHeight}px`,
+                    overflow: 'hidden',
+                    userSelect: 'text',
                   }}
-                  className={`text-container ${promptQuestionTextOwn ? "own" : ""} ${(promptQuestionText[0] !== promptQuestionText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt tekst zadania..."
-                />
+                  className={`text-container`}
+                >
+                  <FormatText content={note} />
+                </div>
               </div>
-              {sectionType != "Stories" ? (<div className="options-container">
-                {promptSolutionTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSolutionPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSolutionPromptTextareaSize}
-                  />
-                }
-                <label htmlFor="promptSolution" className="label">Rozwiązanie Zadania:</label>
-                <textarea
-                  id="promptSolution"
-                  rows={promptSolutionTextareaRows}
-                  ref={promptSolutionTextareaRef}
-                  name="text-container"
-                  value={promptSolutionText[0]}
-                  onInput={(e) => {
-                    setPromptSolutionText([(e.target as HTMLTextAreaElement).value, promptSolutionText[1]])
-                  }}
-                  className={`text-container ${promptSolutionTextOwn ? "own" : ""} ${(promptSolutionText[0] !== promptSolutionText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt rozwiązanie..."
-                />
-              </div>) : null}
-              <div className="options-container">
-                {promptAnswersTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleAnswersPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleAnswersPromptTextareaSize}
-                  />
-                }
-                <label htmlFor="promptAnswers" className="label">Warianty Zadania:</label>
-                <textarea
-                  id="promptAnswers"
-                  rows={promptAnswersTextareaRows}
-                  ref={promptAnswersTextareaRef}
-                  name="text-container"
-                  value={promptAnswersText[0]}
-                  onInput={(e) => {
-                    setPromptAnswersText([(e.target as HTMLTextAreaElement).value, promptAnswersText[1]])
-                  }}
-                  className={`text-container ${promptAnswersTextOwn ? "own" : ""} ${(promptAnswersText[0] !== promptAnswersText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt warianty odpowiedzi..."
-                />
-              </div>
-              {sectionType != "Stories" ? (<div className="options-container">
-                {promptClosedSubtopicsTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleClosedSubtopicsPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleClosedSubtopicsPromptTextareaSize}
-                  />
-                }
-                <label htmlFor="promptClosedSubtopics" className="label">Porcenty Podtematów:</label>
-                <textarea
-                  id="promptClosedSubtopics"
-                  rows={promptClosedSubtopicsTextareaRows}
-                  ref={promptClosedSubtopicsTextareaRef}
-                  name="text-container"
-                  value={promptClosedSubtopicsText[0]}
-                  onInput={(e) => {
-                    setPromptClosedSubtopicsText([(e.target as HTMLTextAreaElement).value, promptClosedSubtopicsText[1]])
-                  }}
-                  className={`text-container ${promptClosedSubtopicsTextOwn ? "own" : ""} ${(promptClosedSubtopicsText[0] !== promptClosedSubtopicsText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt zamykania podtematów..."
-                />
-              </div>) : null}
-              {sectionType == "Stories" ? (<div className="options-container">
-                {promptSubQuestionsTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSubQuestionsPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSubQuestionsPromptTextareaSize}
-                  />
-                }
-                <label htmlFor="promptSubQuestions" className="label">Pytania Etapowe:</label>
-                <textarea
-                  id="promptSubQuestions"
-                  rows={promptSubQuestionsTextareaRows}
-                  ref={promptSubQuestionsTextareaRef}
-                  name="text-container"
-                  value={promptSubQuestionsText[0]}
-                  onInput={(e) => {
-                    setPromptSubQuestionsText([(e.target as HTMLTextAreaElement).value, promptSubQuestionsText[1]])
-                  }}
-                  className={`text-container ${promptSubQuestionsTextOwn ? "own" : ""} ${(promptSubQuestionsText[0] !== promptSubQuestionsText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt pytań etapowych..."
-                />
-              </div>) : null}
-              {sectionType == "Stories" ? (<div className="options-container">
-                {promptStoriesTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleStoriesPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleStoriesPromptTextareaSize}
-                  />
-                }
-                <label htmlFor="promptStories" className="label">Słownictwo:</label>
-                <textarea
-                  id="promptStories"
-                  rows={promptStoriesTextareaRows}
-                  ref={promptStoriesTextareaRef}
-                  name="text-container"
-                  value={promptStoriesText[0]}
-                  onInput={(e) => {
-                    setPromptStoriesText([(e.target as HTMLTextAreaElement).value, promptStoriesText[1]])
-                  }}
-                  className={`text-container ${promptStoriesTextOwn ? "own" : ""} ${(promptStoriesText[0] !== promptStoriesText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt słownictwa..."
-                />
-              </div>) : null}
               <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"
@@ -823,47 +570,29 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 </button>
               </div>
               <br />
-              {sectionType != "Stories" ? (<>
-              <div className="options-container">
-                {promptSubtopicsTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSubtopicsPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSubtopicsPromptTextareaSize}
-                  />
-                }
-                <label htmlFor="subjectSubtopics" className="label">Podtematy:</label>
-                <textarea
-                  id="subjectSubtopics"
-                  rows={promptSubtopicsTextareaRows}
-                  ref={promptSubtopicsTextareaRef}
-                  name="text-container"
-                  value={promptSubtopicsText[0]}
-                  onInput={(e) => {
-                    setPromptSubtopicsText([(e.target as HTMLTextAreaElement).value, promptSubtopicsText[1]])
-                  }}
-                  className={`text-container ${promptSubtopicsTextOwn ? "own" : ""} ${(promptSubtopicsText[0] !== promptSubtopicsText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt dla podtematów..."
-                />
-              </div>
-              <div style={{ margin: "4px 0px" }}>
-                <button
-                  className="button"
-                  style={{ padding: "10px 54px" }}
-                  onClick={handleOpenMessageSubtopicsGenerate}
-                >
-                  Generuj Podtematy
-                </button>
-              </div>
-              <br />
+              {sectionType !== "Stories" ? (
+              <>
+                <div style={{ margin: "4px 0px" }}>
+                  <button
+                    className="button"
+                    style={{ padding: "10px 54px" }}
+                    onClick={handleOpenMessageSubtopicsGenerate}
+                  >
+                    Generuj Podtematy
+                  </button>
+                </div>
+                <br />
+                <div style={{ marginTop: "4px" }}>
+                  <button
+                    className="button"
+                    style={{ padding: "10px 54px" }}
+                    onClick={handleOpenMessageTopicExpansionGenerate}
+                  >
+                    Generuj Właściwości
+                  </button>
+                </div>
+                <br />
+              </>) : null}
               <div className="formTable">
               <div
                 className="element elementTitle"
@@ -900,7 +629,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                       </div>
                   ))}
               </div>
-            </>): null}
             </>
           )}
         </div>

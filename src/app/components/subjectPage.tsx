@@ -27,6 +27,7 @@ type Topic = {
   name: string;
   section: Section;
   subtopicsPrompt: string;
+  topicExpansionPrompt: string;
 };
 
 type Section = {
@@ -44,6 +45,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptSubQuestionsText, setPromptSubQuestionsText] = useState(["", ""]);
   const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
+  const [promptTopicExpansionText, setPromptTopicExpansionText] = useState(["", ""]);
 
   const [promptSubtopicsTextOwn, setPromptSubtopicsTextOwn] = useState(true);
   const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
@@ -52,13 +54,16 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptSubQuestionsTextOwn, setPromptSubQuestionsTextOwn] = useState(true);
   const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
+  const [promptTopicExpansionTextOwn, setPromptTopicExpansionTextOwn] = useState(true);
 
   const [subjectName, setSubjectName] = useState("");
   const [msgPlanVisible, setMsgPlanVisible] = useState(false);
   const [msgSubjectDataVisible, setMsgSubjectDataVisible] = useState(false);
   const [msgSubtopicsPromptVisible, setMsgSubtopicsPromptVisible] = useState(false);
+  const [msgTopicExpansionPromptVisible, setMsgTopicExpansionPromptVisible] = useState(false);
   const [spinnerVisible, setSpinnerVisible] = useState(false);
   const [spinnerText, setSpinnerText] = useState("");
+
   const promptTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptTextareaExpanded, setPromptTextareaExpanded] = useState(false);
   const [promptTextareaRows, setPromptTextareaRows] = useState(5);
@@ -91,6 +96,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptStoriesTextareaExpanded, setPromptStoriesTextareaExpanded] = useState(false);
   const [promptStoriesTextareaRows, setPromptStoriesTextareaRows] = useState(5);
 
+  const promptTopicExpansionTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptTopicExpansionTextareaExpanded, setPromptTopicExpansionTextareaExpanded] = useState(false);
+  const [promptTopicExpansionTextareaRows, setPromptTopicExpansionTextareaRows] = useState(5);
+
   useEffect(() => {
     async function fetchSubjectPromptById() {
       if (subjectId === -1) {
@@ -99,6 +108,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptSubtopicsText(["", ""]);
         setTypeSubjectText(["", ""]);
         setPromptQuestionText(["", ""]);
+        setPromptTopicExpansionText(["", ""]);
         setPromptSolutionText(["", ""]);
         setPromptAnswersText(["", ""]);
         setPromptClosedSubtopicsText(["", ""]);
@@ -111,6 +121,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
         setPromptStoriesTextOwn(true);
+        setPromptTopicExpansionTextOwn(true);
         resetSpinner();
         return;
       }
@@ -130,12 +141,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptSubQuestionsText([response.data.subject.subQuestionsPrompt, response.data.subject.subQuestionsPrompt]);
           setPromptStoriesText([response.data.subject.vocabluaryPrompt, response.data.subject.vocabluaryPrompt]);
           setPromptClosedSubtopicsText([response.data.subject.closedSubtopicsPrompt, response.data.subject.closedSubtopicsPrompt]);
+          setPromptTopicExpansionText([response.data.subject.topicExpansionPrompt, response.data.subject.topicExpansionPrompt]);
           setPromptSubtopicsTextOwn(response.data.subject.subtopicsPromptOwn);
           setPromptQuestionTextOwn(response.data.subject.questionPromptOwn);
           setPromptSolutionTextOwn(response.data.subject.solutionPromptOwn);
           setPromptAnswersTextOwn(response.data.subject.answersPromptOwn);
           setPromptSubQuestionsTextOwn(response.data.subject.subQuestionsPromptOwn);
           setPromptStoriesTextOwn(response.data.subject.vocabluaryPromptOwn);
+          setPromptTopicExpansionTextOwn(response.data.subject.topicExpansionPromptOwn);
         } else {
           setTypeSubjectText(["", ""]);
           setSubjectName("");
@@ -147,6 +160,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptClosedSubtopicsText(["", ""]);
           setPromptSubQuestionsText(["", ""]);
           setPromptStoriesText(["", ""]);
+          setPromptTopicExpansionText(["", ""]);
           setPromptSubtopicsTextOwn(true);
           setPromptQuestionTextOwn(true);
           setPromptSolutionTextOwn(true);
@@ -154,6 +168,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptClosedSubtopicsTextOwn(true);
           setPromptSubQuestionsTextOwn(true);
           setPromptStoriesTextOwn(true);
+          setPromptTopicExpansionTextOwn(true);
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
@@ -167,6 +182,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptClosedSubtopicsText(["", ""]);
         setPromptSubQuestionsText(["", ""]);
         setPromptStoriesText(["", ""]);
+        setPromptTopicExpansionText(["", ""]);
         setPromptSubtopicsTextOwn(true);
         setPromptQuestionTextOwn(true);
         setPromptSolutionTextOwn(true);
@@ -174,6 +190,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         setPromptClosedSubtopicsTextOwn(true);
         setPromptSubQuestionsTextOwn(true);
         setPromptStoriesTextOwn(true);
+        setPromptTopicExpansionTextOwn(true);
         handleApiError(error);
       } finally {
         setTimeout(() => {
@@ -205,6 +222,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
 
   function handleSubtopicsPromptMsgCancel() {
     setMsgSubtopicsPromptVisible(false);
+  }
+
+  function handleTopicExpansionPromptMsgCancel() {
+    setMsgTopicExpansionPromptVisible(false);
   }
 
   async function handlePlanGenerate() {
@@ -366,8 +387,25 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setPromptStoriesTextareaExpanded(prev => !prev);
   }
 
+  function toggleTopicExpansionPromptTextareaSize() {
+    if (promptTopicExpansionTextareaRef.current) {
+      if (!promptTopicExpansionTextareaExpanded) {
+        const rows = calculateRows(promptTopicExpansionTextareaRef.current);
+        setPromptTopicExpansionTextareaRows(rows);
+      } else {
+        setPromptTopicExpansionTextareaRows(5);
+      }
+    }
+
+    setPromptTopicExpansionTextareaExpanded(prev => !prev);
+  }
+
   function handleOpenMessageSaveSubjectData() {
     setMsgSubjectDataVisible(true);
+  }
+
+  function handleOpenMessageTopicExpansionGenerate() {
+    setMsgTopicExpansionPromptVisible(true);
   }
 
   function handleOpenMessageSubtopicsGenerate() {
@@ -416,11 +454,11 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
       });
 
       for (const [sectionId, sectionData] of sectionsMap.entries()) {
-        const sectionSubtopics: Subtopic[] = [];
         let sectionFailed = false;
+        const sectionSubtopics: Subtopic[] = [];
 
         for (const topic of sectionData.topics) {
-          showSpinner(true, `Generacja podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
+          showSpinner(true, `Generacja podtematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
 
           const topicId = topic.id;
           let changed = "true";
@@ -445,7 +483,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
               errors = subtopicsResponse.data.errors;
               attempt = subtopicsResponse.data.attempt;
             } else {
-              showAlert(400, `Nie udało się wygenerować podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
+              showAlert(400, `Nie udało się wygenerować podtematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
               sectionFailed = true;
               break;
             }
@@ -462,21 +500,156 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                 typeof s[1] !== "number"
             )
           ) {
-            showAlert(400, `Nie udało się poprawnie wygenerować podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
+            showAlert(400, `Nie udało się poprawnie wygenerować podtematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`);
             sectionFailed = true;
             break;
           }
 
-          sectionSubtopics.push({
-            subjectId,
-            sectionId,
-            topicId,
-            subtopics
-          });
+          await api.delete(
+            `subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics`
+          );
+
+          await api.post(
+            `subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/bulk`,
+            { subtopics }
+          );
+
+          sectionSubtopics.push(
+            ...subtopics.map(s => ({
+              topicId,
+              subjectId,
+              sectionId,
+              name: s[0],
+              importance: s[1],
+              subtopics: []
+            }))
+          );
+
+          showAlert(200, `Podtematy zostały zapisane dla Rozdział: ${sectionData.name}\nTemat: ${topic.name}`);
         }
 
         if (!sectionFailed && sectionSubtopics.length > 0) {
-          await api.post(`/options/subtopics`, { subtopics: sectionSubtopics });
+          successfulSections.push(sectionData.name);
+        } else if (sectionFailed) {
+          const successMsg = successfulSections.length
+            ? formatSuccessSections(successfulSections, subjectName)
+            : `Nie zapisano żadnego rozdziału przedmiotu ${subjectName}`;
+          showAlert(400, successMsg);
+          resetSpinner();
+          return;
+        }
+      }
+
+      const successMsg = successfulSections.length
+        ? `Poprawnie zapisano wszystkie działy przedmiotu ${subjectName}`
+        : `Brak zapisanych rozdziałów przedmiotu ${subjectName}`;
+      const statusCode = successfulSections.length > 0 ? 200 : 400;
+      showAlert(statusCode, successMsg);
+
+      setTimeout(() => {
+        resetSpinner();
+        window.location.reload();
+      }, 3000);
+
+    } catch (error: unknown) {
+      handleApiError(error);
+
+      const successMsg = successfulSections.length
+        ? formatSuccessSections(successfulSections, subjectName)
+        : `Nie zapisano żadnego rozdziału przedmiotu ${subjectName}`;
+      showAlert(400, successMsg);
+
+      setTimeout(() => resetSpinner(), 3000);
+    }
+  }
+
+  async function handleTopicExpansionGenerate() {
+    setMsgTopicExpansionPromptVisible(false);
+    await saveSubjectData();
+
+    const successfulSections: string[] = [];
+
+    try {
+      const topicsResponse = await api.get<{ topics: Topic[] }>(`/subjects/${subjectId}/topics`);
+      const topics = topicsResponse.data.topics;
+
+      const sectionsMap = new Map<number, { name: string; topics: Topic[] }>();
+      topics.forEach((topic: Topic) => {
+        const sectionId = topic.section.id;
+        if (!sectionsMap.has(sectionId)) {
+          sectionsMap.set(sectionId, { name: topic.section.name, topics: [] });
+        }
+        sectionsMap.get(sectionId)!.topics.push(topic);
+      });
+
+      for (const [sectionId, sectionData] of sectionsMap.entries()) {
+        let sectionFailed = false;
+
+        for (const topic of sectionData.topics) {
+          showSpinner(
+            true,
+            `Trwa generacja właściwości tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`
+          );
+
+          const topicId = topic.id;
+          let changed: string = "true";
+          let attempt: number = 0;
+          let frequency: number = 0;
+          let note: string = "";
+          let errors: string[] = [];
+          const prompt: string = topic.topicExpansionPrompt;
+          const MAX_ATTEMPTS = 2;
+
+          console.log(prompt);
+
+          while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+            const topicExpansionResponse = await api.post(
+              `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/topic-expansion-generate`,
+              {
+                changed,
+                frequency,
+                note,
+                errors,
+                attempt,
+                prompt,
+              }
+            );
+
+            if (topicExpansionResponse.data?.statusCode === 201) {
+              changed = topicExpansionResponse.data.changed;
+              frequency = topicExpansionResponse.data.frequency;
+              note = topicExpansionResponse.data.note;
+              errors = topicExpansionResponse.data.errors;
+              attempt = topicExpansionResponse.data.attempt;
+              console.log(`Temat ${topic.name}: Próba ${attempt}`);
+            } else {
+              showAlert(
+                400,
+                `Nie udało się wygenerować właściwości tematu\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`
+              );
+              sectionFailed = true;
+              break;
+            }
+          }
+
+          if (typeof frequency !== "number" || typeof note !== "string" || note.trim() === "") {
+            showAlert(
+              400,
+              `Nie udało się poprawnie wygenerować właściwości tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionData.name}\nTemat: ${topic.name}`
+            );
+            sectionFailed = true;
+            break;
+          }
+
+          await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, {
+            note,
+            frequency,
+          });
+
+          showAlert(200, `Właściwości tematu zostały zapisane dla tematu ${topic.name}`);
+        }
+
+        if (!sectionFailed) {
           successfulSections.push(sectionData.name);
         } else {
           const successMsg = successfulSections.length
@@ -499,7 +672,6 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         resetSpinner();
         window.location.reload();
       }, 3000);
-
     } catch (error: unknown) {
       handleApiError(error);
 
@@ -552,7 +724,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     subQuestionsPrompt: promptSubQuestionsText,
-    vocabluaryPrompt: promptStoriesText
+    vocabluaryPrompt: promptStoriesText,
+    topicExpansionPrompt: promptTopicExpansionText
   }) {
     try {
       const processedData = {
@@ -565,6 +738,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
         subQuestionsPrompt: (Array.isArray(data.subQuestionsPrompt) && data.subQuestionsPrompt[0] !== data.subQuestionsPrompt[1]) ? data.subQuestionsPrompt[0] : undefined,
         vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
+        topicExpansionPrompt: (Array.isArray(data.topicExpansionPrompt) && data.topicExpansionPrompt[0] !== data.topicExpansionPrompt[1]) ? data.topicExpansionPrompt[0] : undefined,
       };
 
       return await api.put(`/subjects/${subjectId}`, processedData);
@@ -601,6 +775,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           onConfirm={handleSubtopicsGenerate}
           onClose={handleSubtopicsPromptMsgCancel}
           visible={msgSubtopicsPromptVisible}
+        />
+
+        <Message 
+          message={`Czy na pewno chcesz ponownie wygenerować właściwości tematów dla przedmiotu ${subjectName}?`}
+          textConfirm="Tak"
+          textCancel="Nie"
+          onConfirm={handleTopicExpansionGenerate}
+          onClose={handleTopicExpansionPromptMsgCancel}
+          visible={msgTopicExpansionPromptVisible}
         />
 
         <div className={spinnerVisible ? "container-center" : ""}>
@@ -891,6 +1074,46 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   onClick={handleOpenMessageSubtopicsGenerate}
                 >
                   Generuj Podtematy
+                </button>
+              </div>
+              <br />
+              <div className="options-container">
+                {promptTopicExpansionTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleTopicExpansionPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleTopicExpansionPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptTopicExpansion" className="label">Właściwości tematu:</label>
+                <textarea
+                  id="promptTopicExpansion"
+                  rows={promptTopicExpansionTextareaRows}
+                  ref={promptTopicExpansionTextareaRef}
+                  name="text-container"
+                  value={promptTopicExpansionText[0]}
+                  onInput={(e) => {
+                    setPromptTopicExpansionText([(e.target as HTMLTextAreaElement).value, promptTopicExpansionText[1]]);
+                  }}
+                  className={`text-container ${promptTopicExpansionTextOwn ? "own" : ""} ${(promptTopicExpansionText[0] !== promptTopicExpansionText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt właściwości tematu..."
+                />
+              </div>
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageTopicExpansionGenerate}
+                >
+                  Generuj Właściwości
                 </button>
               </div>
             </>
