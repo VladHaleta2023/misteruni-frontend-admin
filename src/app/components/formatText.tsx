@@ -27,6 +27,7 @@ export default function FormatText({ content }: FormatTextProps) {
 
     // Списки
     // Нумерованные списки
+    /*
     cleaned = cleaned.replace(
       /(^\d+\.\s.*(\n\d+\.\s.*)*)/gm,
       (match) => {
@@ -38,6 +39,7 @@ export default function FormatText({ content }: FormatTextProps) {
         return `<ol>${items}</ol>`;
       }
     );
+    */
 
     // Маркированные списки
     cleaned = cleaned.replace(

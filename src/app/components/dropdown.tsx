@@ -17,6 +17,7 @@ interface Topic {
 interface Section {
   id: number;
   name: string;
+  partId: number;
   topics: Topic[];
 }
 
@@ -253,7 +254,7 @@ export default function Dropdown({ onUpdate }: DropdownProps) {
                           }}
                         >
                           <span>
-                            <FormatText content={section.name} />
+                            <FormatText content={`${section.partId}. ${section.name}`} />
                           </span>
                           {hasTopics && <span className="dropIcon">▼</span>}
                         </div>

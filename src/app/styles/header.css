@@ -16,3 +16,24 @@
 .misterUniLogo {
   font-size: 22px;
 }
+
+.menu-icons {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+}
+
+.menu-icon {
+  padding: 5px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.menu-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.menu-icon.active {
+  background-color: #7e2ba9;
+}

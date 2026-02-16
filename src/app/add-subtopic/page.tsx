@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Header from "@/app/components/header";
+import HeaderDropDown from "@/app/components/headerDropDown";
 import { useRouter } from 'next/navigation';
 import Spinner from "../components/spinner";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import "@/app/styles/components.css";
 import "@/app/styles/main.css";
 import "@/app/styles/alert.css";
@@ -15,6 +15,7 @@ import axios from "axios";
 export default function AddSubtopic() {
     const router = useRouter();
     const [spinnerVisible, setSpinnerVisible] = useState(false);
+    
     const [spinnerText, setSpinnerText] = useState("");
 
     const [typeSubtopicAddText, setTypeSubtopicAddText] = useState("");
@@ -26,6 +27,43 @@ export default function AddSubtopic() {
     const [subjectId, setSubjectId] = useState<number>(-1);
     const [sectionId, setSectionId] = useState<number>(-1);
     const [topicId, setTopicId] = useState<number>(-1);
+
+    const handleLogout = async () => {
+        showSpinner(true, "");
+
+        try {
+            const response = await api.post("/auth/logout");
+
+            if (response.data?.statusCode === 200) {
+                localStorage.removeItem("weekOffset");
+                localStorage.removeItem("subjectId");
+                localStorage.removeItem("sectionId");
+                localStorage.removeItem("topicId");
+                localStorage.removeItem("subtopicId");
+                localStorage.removeItem("subjectType");
+
+                showAlert(response.data.statusCode, response.data.message);
+                
+                setTimeout(() => {
+                    router.push("/");
+                }, 1500);
+            }
+        } catch (error: unknown) {
+            resetSpinner();
+
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                showAlert(error.response.status, error.response.data?.message || "Server error");
+                } else {
+                showAlert(500, `Server error: ${error.message}`);
+                }
+            } else if (error instanceof Error) {
+                showAlert(500, error.message);
+            } else {
+                showAlert(500, "Unknown error");
+            }
+        }
+    };
     
     const updateFromStorage = useCallback(() => {
         const storedSubjectId = localStorage.getItem("subjectId");
@@ -53,7 +91,11 @@ export default function AddSubtopic() {
             setTopicId(-1);
         }
     }, []);
-    
+
+    const updateHeader = useCallback(() => {
+        router.push('/dashboard'); 
+    }, [router]);
+
     useEffect(() => {
         updateFromStorage();
     }, [updateFromStorage]);
@@ -70,12 +112,12 @@ export default function AddSubtopic() {
 
     function toggleSubtopicAddTextarea() {
         if (typeSubtopicAddTextareaRef.current) {
-        if (!typeSubtopicAddTextareaExpanded) {
-            const rows = calculateRows(typeSubtopicAddTextareaRef.current);
-            setPromptSubtopicsTextareaRows(rows);
-        } else {
-            setPromptSubtopicsTextareaRows(5);
-        }
+            if (!typeSubtopicAddTextareaExpanded) {
+                const rows = calculateRows(typeSubtopicAddTextareaRef.current);
+                setPromptSubtopicsTextareaRows(rows);
+            } else {
+                setPromptSubtopicsTextareaRows(5);
+            }
         }
 
         setPromptSubtopicsTextareaExpanded(prev => !prev);
@@ -93,12 +135,8 @@ export default function AddSubtopic() {
         return rows;
     }
 
-    const updateHeader = useCallback(() => {
-        router.push('/'); 
-    }, []);
-
     function handleAddSubtopicCancel() {
-        router.push('/');
+        router.push('/dashboard');
     }
 
     async function handleAddSubtopicSubmit() {
@@ -113,7 +151,7 @@ export default function AddSubtopic() {
 
             resetSpinner();
             if (response.data.statusCode === 201)
-                router.push("/");
+                router.push("/dashboard");
         }
         catch (error: unknown) {
             handleApiError(error);
@@ -128,20 +166,31 @@ export default function AddSubtopic() {
             } else {
                 showAlert(500, `Server error: ${error.message}`);
             }
-            } else if (error instanceof Error) {
+        } else if (error instanceof Error) {
             showAlert(500, `Server error: ${error.message}`);
-            } else {
+        } else {
             showAlert(500, "Unknown error");
         }
     }
 
     return (<>
-        <Header onUpdate={updateHeader} />
+        <HeaderDropDown onUpdate={updateHeader}>
+            <div className="menu-icons">
+                <div
+                    className="menu-icon"
+                    onClick={handleLogout}
+                    style={{ marginLeft: "auto" }}
+                    title={"Wyloguj się"}
+                >
+                    <LogOut size={28} color="white" />
+                </div>
+            </div>
+        </HeaderDropDown>
         <main>
             <div className={spinnerVisible ? "container-center" : ""}>
                 {spinnerVisible ? (
                     <div className="spinner-wrapper">
-                    <Spinner text={spinnerText} />
+                        <Spinner text={spinnerText} />
                     </div>
                 ) : (
                     <>

@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Header from "@/app/components/header";
+import HeaderDropDown from "@/app/components/headerDropDown";
 import { useRouter } from 'next/navigation';
 import Spinner from "../components/spinner";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, LogOut } from "lucide-react";
 import "@/app/styles/components.css";
 import "@/app/styles/main.css";
 import "@/app/styles/alert.css";
@@ -14,6 +14,7 @@ import axios from "axios";
 
 export default function EditSubtopic() {
     const router = useRouter();
+    
     const [loading, setLoading] = useState(true);
     const [spinnerText, setSpinnerText] = useState("Ładowanie podtematu...");
 
@@ -27,6 +28,43 @@ export default function EditSubtopic() {
     const [sectionId, setSectionId] = useState<number>(-1);
     const [topicId, setTopicId] = useState<number>(-1);
     const [subtopicId, setSubtopicId] = useState<number>(-1);
+
+    const handleLogout = async () => {
+        showSpinner(true, "");
+
+        try {
+            const response = await api.post("/auth/logout");
+
+            if (response.data?.statusCode === 200) {
+                localStorage.removeItem("weekOffset");
+                localStorage.removeItem("subjectId");
+                localStorage.removeItem("sectionId");
+                localStorage.removeItem("topicId");
+                localStorage.removeItem("subtopicId");
+                localStorage.removeItem("subjectType");
+
+                showAlert(response.data.statusCode, response.data.message);
+                
+                setTimeout(() => {
+                    router.push("/");
+                }, 1500);
+            }
+        } catch (error: unknown) {
+            resetSpinner();
+
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                showAlert(error.response.status, error.response.data?.message || "Server error");
+                } else {
+                showAlert(500, `Server error: ${error.message}`);
+                }
+            } else if (error instanceof Error) {
+                showAlert(500, error.message);
+            } else {
+                showAlert(500, "Unknown error");
+            }
+        }
+    };
 
     const updateFromStorage = useCallback(() => {
         const storedSubjectId = localStorage.getItem("subjectId");
@@ -54,13 +92,19 @@ export default function EditSubtopic() {
         }
     }, [subtopicId, subjectId, sectionId, topicId]);
 
+    const updateHeader = useCallback(() => {
+        localStorage.removeItem("subtopicId");
+        router.push('/dashboard');
+    }, [router]);
+
     useEffect(() => {
         updateFromStorage();
     }, [updateFromStorage]);
 
     useEffect(() => {
-        if (subjectId !== -1 && sectionId !== -1 && topicId !== -1 && subtopicId !== -1)
+        if (subjectId !== -1 && sectionId !== -1 && topicId !== -1 && subtopicId !== -1) {
             fetchSubtopic();
+        }
     }, [subjectId, sectionId, topicId, subtopicId, fetchSubtopic]);
 
     useEffect(() => {
@@ -104,14 +148,9 @@ export default function EditSubtopic() {
         return rows;
     }
 
-    const updateHeader = useCallback(() => {
-        localStorage.removeItem("subtopicId");
-        router.push('/');
-    }, [router]);
-
     function handleEditSubtopicCancel() {
         localStorage.removeItem("subtopicId");
-        router.push('/');
+        router.push('/dashboard');
     }
 
     async function handleEditSubtopicSubmit() {
@@ -128,7 +167,7 @@ export default function EditSubtopic() {
             resetSpinner();
             if (response.data.statusCode === 200) {
                 localStorage.removeItem("subtopicId");
-                router.push("/");
+                router.push("/dashboard");
             }
         } catch (error: unknown) {
             handleApiError(error);
@@ -152,7 +191,18 @@ export default function EditSubtopic() {
 
     return (
         <>
-            <Header onUpdate={updateHeader} />
+            <HeaderDropDown onUpdate={updateHeader}>
+                <div className="menu-icons">
+                    <div
+                        className="menu-icon"
+                        onClick={handleLogout}
+                        style={{ marginLeft: "auto" }}
+                        title={"Wyloguj się"}
+                    >
+                        <LogOut size={28} color="white" />
+                    </div>
+                </div>
+            </HeaderDropDown>
             <main>
                 <div className={loading ? "container-center" : ""}>
                     {loading ? (

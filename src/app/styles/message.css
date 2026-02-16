@@ -28,7 +28,6 @@
   align-items: center;
   position: relative;
   will-change: transform;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .switchPopUp .text {

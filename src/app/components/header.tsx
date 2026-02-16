@@ -3,16 +3,10 @@
 import React from "react";
 import "@/app/styles/globals.css";
 import "@/app/styles/header.css";
-import Dropdown from "@/app/components/dropdown";
 
-interface HeaderProps {
-  onUpdate: () => void;
-}
-
-export default function Header({ onUpdate }: HeaderProps) {
+export default function Header() {
   return (
-    <header className="header">
-      <Dropdown onUpdate={onUpdate} />
+    <header className="header" style={{ justifyContent: "center", alignItems: "center" }}>
       <span className="misterUniLogo">MisterUniAdmin</span>
     </header>
   );
