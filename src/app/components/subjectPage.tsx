@@ -73,6 +73,7 @@ type FrequencyResponse = {
 
 export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [minSectionPart, setMinSectionPart] = useState(1);
+  const [minLiterature, setMinLiterature] = useState(230);
 
   const [subjectPromptText, setSubjectPromptText] = useState(["", ""]);
   const [typeSubjectText, setTypeSubjectText] = useState(["", ""]);
@@ -84,6 +85,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
   const [promptWordsText, setPromptWordsText] = useState(["", ""]);
+  const [promptLiteratureText, setPromptLiteratureText] = useState(["", ""]);
   const [promptChatText, setPromptChatText] = useState(["", ""]);
   const [promptTopicExpansionText, setPromptTopicExpansionText] = useState(["", ""]);
   const [promptTopicFrequencyText, setPromptTopicFrequencyText] = useState(["", ""]);
@@ -99,12 +101,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
   const [promptWordsTextOwn, setPromptWordsTextOwn] = useState(true);
+  const [promptLiteratureTextOwn, setPromptLiteratureTextOwn] = useState(true);
   const [promptChatTextOwn, setPromptChatTextOwn] = useState(true);
   const [promptTopicExpansionTextOwn, setPromptTopicExpansionTextOwn] = useState(true);
   const [promptTopicFrequencyTextOwn, setPromptTopicFrequencyTextOwn] = useState(true);
 
   const [subjectName, setSubjectName] = useState("");
 
+  const [msgNextLiteratureGenerateVisible, setMsgNextLiteratureGenerateVisible] = useState(false);
   const [msgNextWordsGenerateVisible, setMsgNextWordsGenerateVisible] = useState(false);
   const [msgNextFrequencyGenerateVisible, setMsgNextFrequencyGenerateVisible] = useState(false);
   const [msgNextSubtopicsGenerateVisible, setMsgNextSubtopicsGenerateVisible] = useState(false);
@@ -118,6 +122,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [msgTopicExpansionPromptVisible, setMsgTopicExpansionPromptVisible] = useState(false);
   const [msgTopicFrequencyPromptVisible, setMsgTopicFrequencyPromptVisible] = useState(false);
   const [msgWordsPromptVisible, setMsgWordsPromptVisible] = useState(false);
+  const [msgLiteraturePromptVisible, setMsgLiteraturePromptVisible] = useState(false);
   const [spinnerVisible, setSpinnerVisible] = useState(false);
   const [spinnerText, setSpinnerText] = useState("");
 
@@ -157,6 +162,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptWordsTextareaExpanded, setPromptWordsTextareaExpanded] = useState(false);
   const [promptWordsTextareaRows, setPromptWordsTextareaRows] = useState(5);
 
+  const promptLiteratureTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptLiteratureTextareaExpanded, setPromptLiteratureTextareaExpanded] = useState(false);
+  const [promptLiteratureTextareaRows, setPromptLiteratureTextareaRows] = useState(5);
+
   const promptChatTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptChatTextareaExpanded, setPromptChatTextareaExpanded] = useState(false);
   const [promptChatTextareaRows, setPromptChatTextareaRows] = useState(5);
@@ -195,6 +204,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptClosedSubtopicsText([response.data.subject.closedSubtopicsPrompt, response.data.subject.closedSubtopicsPrompt]);
           setPromptTopicExpansionText([response.data.subject.topicExpansionPrompt, response.data.subject.topicExpansionPrompt]);
           setPromptTopicFrequencyText([response.data.subject.topicFrequencyPrompt, response.data.subject.topicFrequencyPrompt]);
+          setPromptLiteratureText([response.data.subject.literaturePrompt, response.data.subject.literaturePrompt]);
           setPromptSubtopicsTextOwn(response.data.subject.subtopicsPromptOwn);
           setPromptSubtopicsStatusTextOwn(response.data.subject.subtopicsStatusPromptOwn);
           setPromptClosedSubtopicsTextOwn(response.data.subject.closedSubtopicsPromptOwn)
@@ -206,6 +216,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptChatTextOwn(response.data.subject.chatPromptOwn);
           setPromptTopicExpansionTextOwn(response.data.subject.topicExpansionPromptOwn);
           setPromptTopicFrequencyTextOwn(response.data.subject.topicFrequencyPromptOwn);
+          setPromptLiteratureTextOwn(response.data.subject.literaturePromptOwn);
         } else {
           showAlert(response.data.statusCode, response.data.message);
         }
@@ -255,6 +266,12 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setMsgNextWordsGenerateVisible(false);
   }
 
+  function handleNextLiteratureGenerateMsgCancel() {
+    setMinSectionPart(1);
+    setMinLiterature(1);
+    setMsgNextLiteratureGenerateVisible(false);
+  }
+
   function handleNextFrequencyGenerateMsgCancel() {
     setMinSectionPart(1);
     setMsgNextFrequencyGenerateVisible(false);
@@ -282,6 +299,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
 
   function handleWordsPromptMsgCancel() {
     setMsgWordsPromptVisible(false);
+  }
+
+  function handleLiteraturePromptMsgCancel() {
+    setMsgLiteraturePromptVisible(false);
   }
 
   async function handlePlanGenerate() {
@@ -456,6 +477,19 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setPromptWordsTextareaExpanded(prev => !prev);
   }
 
+  function toggleLiteraturePromptTextareaSize() {
+    if (promptLiteratureTextareaRef.current) {
+      if (!promptLiteratureTextareaExpanded) {
+        const rows = calculateRows(promptLiteratureTextareaRef.current);
+        setPromptLiteratureTextareaRows(rows);
+      } else {
+        setPromptLiteratureTextareaRows(5);
+      }
+    }
+
+    setPromptLiteratureTextareaExpanded(prev => !prev);
+  }
+
   function toggleChatPromptTextareaSize() {
     if (promptChatTextareaRef.current) {
       if (!promptChatTextareaExpanded) {
@@ -517,6 +551,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
 
   function handleOpenMessageWordsGenerate() {
     setMsgWordsPromptVisible(true);
+  }
+
+  function handleOpenMessageLiteratureGenerate() {
+    setMsgLiteraturePromptVisible(true);
   }
 
   async function handleSaveSubjectData() {
@@ -1183,6 +1221,142 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
   }
 
+  async function handleLiteratureGenerate() {
+    setMsgLiteraturePromptVisible(false);
+    setMsgNextLiteratureGenerateVisible(false);
+
+    await saveSubjectData();
+
+    const lastProcessedPosition = minLiterature || 1;
+
+    try {
+      const totalResponse = await api.get<{ totalCount: number }>(
+        `/subjects/${subjectId}/literatures`
+      );
+      const totalLiteratures = totalResponse.data.totalCount;
+
+      const startPosition = minLiterature || 1;
+      
+      const literaturesResponse = await api.get<{ literatures: string[], totalCount: number, startPosition: number }>(
+        `/subjects/${subjectId}/literatures?startPosition=${startPosition}`
+      );
+
+      const literatures = literaturesResponse.data.literatures;
+      let currentPosition = startPosition;
+
+      for (const literature of literatures) {
+        let literatureFailed = false;
+
+        showSpinner(
+          true,
+          `Generacja literatury (pozycja ${currentPosition}/${totalLiteratures}):\nPrzedmiot: ${subjectName}\nLiteratura: ${literature}`
+        );
+
+        let changed = "true";
+        let attempt = 0;
+        let note: string = "";
+        let errors: string[] = [];
+        const prompt = promptLiteratureText[0];
+        const MAX_ATTEMPTS = 0;
+
+        while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+          const literatureResponse = await api.post(
+            `/subjects/${subjectId}/literature-generate`,
+            {
+              changed,
+              name: literature,
+              note,
+              errors,
+              attempt,
+              prompt,
+            }
+          );
+
+          if (literatureResponse.data?.statusCode === 201) {
+            changed = literatureResponse.data.changed;
+            note = literatureResponse.data.note;
+            errors = literatureResponse.data.errors;
+            attempt = literatureResponse.data.attempt;
+          } else {
+            literatureFailed = true;
+            break;
+          }
+        }
+
+        if (literatureFailed || note === "") {
+          setMinLiterature(currentPosition);
+
+          showAlert(
+            400,
+            `Nie udało się wygenerować literatury (pozycja ${currentPosition}/${totalLiteratures}):\nPrzedmiot: ${subjectName}\nLiteratura: ${literature}`
+          );
+
+          resetSpinner();
+          setMsgLiteraturePromptVisible(true);
+          return;
+        }
+
+        const MAX_DB_ATTEMPTS = 3;
+        let dbAttempt = 0;
+        let dbSuccess = false;
+
+        while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
+          try {
+            await api.post(
+              `/subjects/${subjectId}/literature`,
+              { name: literature, note }
+            );
+
+            dbSuccess = true;
+          } catch {
+            dbAttempt++;
+
+            if (dbAttempt >= MAX_DB_ATTEMPTS) {
+              // Ошибка сохранения на текущей позиции - сохраняем ЭТУ ЖЕ позицию
+              setMinLiterature(currentPosition);
+
+              showAlert(
+                400,
+                `Nie udało się zapisać literatury (pozycja ${currentPosition}/${totalLiteratures}):\nPrzedmiot: ${subjectName}\nLiteratura: ${literature}`
+              );
+
+              resetSpinner();
+              setMsgLiteraturePromptVisible(true);
+              return;
+            }
+          }
+        }
+        
+        // УСПЕХ - увеличиваем позицию ДЛЯ СЛЕДУЮЩЕЙ итерации
+        currentPosition++;
+        // Сохраняем новую позицию (следующую для обработки)
+        setMinLiterature(currentPosition);
+      }
+
+      // Если дошли сюда - все успешно обработано
+      resetSpinner();
+      setTextMessageOK(
+        `Poprawnie zapisano całą literaturę przedmiotu ${subjectName} (pozycje ${startPosition}-${currentPosition-1}/${totalLiteratures})`
+      );
+      setMsgOKVisible(true);
+
+      setMinLiterature(1); // Сбрасываем после успешного завершения всех
+
+    } catch (error: unknown) {
+      setMinLiterature(lastProcessedPosition);
+
+      resetSpinner();
+      handleApiError(error);
+
+      showAlert(
+        400,
+        `Błąd podczas generowania literatury:\nPrzedmiot: ${subjectName}\nOstatnia pozycja: ${lastProcessedPosition}`
+      );
+
+      setMsgLiteraturePromptVisible(true);
+    }
+  }
+
   function formatSuccessSections(
     lastPartId: number | null,
     lastName: string | null,
@@ -1209,7 +1383,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     wordsPrompt: promptWordsText,
     chatPrompt: promptChatText,
     topicExpansionPrompt: promptTopicExpansionText,
-    topicFrequencyPrompt: promptTopicFrequencyText
+    topicFrequencyPrompt: promptTopicFrequencyText,
+    literaturePrompt: promptLiteratureText
   }) {
     try {
       const processedData = {
@@ -1226,6 +1401,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         chatPrompt: (Array.isArray(data.chatPrompt) && data.chatPrompt[0] !== data.chatPrompt[1]) ? data.chatPrompt[0] : undefined,
         topicExpansionPrompt: (Array.isArray(data.topicExpansionPrompt) && data.topicExpansionPrompt[0] !== data.topicExpansionPrompt[1]) ? data.topicExpansionPrompt[0] : undefined,
         topicFrequencyPrompt: (Array.isArray(data.topicFrequencyPrompt) && data.topicFrequencyPrompt[0] !== data.topicFrequencyPrompt[1]) ? data.topicFrequencyPrompt[0] : undefined,
+        literaturePrompt: (Array.isArray(data.literaturePrompt) && data.literaturePrompt[0] !== data.literaturePrompt[1]) ? data.literaturePrompt[0] : undefined,
       };
 
       return await api.put(`/subjects/${subjectId}`, processedData);
@@ -1296,6 +1472,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           visible={msgNextFrequencyGenerateVisible}
         />
 
+        <Message 
+          message={`Czy na pewno chcesz dalej generować literaturę dla przedmiotu ${subjectName}?`}
+          textConfirm="Tak"
+          textCancel="Nie"
+          onConfirm={handleLiteratureGenerate}
+          onClose={handleNextLiteratureGenerateMsgCancel}
+          visible={msgNextLiteratureGenerateVisible}
+        />
+
         <MessageOK 
           message={textMessageOK}
           onConfirm={handleMessageOK}
@@ -1309,6 +1494,15 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           onConfirm={handleWordsGenerate}
           onClose={handleWordsPromptMsgCancel}
           visible={msgWordsPromptVisible}
+        />
+
+        <Message 
+          message={`Czy na pewno chcesz ponownie wygenerować literaturę dla przedmiotu ${subjectName}?`}
+          textConfirm="Tak"
+          textCancel="Nie"
+          onConfirm={handleLiteratureGenerate}
+          onClose={handleLiteraturePromptMsgCancel}
+          visible={msgLiteraturePromptVisible}
         />
 
         <Message 
@@ -1796,6 +1990,49 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   onClick={handleOpenMessageWordsGenerate}
                 >
                   Generuj Słowy Tematyczne
+                </button>
+              </div>
+              </>) : null}
+              <br />
+              {typeSubjectText[0] == "Polski" ? (
+              <>
+              <div className="options-container">
+                {promptLiteratureTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleLiteraturePromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleLiteraturePromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptLiterature" className="label">Streszczenie:</label>
+                <textarea
+                  id="promptLiterature"
+                  rows={promptLiteratureTextareaRows}
+                  ref={promptLiteratureTextareaRef}
+                  name="text-container"
+                  value={promptLiteratureText[0]}
+                  onInput={(e) => {
+                    setPromptLiteratureText([(e.target as HTMLTextAreaElement).value, promptLiteratureText[1]])
+                  }}
+                  className={`text-container ${promptLiteratureTextOwn ? "own" : ""} ${(promptLiteratureText[0] !== promptLiteratureText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt streszczenia..."
+                />
+              </div>
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageLiteratureGenerate}
+                >
+                  Generuj Streszczenie
                 </button>
               </div>
               </>) : null}

@@ -40,6 +40,7 @@ type FrequencyResponse = {
 
 export default function SectionPage({ subjectId, sectionId }: SectionPageProps) {
   const [typeSectionText, setTypeSectionText] = useState(["", ""]);
+  const [categorySectionText, setCategorySectionText] = useState(["", ""]);
   const [difficultySection, setDifficultySection] = useState(["", ""]);
   const [promptSubtopicsText, setPromptSubtopicsText] = useState(["", ""]);
   const [promptSubtopicsStatusText, setPromptSubtopicsStatusText] = useState(["", ""]);
@@ -132,6 +133,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           setSubjectName(response.data.subject.name);
           setSectionName(response.data.section.name);
           setTypeSectionText([response.data.section.type, response.data.section.type]);
+          setCategorySectionText([response.data.section.category, response.data.section.category]);
           setDifficultySection([response.data.section.difficulty, response.data.section.difficulty]);
           setPromptSubtopicsText([response.data.section.subtopicsPrompt, response.data.section.subtopicsPrompt]);
           setPromptSubtopicsStatusText([response.data.section.subtopicsStatusPrompt, response.data.section.subtopicsStatusPrompt]);
@@ -917,6 +919,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
 
   async function saveSectionData(data = {
     type: typeSectionText,
+    category: categorySectionText,
     difficulty: difficultySection,
     subtopicsPrompt: promptSubtopicsText,
     subtopicsStatusPrompt: promptSubtopicsStatusText,
@@ -933,6 +936,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     try {
       const processedData = {
         type: (Array.isArray(data.type) && data.type[0] !== data.type[1]) ? data.type[0] : undefined,
+        category: (Array.isArray(data.category) && data.category[0] !== data.category[1]) ? data.category[0] : undefined,
         difficulty: (Array.isArray(data.difficulty) && data.difficulty[0] !== data.difficulty[1]) ? data.difficulty[0] : undefined,
         subtopicsPrompt: (Array.isArray(data.subtopicsPrompt) && data.subtopicsPrompt[0] !== data.subtopicsPrompt[1]) ? data.subtopicsPrompt[0] : undefined,
         subtopicsStatusPrompt: (Array.isArray(data.subtopicsStatusPrompt) && data.subtopicsStatusPrompt[0] !== data.subtopicsStatusPrompt[1]) ? data.subtopicsStatusPrompt[0] : undefined,
@@ -1035,6 +1039,20 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                     className={`text-container own ${(typeSectionText[0] !== typeSectionText[1]) ? ' changed' : ''}`}
                     spellCheck={true}
                     placeholder="Proszę napisać typ rozdziału..."
+                />
+              </div>
+              <div className="options-container">
+                <label htmlFor="SectionCategory" className="label">Kategoria:</label>
+                <input
+                    id="SectionCategory"
+                    name="text-container"
+                    value={categorySectionText[0]}
+                    onInput={(e) => {
+                      setCategorySectionText([(e.target as HTMLTextAreaElement).value, categorySectionText[1]])
+                    }}
+                    className={`text-container own ${(categorySectionText[0] !== categorySectionText[1]) ? ' changed' : ''}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać kategorię rozdziału..."
                 />
               </div>
               {typeSectionText[0] === "Stories" ? (<div className="options-container">

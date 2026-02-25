@@ -76,6 +76,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const noteRef = useRef<HTMLDivElement>(null);
 
   const [literatureText, setLiteratureText] = useState(["", ""]);
+  const [typeTopicText, setTypeTopicText] = useState(["", ""]);
   const [note, setNote] = useState("");
   const [words, setWords] = useState<Word[]>([]);
 
@@ -119,6 +120,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setFrequencyText([0, 0]);
         setLiteratureText(["", ""]);
         setNote("");
+        setTypeTopicText(["", ""]);
         resetSpinner();
         return;
       }
@@ -133,11 +135,13 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setSectionName(response.data.section.name);
           setSectionType(response.data.section.type);
           setTopicName(response.data.topic.name);
+          setTypeTopicText([response.data.topic.type, response.data.topic.type]);
           setSubjectType(response.data.subject.type);
           setLiteratureText([response.data.topic.literature, response.data.topic.literature]);
           setNote(response.data.topic.note);
           setFrequencyText([response.data.topic.frequency, response.data.topic.frequency]);
       } else {
+          setTypeTopicText(["", ""]);
           setSectionName("");
           setSubjectName("");
           setSectionType("");
@@ -794,10 +798,12 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
   async function saveTopicData(data = {
     literatureText: literatureText,
-    frequencyText: frequencyText
+    frequencyText: frequencyText,
+    typeTopicText: typeTopicText
   }) {
     try {
       const processedData = {
+        type: (Array.isArray(data.typeTopicText) && data.typeTopicText[0] !== data.typeTopicText[1]) ? data.typeTopicText[0] : undefined,
         literature: (Array.isArray(data.literatureText) && data.literatureText[0] !== data.literatureText[1]) ? data.literatureText[0] : undefined,
         frequency: (Array.isArray(data.frequencyText) && data.frequencyText[0] !== data.frequencyText[1]) ? data.frequencyText[0] : undefined,
       };
@@ -899,6 +905,20 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                     className={`text-container own ${(frequencyText[0] !== frequencyText[1]) ? ' changed' : ''}`}
                     spellCheck={true}
                     placeholder="Proszę napisać częstotliwość tematu na egzaminie..."
+                />
+              </div>
+              <div className="options-container">
+                <label htmlFor="TopicType" className="label">Typ Tematu:</label>
+                <input
+                    id="TopicType"
+                    name="text-container"
+                    value={typeTopicText[0]}
+                    onInput={(e) => {
+                      setTypeTopicText([(e.target as HTMLTextAreaElement).value, typeTopicText[1]])
+                    }}
+                    className={`text-container own ${(typeTopicText[0] !== typeTopicText[1]) ? ' changed' : ''}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać typ tematu..."
                 />
               </div>
               {subjectType == "Polski" ? (
