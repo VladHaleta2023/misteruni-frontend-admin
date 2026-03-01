@@ -77,6 +77,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
 
   const [subjectPromptText, setSubjectPromptText] = useState(["", ""]);
   const [typeSubjectText, setTypeSubjectText] = useState(["", ""]);
+  const [accountsSubjectText, setAccountsSubjectText] = useState(["", ""]);
+  const [balanceSubjectText, setBalanceSubjectText] = useState(["", ""]);
   const [promptSubtopicsText, setPromptSubtopicsText] = useState(["", ""]);
   const [promptSubtopicsStatusText, setPromptSubtopicsStatusText] = useState(["", ""]);
   const [promptQuestionText, setPromptQuestionText] = useState(["", ""]);
@@ -138,6 +140,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubtopicsStatusTextareaExpanded, setPromptSubtopicsStatusTextareaExpanded] = useState(false);
   const [promptSubtopicsStatusTextareaRows, setPromptSubtopicsStatusTextareaRows] = useState(5);
 
+  const promptAccountsTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptAccountsTextareaExpanded, setPromptAccountsTextareaExpanded] = useState(false);
+  const [promptAccountsTextareaRows, setPromptAccountsTextareaRows] = useState(5);
+
+  const promptBalanceTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptBalanceTextareaExpanded, setPromptBalanceTextareaExpanded] = useState(false);
+  const [promptBalanceTextareaRows, setPromptBalanceTextareaRows] = useState(5);
+
   const promptQuestionTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptQuestionTextareaExpanded, setPromptQuestionTextareaExpanded] = useState(false);
   const [promptQuestionTextareaRows, setPromptQuestionTextareaRows] = useState(5);
@@ -193,6 +203,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setSubjectPromptText([response.data.subject.prompt, response.data.subject.prompt]);
           setSubjectName(response.data.subject.name);
           setTypeSubjectText([response.data.subject.type, response.data.subject.type]);
+          setAccountsSubjectText([response.data.subject.accounts, response.data.subject.accounts]);
+          setBalanceSubjectText([response.data.subject.balance, response.data.subject.balance]);
           setPromptSubtopicsText([response.data.subject.subtopicsPrompt, response.data.subject.subtopicsPrompt]);
           setPromptSubtopicsStatusText([response.data.subject.subtopicsStatusPrompt, response.data.subject.subtopicsStatusPrompt]);
           setPromptQuestionText([response.data.subject.questionPrompt, response.data.subject.questionPrompt]);
@@ -371,6 +383,32 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
 
     setPromptTextareaExpanded(prev => !prev);
+  }
+
+  function toggleAccountsPromptTextareaSize() {
+    if (promptAccountsTextareaRef.current) {
+      if (!promptAccountsTextareaExpanded) {
+        const rows = calculateRows(promptAccountsTextareaRef.current);
+        setPromptAccountsTextareaRows(rows);
+      } else {
+        setPromptAccountsTextareaRows(5);
+      }
+    }
+
+    setPromptAccountsTextareaExpanded(prev => !prev);
+  }
+
+  function toggleBalancePromptTextareaSize() {
+    if (promptBalanceTextareaRef.current) {
+      if (!promptBalanceTextareaExpanded) {
+        const rows = calculateRows(promptBalanceTextareaRef.current);
+        setPromptBalanceTextareaRows(rows);
+      } else {
+        setPromptBalanceTextareaRows(5);
+      }
+    }
+
+    setPromptBalanceTextareaExpanded(prev => !prev);
   }
 
   function toggleQuestionPromptTextareaSize() {
@@ -1372,6 +1410,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
 
   async function saveSubjectData(data = {
     type: typeSubjectText,
+    accounts: accountsSubjectText,
+    balance: balanceSubjectText,
     prompt: subjectPromptText,
     subtopicsPrompt: promptSubtopicsText,
     subtopicsStatusPrompt: promptSubtopicsStatusText,
@@ -1389,6 +1429,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     try {
       const processedData = {
         type: (Array.isArray(data.type) && data.type[0] !== data.type[1]) ? data.type[0] : undefined,
+        accounts: (Array.isArray(data.accounts) && data.accounts[0] !== data.accounts[1]) ? data.accounts[0] : undefined,
+        balance: (Array.isArray(data.balance) && data.balance[0] !== data.balance[1]) ? data.balance[0] : undefined,
         prompt: (Array.isArray(data.prompt) && data.prompt[0] !== data.prompt[1]) ? data.prompt[0] : undefined,
         subtopicsPrompt: (Array.isArray(data.subtopicsPrompt) && data.subtopicsPrompt[0] !== data.subtopicsPrompt[1]) ? data.subtopicsPrompt[0] : undefined,
         subtopicsStatusPrompt: (Array.isArray(data.subtopicsStatusPrompt) && data.subtopicsStatusPrompt[0] !== data.subtopicsStatusPrompt[1]) ? data.subtopicsStatusPrompt[0] : undefined,
@@ -1571,6 +1613,69 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                     placeholder="Proszę napisać typ przedmiotu..."
                 />
               </div>
+              {typeSubjectText[0] == "Accounting" ? (
+              <>
+                <div className="options-container">
+                  {promptAccountsTextareaExpanded ?
+                    <ChevronUp
+                      size={28}
+                      style={{top: "28px"}}
+                      className="btnTextAreaOpen"
+                      onClick={toggleAccountsPromptTextareaSize}
+                    /> :
+                    <ChevronDown
+                      size={28}
+                      style={{top: "28px"}}
+                      className="btnTextAreaOpen"
+                      onClick={toggleAccountsPromptTextareaSize}
+                    />
+                  }
+                  <label htmlFor="promptAccounts" className="label">Plan Kont:</label>
+                  <textarea
+                    id="promptAccounts"
+                    rows={promptAccountsTextareaRows}
+                    ref={promptAccountsTextareaRef}
+                    name="text-container"
+                    value={accountsSubjectText[0]}
+                    onInput={(e) => {
+                      setAccountsSubjectText([(e.target as HTMLTextAreaElement).value, accountsSubjectText[1]]);
+                    }}
+                    className={`text-container ${(accountsSubjectText[0] !== accountsSubjectText[1]) ? ' changed' : 'own'}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać plan kont..."
+                  />
+                </div>
+                <div className="options-container">
+                  {promptBalanceTextareaExpanded ?
+                    <ChevronUp
+                      size={28}
+                      style={{top: "28px"}}
+                      className="btnTextAreaOpen"
+                      onClick={toggleBalancePromptTextareaSize}
+                    /> :
+                    <ChevronDown
+                      size={28}
+                      style={{top: "28px"}}
+                      className="btnTextAreaOpen"
+                      onClick={toggleBalancePromptTextareaSize}
+                    />
+                  }
+                  <label htmlFor="promptBalance" className="label">Bilans:</label>
+                  <textarea
+                    id="promptBalance"
+                    rows={promptBalanceTextareaRows}
+                    ref={promptBalanceTextareaRef}
+                    name="text-container"
+                    value={balanceSubjectText[0]}
+                    onInput={(e) => {
+                      setBalanceSubjectText([(e.target as HTMLTextAreaElement).value, balanceSubjectText[1]]);
+                    }}
+                    className={`text-container ${(balanceSubjectText[0] !== balanceSubjectText[1]) ? ' changed' : 'own'}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać bilans..."
+                  />
+                </div>
+              </>) : null}
               <div className="options-container">
                 {promptQuestionTextareaExpanded ?
                   <ChevronUp

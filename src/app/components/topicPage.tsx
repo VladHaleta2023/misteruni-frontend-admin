@@ -71,11 +71,16 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [promptLiteratureTextareaExpanded, setLiteratureTextareaExpanded] = useState(false);
   const [promptLiteratureTextareaRows, setLiteratureTextareaRows] = useState(5);
 
+  const promptInformationTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptInformationTextareaExpanded, setInformationTextareaExpanded] = useState(false);
+  const [promptInformationTextareaRows, setInformationTextareaRows] = useState(5);
+
   const [promptNoteExpanded, setPromptNoteExpanded] = useState(false);
   const [noteHeight, setNoteHeight] = useState(160);
   const noteRef = useRef<HTMLDivElement>(null);
 
   const [literatureText, setLiteratureText] = useState(["", ""]);
+  const [informationText, setInformationText] = useState(["", ""]);
   const [typeTopicText, setTypeTopicText] = useState(["", ""]);
   const [note, setNote] = useState("");
   const [words, setWords] = useState<Word[]>([]);
@@ -119,6 +124,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setSubjectType("");
         setFrequencyText([0, 0]);
         setLiteratureText(["", ""]);
+        setInformationText(["", ""]);
         setNote("");
         setTypeTopicText(["", ""]);
         resetSpinner();
@@ -138,6 +144,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setTypeTopicText([response.data.topic.type, response.data.topic.type]);
           setSubjectType(response.data.subject.type);
           setLiteratureText([response.data.topic.literature, response.data.topic.literature]);
+          setInformationText([response.data.topic.information, response.data.topic.information]);
           setNote(response.data.topic.note);
           setFrequencyText([response.data.topic.frequency, response.data.topic.frequency]);
       } else {
@@ -149,6 +156,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setSubjectType("");
           setFrequencyText([0, 0]);
           setLiteratureText(["", ""]);
+          setInformationText(["", ""]);
           setNote("");
           showAlert(response.data.statusCode, response.data.message);
         }
@@ -312,6 +320,19 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     }
 
     setLiteratureTextareaExpanded(prev => !prev);
+  }
+
+  function toggleInformationTextareaSize() {
+    if (promptInformationTextareaRef.current) {
+      if (!promptInformationTextareaExpanded) {
+        const rows = calculateRows(promptInformationTextareaRef.current);
+        setInformationTextareaRows(rows);
+      } else {
+        setInformationTextareaRows(5);
+      }
+    }
+
+    setInformationTextareaExpanded(prev => !prev);
   }
 
   function toggleNoteTextareaSize() {
@@ -798,11 +819,13 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
   async function saveTopicData(data = {
     literatureText: literatureText,
+    informationText: informationText,
     frequencyText: frequencyText,
     typeTopicText: typeTopicText
   }) {
     try {
       const processedData = {
+        information: (Array.isArray(data.informationText) && data.informationText[0] !== data.informationText[1]) ? data.informationText[0] : undefined,
         type: (Array.isArray(data.typeTopicText) && data.typeTopicText[0] !== data.typeTopicText[1]) ? data.typeTopicText[0] : undefined,
         literature: (Array.isArray(data.literatureText) && data.literatureText[0] !== data.literatureText[1]) ? data.literatureText[0] : undefined,
         frequency: (Array.isArray(data.frequencyText) && data.frequencyText[0] !== data.frequencyText[1]) ? data.frequencyText[0] : undefined,
@@ -953,6 +976,36 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 />
               </div>
               ) : null}
+              <div className="options-container">
+                {promptInformationTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleInformationTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleInformationTextareaSize}
+                  />
+                }
+                <label htmlFor="promptInformation" className="label">Informacja Dodatkowa:</label>
+                <textarea
+                   id="promptInformation"
+                   rows={promptInformationTextareaRows}
+                   ref={promptInformationTextareaRef}
+                   name="text-container"
+                   value={informationText[0]}
+                   onInput={(e) => {
+                    setInformationText([(e.target as HTMLTextAreaElement).value, informationText[1]])
+                   }}
+                   className={`text-container own ${(informationText[0] !== informationText[1]) ? ' changed' : ''}`}
+                   spellCheck={true}
+                   placeholder="Proszę napisać informację dodatkową..."
+                />
+              </div>
               <div className="options-container">
                 {promptNoteExpanded ?
                   <ChevronUp
