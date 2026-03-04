@@ -33,7 +33,7 @@ export default function EditSubtopic() {
         showSpinner(true, "");
 
         try {
-            const response = await api.post("/auth/logout");
+            const response = await api.post<any>("/auth/logout");
 
             if (response.data?.statusCode === 200) {
                 localStorage.removeItem("weekOffset");
@@ -52,15 +52,14 @@ export default function EditSubtopic() {
         } catch (error: unknown) {
             resetSpinner();
 
-            if (axios.isAxiosError(error)) {
-                if (error.response) {
-                showAlert(error.response.status, error.response.data?.message || "Server error");
-                } else {
-                showAlert(500, `Server error: ${error.message}`);
-                }
-            } else if (error instanceof Error) {
+            const err = error as any;
+            if (err?.response) {
+                showAlert(err.response.status || 500, err.response.data?.message || err.message || "Server error");
+            } 
+            else if (error instanceof Error) {
                 showAlert(500, error.message);
-            } else {
+            }
+            else {
                 showAlert(500, "Unknown error");
             }
         }
@@ -82,7 +81,7 @@ export default function EditSubtopic() {
         if (subtopicId === -1) return;
 
         try {
-            const response = await api.get(
+            const response = await api.get<any>(
                 `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/${subtopicId}`
             );
             setTypeSubtopicEditText(response.data.subtopic.name);
@@ -157,7 +156,7 @@ export default function EditSubtopic() {
         showSpinner(true, "Trwa aktualizacja podtematu...");
 
         try {
-            const response = await api.put(
+            const response = await api.put<any>(
                 `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/${subtopicId}`,
                 { name: typeSubtopicEditText }
             );
@@ -176,17 +175,16 @@ export default function EditSubtopic() {
     }
 
     function handleApiError(error: unknown) {
-        if (axios.isAxiosError(error)) {
-            if (error.response) {
-                showAlert(error.response.status, error.response.data.message || "Server error");
-            } else {
-                showAlert(500, `Server error: ${error.message}`);
-            }
-        } else if (error instanceof Error) {
-            showAlert(500, `Server error: ${error.message}`);
-        } else {
-            showAlert(500, "Unknown error");
-        }
+      const err = error as any;
+      if (err?.response) {
+        showAlert(err.response.status || 500, err.response.data?.message || err.message || "Server error");
+      } 
+      else if (error instanceof Error) {
+        showAlert(500, error.message);
+      }
+      else {
+        showAlert(500, "Unknown error");
+      }
     }
 
     return (

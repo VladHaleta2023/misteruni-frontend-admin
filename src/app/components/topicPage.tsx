@@ -98,7 +98,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       showSpinner(true);
 
       try {
-        const response = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/admin`);
+        const response = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/admin`);
         
         if (response.data?.statusCode === 200) {
           setSubtopics(response.data.subtopics);
@@ -134,7 +134,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       showSpinner(true);
 
       try {
-        const response = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+        const response = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
 
         if (response.data?.statusCode === 200) {
           setSubjectName(response.data.subject.name);
@@ -177,7 +177,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       showSpinner(true);
 
       try {
-        const response = await api.post(`/subjects/${subjectId}/words/admin`, {
+        const response = await api.post<any>(`/subjects/${subjectId}/words/admin`, {
           topicId: topicId
         });
 
@@ -213,15 +213,14 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   }
 
   function handleApiError(error: unknown) {
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        showAlert(error.response.status, error.response.data.message || "Server error");
-      } else {
-        showAlert(500, `Server error: ${error.message}`);
-      }
-    } else if (error instanceof Error) {
-      showAlert(500, `Server error: ${error.message}`);
-    } else {
+    const err = error as any;
+    if (err?.response) {
+      showAlert(err.response.status || 500, err.response.data?.message || err.message || "Server error");
+    } 
+    else if (error instanceof Error) {
+      showAlert(500, error.message);
+    }
+    else {
       showAlert(500, "Unknown error");
     }
   }
@@ -270,7 +269,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     showSpinner(true, "Trwa usuwanie podtematu...");
     
     try {
-        const response = await api.delete(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/${subtopicId}`);
+        const response = await api.delete<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/${subtopicId}`);
 
         showAlert(response?.data.statusCode, response?.data.message);
 
@@ -371,7 +370,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     showSpinner(true, "Trwa zapisywanie danych...");
 
     try {
-      const response = await saveTopicData();
+      const response = await saveTopicData() as any;
 
       showAlert(response?.data.statusCode, response?.data.message);
 
@@ -394,7 +393,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     await saveTopicData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
 
       showSpinner(true, `Trwa generacja podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
       
@@ -406,7 +405,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       const MAX_ATTEMPTS = 2;
 
       while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-        const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
+        const subtopicsResponse = await api.post<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
           changed,
           subtopics,
           errors,
@@ -482,7 +481,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     await saveTopicData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
 
       showSpinner(true, `Trwa generacja ważności podtematów dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
       
@@ -499,7 +498,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       const MAX_ATTEMPTS = 2;
 
       while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-        const subtopicsStatusResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/status-generate`, {
+        const subtopicsStatusResponse = await api.post<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/status-generate`, {
           changed,
           subtopics,
           errors,
@@ -570,7 +569,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     await saveTopicData();
 
     try {
-      const topicResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+      const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
       const topic = topicResponse.data.topic;
       const prompt: string = topic.topicExpansionPrompt;
 
@@ -657,7 +656,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     await saveTopicData();
 
     try {
-      const topicResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+      const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
       const topic = topicResponse.data.topic;
       const prompt: string = topic.topicFrequencyPrompt;
 
@@ -735,7 +734,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     await saveTopicData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
 
       showSpinner(true, `Trwa generacja słów tematycznych dla\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
       
@@ -747,7 +746,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       const MAX_ATTEMPTS = 0;
 
       while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-        const wordsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/words/words-generate`, {
+        const wordsResponse = await api.post<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/words/words-generate`, {
           changed,
           words,
           errors,

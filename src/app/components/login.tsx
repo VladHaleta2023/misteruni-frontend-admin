@@ -30,7 +30,7 @@ export default function LoginPage() {
         return;
       }
 
-      const response = await api.post("/auth/login-admin", { login, password });
+      const response = await api.post<any>("/auth/login-admin", { login, password });
 
       if (response.data?.statusCode === 200) {
         router.push("/dashboard");
@@ -42,15 +42,14 @@ export default function LoginPage() {
   };
 
   function handleApiError(error: unknown) {
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        showAlert(error.response.status, error.response.data?.message || "Server error");
-      } else {
-        showAlert(500, `Server error: ${error.message}`);
-      }
-    } else if (error instanceof Error) {
-      showAlert(500, `Server error: ${error.message}`);
-    } else {
+    const err = error as any;
+    if (err?.response) {
+      showAlert(err.response.status || 500, err.response.data?.message || err.message || "Server error");
+    } 
+    else if (error instanceof Error) {
+      showAlert(500, error.message);
+    }
+    else {
       showAlert(500, "Unknown error");
     }
   }

@@ -128,7 +128,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
       showSpinner(true);
 
       try {
-        const response = await api.get(`/subjects/${subjectId}/sections/${sectionId}?withTopics=false&withSubtopics=false`);
+        const response = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}?withTopics=false&withSubtopics=false`);
         if (response.data?.statusCode === 200) {
           setSubjectName(response.data.subject.name);
           setSectionName(response.data.section.name);
@@ -212,15 +212,14 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   }
 
   function handleApiError(error: unknown) {
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        showAlert(error.response.status, error.response.data.message || "Server error");
-      } else {
-        showAlert(500, `Server error: ${error.message}`);
-      }
-    } else if (error instanceof Error) {
-      showAlert(500, `Server error: ${error.message}`);
-    } else {
+    const err = error as any;
+    if (err?.response) {
+      showAlert(err.response.status || 500, err.response.data?.message || err.message || "Server error");
+    } 
+    else if (error instanceof Error) {
+      showAlert(500, error.message);
+    }
+    else {
       showAlert(500, "Unknown error");
     }
   }
@@ -405,7 +404,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     showSpinner(true, "Trwa zapisywanie danych...");
 
     try {
-      const response = await saveSectionData();
+      const response = await saveSectionData() as any;
 
       showAlert(response?.data.statusCode, response?.data.message);
 
@@ -428,7 +427,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     await saveSectionData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
 
       for (let i = 0; i < topicsResponse.data.topics.length; i++) {
         const topicId: number = topicsResponse.data.topics[i].id;
@@ -442,7 +441,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         const MAX_ATTEMPTS = 2;
 
         while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-          const subtopicsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
+          const subtopicsResponse = await api.post<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/generate`, {
             changed,
             subtopics,
             errors,
@@ -522,7 +521,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     await saveSectionData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
 
       for (let i = 0; i < topicsResponse.data.topics.length; i++) {
         const topicId: number = topicsResponse.data.topics[i].id;
@@ -541,7 +540,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         const MAX_ATTEMPTS = 2;
 
         while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-          const subtopicsStatusResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/status-generate`, {
+          const subtopicsStatusResponse = await api.post<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/status-generate`, {
             changed,
             subtopics,
             errors,
@@ -616,7 +615,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     await saveSectionData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
       const topics = topicsResponse.data.topics;
 
       for (let topicIndex = 0; topicIndex < topics.length; topicIndex++) {
@@ -715,7 +714,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     await saveSectionData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
       const topics = topicsResponse.data.topics;
 
       for (let topicIndex = 0; topicIndex < topics.length; topicIndex++) {
@@ -825,7 +824,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     await saveSectionData();
 
     try {
-      const topicsResponse = await api.get(`/subjects/${subjectId}/sections/${sectionId}/topics`);
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
 
       for (let i = 0; i < topicsResponse.data.topics.length; i++) {
         const topicId: number = topicsResponse.data.topics[i].id;
@@ -839,7 +838,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         const MAX_ATTEMPTS = 0;
 
         while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-          const wordsResponse = await api.post(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/words/words-generate`, {
+          const wordsResponse = await api.post<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/words/words-generate`, {
             changed,
             words,
             errors,

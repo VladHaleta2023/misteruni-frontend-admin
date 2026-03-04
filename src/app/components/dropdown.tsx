@@ -121,7 +121,7 @@ export default function Dropdown({ onUpdate }: DropdownProps) {
   useEffect(() => {
     async function fetchSubjects() {
       try {
-        const response = await api.get("/subjects");
+        const response = await api.get<any>("/subjects");
         if (response.data?.statusCode === 200) {
           const fetchedSubjects: Subject[] = response.data.subjects;
           setSubjects(fetchedSubjects);
@@ -171,15 +171,14 @@ export default function Dropdown({ onUpdate }: DropdownProps) {
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
-        if (axios.isAxiosError(error)) {
-          if (error.response) {
-            showAlert(error.response.status, error.response.data.message || "Server error");
-          } else {
-            showAlert(500, `Server error: ${error.message}`);
-          }
-        } else if (error instanceof Error) {
-          showAlert(500, `Server error: ${error.message}`);
-        } else {
+        const err = error as any;
+        if (err?.response) {
+          showAlert(err.response.status || 500, err.response.data?.message || err.message || "Server error");
+        } 
+        else if (error instanceof Error) {
+          showAlert(500, error.message);
+        }
+        else {
           showAlert(500, "Unknown error");
         }
       } finally {
