@@ -83,6 +83,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubtopicsStatusText, setPromptSubtopicsStatusText] = useState(["", ""]);
   const [promptQuestionText, setPromptQuestionText] = useState(["", ""]);
   const [promptSolutionText, setPromptSolutionText] = useState(["", ""]);
+  const [promptSolutionGuideText, setPromptSolutionGuideText] = useState(["", ""]);
   const [promptAnswersText, setPromptAnswersText] = useState(["", ""]);
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
@@ -99,6 +100,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubtopicsStatusTextOwn, setPromptSubtopicsStatusTextOwn] = useState(true);
   const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
   const [promptSolutionTextOwn, setPromptSolutionTextOwn] = useState(true);
+  const [promptSolutionGuideTextOwn, setPromptSolutionGuideTextOwn] = useState(true);
   const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
@@ -156,6 +158,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSolutionTextareaExpanded, setPromptSolutionTextareaExpanded] = useState(false);
   const [promptSolutionTextareaRows, setPromptSolutionTextareaRows] = useState(5);
 
+  const promptSolutionGuideTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptSolutionGuideTextareaExpanded, setPromptSolutionGuideTextareaExpanded] = useState(false);
+  const [promptSolutionGuideTextareaRows, setPromptSolutionGuideTextareaRows] = useState(5);
+
   const promptAnswersTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptAnswersTextareaExpanded, setPromptAnswersTextareaExpanded] = useState(false);
   const [promptAnswersTextareaRows, setPromptAnswersTextareaRows] = useState(5);
@@ -209,6 +215,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptSubtopicsStatusText([response.data.subject.subtopicsStatusPrompt, response.data.subject.subtopicsStatusPrompt]);
           setPromptQuestionText([response.data.subject.questionPrompt, response.data.subject.questionPrompt]);
           setPromptSolutionText([response.data.subject.solutionPrompt, response.data.subject.solutionPrompt]);
+          setPromptSolutionGuideText([response.data.subject.solutionGuidePrompt, response.data.subject.solutionGuidePrompt]);
           setPromptAnswersText([response.data.subject.answersPrompt, response.data.subject.answersPrompt]);
           setPromptStoriesText([response.data.subject.vocabluaryPrompt, response.data.subject.vocabluaryPrompt]);
           setPromptWordsText([response.data.subject.wordsPrompt, response.data.subject.wordsPrompt]);
@@ -222,6 +229,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptClosedSubtopicsTextOwn(response.data.subject.closedSubtopicsPromptOwn)
           setPromptQuestionTextOwn(response.data.subject.questionPromptOwn);
           setPromptSolutionTextOwn(response.data.subject.solutionPromptOwn);
+          setPromptSolutionGuideTextOwn(response.data.subject.solutionGuidePromptOwn);
           setPromptAnswersTextOwn(response.data.subject.answersPromptOwn);
           setPromptStoriesTextOwn(response.data.subject.vocabluaryPromptOwn);
           setPromptWordsTextOwn(response.data.subject.wordsPromptOwn);
@@ -434,6 +442,19 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
 
     setPromptSolutionTextareaExpanded(prev => !prev);
+  }
+
+  function toggleSolutionGuidePromptTextareaSize() {
+    if (promptSolutionGuideTextareaRef.current) {
+      if (!promptSolutionGuideTextareaExpanded) {
+        const rows = calculateRows(promptSolutionGuideTextareaRef.current);
+        setPromptSolutionGuideTextareaRows(rows);
+      } else {
+        setPromptSolutionGuideTextareaRows(5);
+      }
+    }
+
+    setPromptSolutionGuideTextareaExpanded(prev => !prev);
   }
 
   function toggleAnswersPromptTextareaSize() {
@@ -1349,7 +1370,6 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
             dbAttempt++;
 
             if (dbAttempt >= MAX_DB_ATTEMPTS) {
-              // Ошибка сохранения на текущей позиции - сохраняем ЭТУ ЖЕ позицию
               setMinLiterature(currentPosition);
 
               showAlert(
@@ -1364,20 +1384,17 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           }
         }
         
-        // УСПЕХ - увеличиваем позицию ДЛЯ СЛЕДУЮЩЕЙ итерации
         currentPosition++;
-        // Сохраняем новую позицию (следующую для обработки)
         setMinLiterature(currentPosition);
       }
 
-      // Если дошли сюда - все успешно обработано
       resetSpinner();
       setTextMessageOK(
         `Poprawnie zapisano całą literaturę przedmiotu ${subjectName} (pozycje ${startPosition}-${currentPosition-1}/${totalLiteratures})`
       );
       setMsgOKVisible(true);
 
-      setMinLiterature(1); // Сбрасываем после успешного завершения всех
+      setMinLiterature(1);
 
     } catch (error: unknown) {
       setMinLiterature(lastProcessedPosition);
@@ -1416,6 +1433,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     subtopicsStatusPrompt: promptSubtopicsStatusText,
     questionPrompt: promptQuestionText,
     solutionPrompt: promptSolutionText,
+    solutionGuidePrompt: promptSolutionGuideText,
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     vocabluaryPrompt: promptStoriesText,
@@ -1435,6 +1453,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         subtopicsStatusPrompt: (Array.isArray(data.subtopicsStatusPrompt) && data.subtopicsStatusPrompt[0] !== data.subtopicsStatusPrompt[1]) ? data.subtopicsStatusPrompt[0] : undefined,
         questionPrompt: (Array.isArray(data.questionPrompt) && data.questionPrompt[0] !== data.questionPrompt[1]) ? data.questionPrompt[0] : undefined,
         solutionPrompt: (Array.isArray(data.solutionPrompt) && data.solutionPrompt[0] !== data.solutionPrompt[1]) ? data.solutionPrompt[0] : undefined,
+        solutionGuidePrompt: (Array.isArray(data.solutionGuidePrompt) && data.solutionGuidePrompt[0] !== data.solutionGuidePrompt[1]) ? data.solutionGuidePrompt[0] : undefined,
         answersPrompt: (Array.isArray(data.answersPrompt) && data.answersPrompt[0] !== data.answersPrompt[1]) ? data.answersPrompt[0] : undefined,
         closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
         vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
@@ -1855,6 +1874,36 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   placeholder="Proszę napisać prompt słownictwa..."
                 />
               </div>) : null}
+              <div className="options-container">
+                {promptSolutionGuideTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSolutionGuidePromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSolutionGuidePromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptSolutionGuide" className="label">Poradnik Rozwiązania Zadania:</label>
+                <textarea
+                  id="promptSolutionGuide"
+                  rows={promptSolutionGuideTextareaRows}
+                  ref={promptSolutionGuideTextareaRef}
+                  name="text-container"
+                  value={promptSolutionGuideText[0]}
+                  onInput={(e) => {
+                    setPromptSolutionGuideText([(e.target as HTMLTextAreaElement).value, promptSolutionGuideText[1]]);
+                  }}
+                  className={`text-container ${promptSolutionGuideTextOwn ? "own" : ""} ${(promptSolutionGuideText[0] !== promptSolutionGuideText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt poradnika rozwiązania..."
+                />
+              </div>
               <div className="options-container">
                 {promptTextareaExpanded ?
                   <ChevronUp
