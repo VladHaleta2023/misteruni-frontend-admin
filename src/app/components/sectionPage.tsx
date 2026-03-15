@@ -1211,7 +1211,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   placeholder="Proszę napisać prompt do chatu zadania..."
                 />
               </div>
-              {typeSectionText[0] != "Stories" ? (<div className="options-container">
+              <div className="options-container">
                 {promptClosedSubtopicsTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -1240,7 +1240,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   spellCheck={true}
                   placeholder="Proszę napisać prompt zamykania podtematów..."
                 />
-              </div>) : null}
+              </div>
               {typeSectionText[0] == "Stories" ? (<div className="options-container">
                 {promptStoriesTextareaExpanded ?
                   <ChevronUp
