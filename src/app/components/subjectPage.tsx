@@ -73,7 +73,7 @@ type FrequencyResponse = {
 
 export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [minSectionPart, setMinSectionPart] = useState(1);
-  const [minLiterature, setMinLiterature] = useState(230);
+  const [minLiterature, setMinLiterature] = useState(1);
 
   const [subjectPromptText, setSubjectPromptText] = useState(["", ""]);
   const [typeSubjectText, setTypeSubjectText] = useState(["", ""]);
