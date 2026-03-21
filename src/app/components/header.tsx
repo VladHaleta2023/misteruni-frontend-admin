@@ -7,7 +7,7 @@ import "@/app/styles/header.css";
 export default function Header() {
   return (
     <header className="header" style={{ justifyContent: "center", alignItems: "center" }}>
-      <span className="misterUniLogo">Matura Go Admin</span>
+      <span className="misterUniLogo">MaturaGoAdmin</span>
     </header>
   );
 }

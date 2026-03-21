@@ -14,7 +14,7 @@ export default function HeaderDropDown({ onUpdate, children }: HeaderDropDownPro
   return (
     <header className="header">
       <Dropdown onUpdate={onUpdate} />
-      <span className="misterUniLogo">MisterUniAdmin</span>
+      <span className="misterUniLogo">MaturaGoAdmin</span>
       {children}
     </header>
   );
