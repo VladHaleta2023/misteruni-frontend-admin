@@ -5,7 +5,6 @@ import "@/app/styles/main.css";
 import { useState, useEffect, useRef } from "react";
 import api from "@/app/utils/api";
 import { showAlert } from "@/app/scripts/showAlert";
-import axios from "axios";
 import Message from "@/app/components/message";
 import Spinner from "@/app/components/spinner";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -82,8 +81,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubtopicsText, setPromptSubtopicsText] = useState(["", ""]);
   const [promptSubtopicsStatusText, setPromptSubtopicsStatusText] = useState(["", ""]);
   const [promptQuestionText, setPromptQuestionText] = useState(["", ""]);
-  const [promptSolutionText, setPromptSolutionText] = useState(["", ""]);
   const [promptSolutionGuideText, setPromptSolutionGuideText] = useState(["", ""]);
+  const [promptVocabularyGuideText, setPromptVocabularyGuideText] = useState(["", ""]);
   const [promptAnswersText, setPromptAnswersText] = useState(["", ""]);
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
@@ -99,8 +98,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubtopicsTextOwn, setPromptSubtopicsTextOwn] = useState(true);
   const [promptSubtopicsStatusTextOwn, setPromptSubtopicsStatusTextOwn] = useState(true);
   const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
-  const [promptSolutionTextOwn, setPromptSolutionTextOwn] = useState(true);
   const [promptSolutionGuideTextOwn, setPromptSolutionGuideTextOwn] = useState(true);
+  const [promptVocabularyGuideTextOwn, setPromptVocabularyGuideTextOwn] = useState(true);
   const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
@@ -154,13 +153,13 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptQuestionTextareaExpanded, setPromptQuestionTextareaExpanded] = useState(false);
   const [promptQuestionTextareaRows, setPromptQuestionTextareaRows] = useState(5);
 
-  const promptSolutionTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptSolutionTextareaExpanded, setPromptSolutionTextareaExpanded] = useState(false);
-  const [promptSolutionTextareaRows, setPromptSolutionTextareaRows] = useState(5);
-
   const promptSolutionGuideTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptSolutionGuideTextareaExpanded, setPromptSolutionGuideTextareaExpanded] = useState(false);
   const [promptSolutionGuideTextareaRows, setPromptSolutionGuideTextareaRows] = useState(5);
+
+  const promptVocabularyGuideTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptVocabularyGuideTextareaExpanded, setPromptVocabularyGuideTextareaExpanded] = useState(false);
+  const [promptVocabularyGuideTextareaRows, setPromptVocabularyGuideTextareaRows] = useState(5);
 
   const promptAnswersTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptAnswersTextareaExpanded, setPromptAnswersTextareaExpanded] = useState(false);
@@ -214,8 +213,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptSubtopicsText([response.data.subject.subtopicsPrompt, response.data.subject.subtopicsPrompt]);
           setPromptSubtopicsStatusText([response.data.subject.subtopicsStatusPrompt, response.data.subject.subtopicsStatusPrompt]);
           setPromptQuestionText([response.data.subject.questionPrompt, response.data.subject.questionPrompt]);
-          setPromptSolutionText([response.data.subject.solutionPrompt, response.data.subject.solutionPrompt]);
           setPromptSolutionGuideText([response.data.subject.solutionGuidePrompt, response.data.subject.solutionGuidePrompt]);
+          setPromptVocabularyGuideText([response.data.subject.vocabularyGuidePrompt, response.data.subject.vocabularyGuidePrompt]);
           setPromptAnswersText([response.data.subject.answersPrompt, response.data.subject.answersPrompt]);
           setPromptStoriesText([response.data.subject.vocabluaryPrompt, response.data.subject.vocabluaryPrompt]);
           setPromptWordsText([response.data.subject.wordsPrompt, response.data.subject.wordsPrompt]);
@@ -228,8 +227,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptSubtopicsStatusTextOwn(response.data.subject.subtopicsStatusPromptOwn);
           setPromptClosedSubtopicsTextOwn(response.data.subject.closedSubtopicsPromptOwn)
           setPromptQuestionTextOwn(response.data.subject.questionPromptOwn);
-          setPromptSolutionTextOwn(response.data.subject.solutionPromptOwn);
           setPromptSolutionGuideTextOwn(response.data.subject.solutionGuidePromptOwn);
+          setPromptVocabularyGuideTextOwn(response.data.subject.vocabularyGuidePromptOwn);
           setPromptAnswersTextOwn(response.data.subject.answersPromptOwn);
           setPromptStoriesTextOwn(response.data.subject.vocabluaryPromptOwn);
           setPromptWordsTextOwn(response.data.subject.wordsPromptOwn);
@@ -431,19 +430,6 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setPromptQuestionTextareaExpanded(prev => !prev);
   }
 
-  function toggleSolutionPromptTextareaSize() {
-    if (promptSolutionTextareaRef.current) {
-      if (!promptSolutionTextareaExpanded) {
-        const rows = calculateRows(promptSolutionTextareaRef.current);
-        setPromptSolutionTextareaRows(rows);
-      } else {
-        setPromptSolutionTextareaRows(5);
-      }
-    }
-
-    setPromptSolutionTextareaExpanded(prev => !prev);
-  }
-
   function toggleSolutionGuidePromptTextareaSize() {
     if (promptSolutionGuideTextareaRef.current) {
       if (!promptSolutionGuideTextareaExpanded) {
@@ -455,6 +441,19 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
 
     setPromptSolutionGuideTextareaExpanded(prev => !prev);
+  }
+
+  function toggleVocabularyGuidePromptTextareaSize() {
+    if (promptVocabularyGuideTextareaRef.current) {
+      if (!promptVocabularyGuideTextareaExpanded) {
+        const rows = calculateRows(promptVocabularyGuideTextareaRef.current);
+        setPromptVocabularyGuideTextareaRows(rows);
+      } else {
+        setPromptVocabularyGuideTextareaRows(5);
+      }
+    }
+
+    setPromptVocabularyGuideTextareaExpanded(prev => !prev);
   }
 
   function toggleAnswersPromptTextareaSize() {
@@ -1432,8 +1431,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     subtopicsPrompt: promptSubtopicsText,
     subtopicsStatusPrompt: promptSubtopicsStatusText,
     questionPrompt: promptQuestionText,
-    solutionPrompt: promptSolutionText,
     solutionGuidePrompt: promptSolutionGuideText,
+    vocabularyGuidePrompt: promptVocabularyGuideText,
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     vocabluaryPrompt: promptStoriesText,
@@ -1452,8 +1451,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         subtopicsPrompt: (Array.isArray(data.subtopicsPrompt) && data.subtopicsPrompt[0] !== data.subtopicsPrompt[1]) ? data.subtopicsPrompt[0] : undefined,
         subtopicsStatusPrompt: (Array.isArray(data.subtopicsStatusPrompt) && data.subtopicsStatusPrompt[0] !== data.subtopicsStatusPrompt[1]) ? data.subtopicsStatusPrompt[0] : undefined,
         questionPrompt: (Array.isArray(data.questionPrompt) && data.questionPrompt[0] !== data.questionPrompt[1]) ? data.questionPrompt[0] : undefined,
-        solutionPrompt: (Array.isArray(data.solutionPrompt) && data.solutionPrompt[0] !== data.solutionPrompt[1]) ? data.solutionPrompt[0] : undefined,
         solutionGuidePrompt: (Array.isArray(data.solutionGuidePrompt) && data.solutionGuidePrompt[0] !== data.solutionGuidePrompt[1]) ? data.solutionGuidePrompt[0] : undefined,
+        vocabularyGuidePrompt: (Array.isArray(data.vocabularyGuidePrompt) && data.vocabularyGuidePrompt[0] !== data.vocabularyGuidePrompt[1]) ? data.vocabularyGuidePrompt[0] : undefined,
         answersPrompt: (Array.isArray(data.answersPrompt) && data.answersPrompt[0] !== data.answersPrompt[1]) ? data.answersPrompt[0] : undefined,
         closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
         vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
@@ -1725,36 +1724,6 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                 />
               </div>
               <div className="options-container">
-                {promptSolutionTextareaExpanded ?
-                  <ChevronUp
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSolutionPromptTextareaSize}
-                  /> :
-                  <ChevronDown
-                    size={28}
-                    style={{top: "28px"}}
-                    className="btnTextAreaOpen"
-                    onClick={toggleSolutionPromptTextareaSize}
-                  />
-                }
-                <label htmlFor="promptSolution" className="label">Rozwiązanie Zadania:</label>
-                <textarea
-                  id="promptSolution"
-                  rows={promptSolutionTextareaRows}
-                  ref={promptSolutionTextareaRef}
-                  name="text-container"
-                  value={promptSolutionText[0]}
-                  onInput={(e) => {
-                    setPromptSolutionText([(e.target as HTMLTextAreaElement).value, promptSolutionText[1]]);
-                  }}
-                  className={`text-container ${promptSolutionTextOwn ? "own" : ""} ${(promptSolutionText[0] !== promptSolutionText[1]) ? ' changed' : ''}`}
-                  spellCheck={true}
-                  placeholder="Proszę napisać prompt rozwiązanie..."
-                />
-              </div>
-              <div className="options-container">
                 {promptAnswersTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -1904,6 +1873,36 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   placeholder="Proszę napisać prompt poradnika rozwiązania..."
                 />
               </div>
+              {typeSubjectText[0] == "Language" ? (<div className="options-container">
+                {promptVocabularyGuideTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleVocabularyGuidePromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleVocabularyGuidePromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptVocabularyGuide" className="label">Poradnik Słownictwa:</label>
+                <textarea
+                  id="promptVocabularyGuide"
+                  rows={promptVocabularyGuideTextareaRows}
+                  ref={promptVocabularyGuideTextareaRef}
+                  name="text-container"
+                  value={promptVocabularyGuideText[0]}
+                  onInput={(e) => {
+                    setPromptVocabularyGuideText([(e.target as HTMLTextAreaElement).value, promptVocabularyGuideText[1]]);
+                  }}
+                  className={`text-container ${promptVocabularyGuideTextOwn ? "own" : ""} ${(promptVocabularyGuideText[0] !== promptVocabularyGuideText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt poradnika słownictwa..."
+                />
+              </div>) : null}
               <div className="options-container">
                 {promptTextareaExpanded ?
                   <ChevronUp

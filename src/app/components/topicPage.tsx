@@ -6,7 +6,6 @@ import "@/app/styles/main.css";
 import { useState, useEffect, useRef } from "react";
 import api from "@/app/utils/api";
 import { showAlert } from "@/app/scripts/showAlert";
-import axios from "axios";
 import Spinner from "@/app/components/spinner";
 import { ChevronDown, ChevronUp, Plus, Trash2, Edit } from "lucide-react";
 import { useRouter } from 'next/navigation';
