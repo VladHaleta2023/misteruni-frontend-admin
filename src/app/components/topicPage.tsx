@@ -25,9 +25,16 @@ type Word = {
   frequency: number;
 }
 
+enum SubtopicDetailLevel {
+  BASIC = "P",
+  EXPANDED = "R",
+  ACADEMIC = "A"
+}
+
 type Subtopic = {
   id: number;
   name: string;
+  detailLevel: SubtopicDetailLevel
 }
 
 type TopicExpansionChunkResponse = {
@@ -42,6 +49,13 @@ type FrequencyResponse = {
   statusCode: number;
   changed: string;
   frequency: number;
+  errors: string[];
+  attempt: number;
+};
+
+type ChronologyResponse = {
+  statusCode: number;
+  changed: string;
   outputSubtopics: [string, number][]
   errors: string[];
   attempt: number;
@@ -89,6 +103,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [msgSubtopicsStatusPromptVisible, setMsgSubtopicsStatusPromptVisible] = useState(false);
   const [msgTopicExpansionPromptVisible, setMsgTopicExpansionPromptVisible] = useState(false);
   const [msgTopicFrequencyPromptVisible, setMsgTopicFrequencyPromptVisible] = useState(false);
+  const [msgChronologyPromptVisible, setMsgChronologyPromptVisible] = useState(false);
 
   useEffect(() => {
     setSubtopicId(-1);
@@ -240,6 +255,10 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     setMsgTopicFrequencyPromptVisible(false);
   }
 
+  function handleChronologyPromptMsgCancel() {
+    setMsgChronologyPromptVisible(false);
+  }
+
   function handleWordsPromptMsgCancel() {
     setMsgWordsPromptVisible(false);
   }
@@ -350,6 +369,10 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
   function handleOpenMessageTopicFrequencyGenerate() {
     setMsgTopicFrequencyPromptVisible(true);
+  }
+
+  function handleOpenMessageChronologyGenerate() {
+    setMsgChronologyPromptVisible(true);
   }
 
   function handleOpenMessageSubtopicsGenerate() {
@@ -665,9 +688,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
       const errors: string[] = [];
 
-      const subtopicNames = subtopics.map(sub => sub.name);
       let frequency = 0;
-      let outputSubtopics: [string, number][] = [];
       let changed = "true";
       let attempt = 0;
 
@@ -680,8 +701,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
             errors,
             attempt,
             prompt,
-            subtopics: subtopicNames,
-            outputSubtopics
           }
         );
 
@@ -690,6 +709,76 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         if (data.statusCode === 201) {
           changed = data.changed;
           frequency = data.frequency ?? 0;
+          attempt = data.attempt;
+        } else {
+          showAlert(400, `Nie udało się wygenerować częstotliwości dla porcji podtematów`);
+          break;
+        }
+      }
+
+      const MAX_DB_ATTEMPTS = 3;
+      let dbAttempt = 0;
+      let dbSuccess = false;
+
+      while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
+        try {
+          await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, {
+            frequency
+          });
+
+          dbSuccess = true;
+        } catch (err) {
+          dbAttempt++;
+          console.log(`DB attempt ${dbAttempt} failed`);
+          if (dbAttempt >= MAX_DB_ATTEMPTS) throw err;
+        }
+      }
+
+      resetSpinner();
+      setFrequencyText([frequency, frequency]);
+      setTextMessageOK(`Częstotliwość została zapisana dla tematu ${topicName}`);
+      setMsgOKVisible(true);
+    } catch (error: unknown) {
+      handleApiError(error);
+      resetSpinner();
+    }
+  }
+
+  async function handleChronologyGenerate() {
+    setMsgChronologyPromptVisible(false);
+    await saveTopicData();
+
+    try {
+      const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
+      const topic = topicResponse.data.topic;
+      const prompt: string = topic.chronologyPrompt;
+
+      showSpinner(true, `Trwa generacja chronologii tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+
+      const MAX_ATTEMPTS = 2;
+
+      const errors: string[] = [];
+
+      let outputSubtopics: [string, number][] = [];
+      let changed = "true";
+      let attempt = 0;
+
+      while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+        const chronologyResponse: { data: ChronologyResponse } = await api.post(
+          `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/chronology-generate`,
+          {
+            changed,
+            errors,
+            attempt,
+            prompt,
+            outputSubtopics
+          }
+        );
+
+        const data: ChronologyResponse = chronologyResponse.data;
+
+        if (data.statusCode === 201) {
+          changed = data.changed;
           outputSubtopics = data.outputSubtopics ?? [];
           attempt = data.attempt;
         } else {
@@ -705,8 +794,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
         try {
           await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, {
-            outputSubtopics,
-            frequency
+            outputSubtopics
           });
 
           dbSuccess = true;
@@ -718,8 +806,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       }
 
       resetSpinner();
-      setFrequencyText([frequency, frequency]);
-      setTextMessageOK(`Częstotliwość została zapisana dla tematu ${topicName}`);
+      setTextMessageOK(`Chronologia została zapisana dla tematu ${topicName}`);
       setMsgOKVisible(true);
     } catch (error: unknown) {
       handleApiError(error);
@@ -835,6 +922,15 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     }
   }
 
+  const getDisplayLetter = (level: string) => {
+    switch(level) {
+      case "BASIC": return "P";
+      case "EXPANDED": return "R";
+      case "ACADEMIC": return "A";
+      default: return "";
+    }
+  };
+
   return (
     <>
       <main>
@@ -887,6 +983,15 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           onConfirm={handleTopicFrequencyGenerate}
           onClose={handleTopicFrequencyPromptMsgCancel}
           visible={msgTopicFrequencyPromptVisible}
+        />
+
+        <Message
+          message={`Czy na pewno chcesz ponownie wygenerować chronologię tematów dla przedmiotu ${subjectName}?`}
+          textConfirm="Tak"
+          textCancel="Nie"
+          onConfirm={handleChronologyGenerate}
+          onClose={handleChronologyPromptMsgCancel}
+          visible={msgChronologyPromptVisible}
         />
 
         <Message 
@@ -1059,6 +1164,16 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                   <button
                     className="button"
                     style={{ padding: "10px 54px" }}
+                    onClick={handleOpenMessageChronologyGenerate}
+                  >
+                    Generuj Chronologie
+                  </button>
+                </div>
+                <br />
+                <div style={{ marginTop: "4px" }}>
+                  <button
+                    className="button"
+                    style={{ padding: "10px 54px" }}
                     onClick={handleOpenMessageTopicFrequencyGenerate}
                   >
                     Generuj Częstotliwość
@@ -1116,8 +1231,11 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                     <Plus size={28} />
                   </button>
                 </div>
-                {subtopics.map(({ id, name }) => (
+                {subtopics.map(({ id, name, detailLevel }) => (
                     <div className="element" key={id}>
+                      <div style={{ marginRight: "12px", fontWeight: "bold" }}>
+                        {getDisplayLetter(detailLevel)}
+                      </div>
                       <div className="text">
                         <FormatText content={name} />
                       </div>

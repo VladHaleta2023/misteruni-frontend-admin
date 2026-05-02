@@ -32,6 +32,13 @@ type FrequencyResponse = {
   statusCode: number;
   changed: string;
   frequency: number;
+  errors: string[];
+  attempt: number;
+};
+
+type ChronologyResponse = {
+  statusCode: number;
+  changed: string;
   outputSubtopics: [string, number][]
   errors: string[];
   attempt: number;
@@ -50,15 +57,18 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
   const [promptWordsText, setPromptWordsText] = useState(["", ""]);
-  const [promptChatText, setPromptChatText] = useState(["", ""]);
+  const [promptChatAnswerText, setPromptChatAnswerText] = useState(["", ""]);
+  const [promptChatQuestionText, setPromptChatQuestionText] = useState(["", ""]);
   const [promptTopicExpansionText, setPromptTopicExpansionText] = useState(["", ""]);
   const [promptTopicFrequencyText, setPromptTopicFrequencyText] = useState(["", ""]);
+  const [promptChronologyText, setPromptChronologyText] = useState(["", ""]);
   const [subjectName, setSubjectName] = useState("");
   const [sectionName, setSectionName] = useState("");
   const [msgSectionDataVisible, setMsgSectionDataVisible] = useState(false);
   const [msgSubtopicsPromptVisible, setMsgSubtopicsPromptVisible] = useState(false);
   const [msgTopicExpansionPromptVisible, setMsgTopicExpansionPromptVisible] = useState(false);
   const [msgTopicFrequencyPromptVisible, setMsgTopicFrequencyPromptVisible] = useState(false);
+  const [msgChronologyPromptVisible, setMsgChronologyPromptVisible] = useState(false);
   const [msgSubtopicsStatusPromptVisible, setMsgSubtopicsStatusPromptVisible] = useState(false);
   const [msgWordsPromptVisible, setMsgWordsPromptVisible] = useState(false);
   const [spinnerVisible, setSpinnerVisible] = useState(false);
@@ -79,9 +89,11 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
   const [promptWordsTextOwn, setPromptWordsTextOwn] = useState(true);
-  const [promptChatTextOwn, setPromptChatTextOwn] = useState(true);
+  const [promptChatAnswerTextOwn, setPromptChatAnswerTextOwn] = useState(true);
+  const [promptChatQuestionTextOwn, setPromptChatQuestionTextOwn] = useState(true);
   const [promptTopicExpansionTextOwn, setPromptTopicExpansionTextOwn] = useState(true);
   const [promptTopicFrequencyTextOwn, setPromptTopicFrequencyTextOwn] = useState(true);
+  const [promptChronologyTextOwn, setPromptChronologyTextOwn] = useState(true);
   const [promptVocabularyGuideTextOwn, setPromptVocabularyGuideTextOwn] = useState(true);
 
   const promptQuestionTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -112,9 +124,13 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   const [promptWordsTextareaExpanded, setPromptWordsTextareaExpanded] = useState(false);
   const [promptWordsTextareaRows, setPromptWordsTextareaRows] = useState(5);
 
-  const promptChatTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const [promptChatTextareaExpanded, setPromptChatTextareaExpanded] = useState(false);
-  const [promptChatTextareaRows, setPromptChatTextareaRows] = useState(5);
+  const promptChatAnswerTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptChatAnswerTextareaExpanded, setPromptChatAnswerTextareaExpanded] = useState(false);
+  const [promptChatAnswerTextareaRows, setPromptChatAnswerTextareaRows] = useState(5);
+
+  const promptChatQuestionTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptChatQuestionTextareaExpanded, setPromptChatQuestionTextareaExpanded] = useState(false);
+  const [promptChatQuestionTextareaRows, setPromptChatQuestionTextareaRows] = useState(5);
 
   const promptTopicExpansionTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptTopicExpansionTextareaExpanded, setPromptTopicExpansionTextareaExpanded] = useState(false);
@@ -127,6 +143,10 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
   const promptTopicFrequencyTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptTopicFrequencyTextareaExpanded, setPromptTopicFrequencyTextareaExpanded] = useState(false);
   const [promptTopicFrequencyTextareaRows, setPromptTopicFrequencyTextareaRows] = useState(5);
+
+  const promptChronologyTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptChronologyTextareaExpanded, setPromptChronologyTextareaExpanded] = useState(false);
+  const [promptChronologyTextareaRows, setPromptChronologyTextareaRows] = useState(5);
 
   useEffect(() => {
     async function fetchSectionPromptById() {
@@ -149,9 +169,11 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           setPromptClosedSubtopicsText([response.data.section.closedSubtopicsPrompt, response.data.section.closedSubtopicsPrompt]);
           setPromptStoriesText([response.data.section.vocabluaryPrompt, response.data.section.vocabluaryPrompt]);
           setPromptWordsText([response.data.section.wordsPrompt, response.data.section.wordsPrompt]);
-          setPromptChatText([response.data.section.chatPrompt, response.data.section.chatPrompt]);
+          setPromptChatAnswerText([response.data.section.chatAnswerPrompt, response.data.section.chatAnswerPrompt]);
+          setPromptChatQuestionText([response.data.section.chatQuestionPrompt, response.data.section.chatQuestionPrompt]);
           setPromptTopicExpansionText([response.data.section.topicExpansionPrompt, response.data.section.topicExpansionPrompt]);
           setPromptTopicFrequencyText([response.data.section.topicFrequencyPrompt, response.data.section.topicFrequencyPrompt]);
+          setPromptChronologyText([response.data.section.chronologyPrompt, response.data.section.chronologyPrompt]);
           setPromptSubtopicsTextOwn(response.data.section.subtopicsPromptOwn);
           setPromptSubtopicsStatusTextOwn(response.data.section.subtopicsStatusPromptOwn);
           setPromptQuestionTextOwn(response.data.section.questionPromptOwn);
@@ -161,9 +183,11 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           setPromptClosedSubtopicsTextOwn(response.data.section.closedSubtopicsPromptOwn);
           setPromptStoriesTextOwn(response.data.section.vocabluaryPromptOwn);
           setPromptWordsTextOwn(response.data.section.wordsPromptOwn);
-          setPromptChatTextOwn(response.data.section.chatPromptOwn);
+          setPromptChatAnswerTextOwn(response.data.section.chatAnswerPromptOwn);
+          setPromptChatQuestionTextOwn(response.data.section.chatQuestionPromptOwn);
           setPromptTopicExpansionTextOwn(response.data.section.topicExpansionPromptOwn);
           setPromptTopicFrequencyTextOwn(response.data.section.topicFrequencyPromptOwn);
+          setPromptChronologyTextOwn(response.data.section.chronologyPromptOwn);
         } else {
           showAlert(response.data.statusCode, response.data.message);
         }
@@ -207,6 +231,10 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
 
   function handleTopicFrequencyPromptMsgCancel() {
     setMsgTopicFrequencyPromptVisible(false);
+  }
+
+  function handleChronologyPromptMsgCancel() {
+    setMsgChronologyPromptVisible(false);
   }
 
   function handleWordsPromptMsgCancel() {
@@ -373,6 +401,19 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     setPromptTopicFrequencyTextareaExpanded(prev => !prev);
   }
 
+  function toggleChronologyPromptTextareaSize() {
+    if (promptChronologyTextareaRef.current) {
+      if (!promptChronologyTextareaExpanded) {
+        const rows = calculateRows(promptChronologyTextareaRef.current);
+        setPromptChronologyTextareaRows(rows);
+      } else {
+        setPromptChronologyTextareaRows(5);
+      }
+    }
+
+    setPromptChronologyTextareaExpanded(prev => !prev);
+  }
+
   function toggleVocabularyGuidePromptTextareaSize() {
     if (promptVocabularyGuideTextareaRef.current) {
       if (!promptVocabularyGuideTextareaExpanded) {
@@ -386,17 +427,30 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     setPromptVocabularyGuideTextareaExpanded(prev => !prev);
   }
 
-  function toggleChatPromptTextareaSize() {
-    if (promptChatTextareaRef.current) {
-      if (!promptChatTextareaExpanded) {
-        const rows = calculateRows(promptChatTextareaRef.current);
-        setPromptChatTextareaRows(rows);
+  function toggleChatAnswerPromptTextareaSize() {
+    if (promptChatAnswerTextareaRef.current) {
+      if (!promptChatAnswerTextareaExpanded) {
+        const rows = calculateRows(promptChatAnswerTextareaRef.current);
+        setPromptChatAnswerTextareaRows(rows);
       } else {
-        setPromptChatTextareaRows(5);
+        setPromptChatAnswerTextareaRows(5);
       }
     }
 
-    setPromptChatTextareaExpanded(prev => !prev);
+    setPromptChatAnswerTextareaExpanded(prev => !prev);
+  }
+
+  function toggleChatQuestionPromptTextareaSize() {
+    if (promptChatQuestionTextareaRef.current) {
+      if (!promptChatQuestionTextareaExpanded) {
+        const rows = calculateRows(promptChatQuestionTextareaRef.current);
+        setPromptChatQuestionTextareaRows(rows);
+      } else {
+        setPromptChatQuestionTextareaRows(5);
+      }
+    }
+
+    setPromptChatQuestionTextareaExpanded(prev => !prev);
   }
 
   function handleOpenMessageSaveSectionData() {
@@ -409,6 +463,10 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
 
   function handleOpenMessageTopicFrequencyGenerate() {
     setMsgTopicFrequencyPromptVisible(true);
+  }
+
+  function handleOpenMessageChronologyGenerate() {
+    setMsgChronologyPromptVisible(true);
   }
 
   function handleOpenMessageSubtopicsGenerate() {
@@ -748,8 +806,6 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           continue;
         }
 
-        const subtopics = topic.subtopics.map((sub: Subtopic) => sub.name);
-        
         showSpinner(
           true,
           `Trwa generacja częstotliwości tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`
@@ -759,10 +815,8 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         const errors: string[] = [];
         
         let frequency = 0;
-        let outputSubtopics: [string, number][] = [];
         let changed = "true";
         let attempt = 0;
-        let success = false;
 
         while (changed === "true" && attempt <= MAX_ATTEMPTS) {
             const topicFrequencyResponse = await api.post<FrequencyResponse>(
@@ -773,8 +827,6 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                 errors,
                 attempt,
                 prompt,
-                subtopics: subtopics,
-                outputSubtopics
               }
             );
 
@@ -783,13 +835,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
             if (data.statusCode === 201) {
               changed = data.changed;
               frequency = data.frequency ?? 0;
-              outputSubtopics = data.outputSubtopics ?? [];
               attempt = data.attempt;
-              
-              if (frequency > 0 && outputSubtopics.length > 0) {
-                success = true;
-                break;
-              }
             } else {
               showAlert(
                 400,
@@ -799,14 +845,6 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
             }
         }
 
-        if (!success) {
-          showAlert(
-            400,
-            `Nie udało się wygenerować częstotliwości dla tematu ${topicName} po ${attempt} próbach`
-          );
-          continue;
-        }
-
         const MAX_DB_ATTEMPTS = 3;
         let dbAttempt = 0;
         let dbSuccess = false;
@@ -814,7 +852,6 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
           try {
             await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, {
-              outputSubtopics,
               frequency
             });
 
@@ -831,6 +868,94 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
 
       resetSpinner();
       setTextMessageOK(`Częstotliwość została zapisana dla rozdziału ${topicsResponse.data.section.name}`);
+      setMsgOKVisible(true);
+    } catch (error: unknown) {
+      handleApiError(error);
+      resetSpinner();
+    }
+  }
+
+  async function handleChronologyGenerate() {
+    setMsgChronologyPromptVisible(false);
+    await saveSectionData();
+
+    try {
+      const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
+      const topics = topicsResponse.data.topics;
+
+      for (let topicIndex = 0; topicIndex < topics.length; topicIndex++) {
+        const topic = topics[topicIndex];
+        const topicId: number = topic.id;
+        const topicName: string = topic.name;
+        const prompt: string = topic.chronologyPrompt;
+
+        if (!prompt || prompt.trim() === '') {
+          showAlert(400, `Brak promptu do generacji chronologii dla tematu: ${topicName}`);
+          continue;
+        }
+        
+        showSpinner(
+          true,
+          `Trwa generacja chronologii tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`
+        );
+
+        const MAX_ATTEMPTS = 2;
+        const errors: string[] = [];
+        
+        let outputSubtopics: [string, number][] = [];
+        let changed = "true";
+        let attempt = 0;
+
+        while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+            const chronologyResponse = await api.post<ChronologyResponse>(
+              `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/chronology-generate`,
+              {
+                changed,
+                errors,
+                attempt,
+                prompt,
+                outputSubtopics
+              }
+            );
+
+            const data = chronologyResponse.data;
+
+            if (data.statusCode === 201) {
+              changed = data.changed;
+              outputSubtopics = data.outputSubtopics ?? [];
+              attempt = data.attempt;
+            } else {
+              showAlert(
+                400,
+                `Nie udało się wygenerować częstotliwości dla tematu: ${topicName}`
+              );
+              break;
+            }
+        }
+
+        const MAX_DB_ATTEMPTS = 3;
+        let dbAttempt = 0;
+        let dbSuccess = false;
+
+        while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
+          try {
+            await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, {
+              outputSubtopics
+            });
+
+            dbSuccess = true;
+          } catch (err) {
+            dbAttempt++;
+            console.log(`DB attempt ${dbAttempt} failed`);
+            if (dbAttempt >= MAX_DB_ATTEMPTS) throw err;
+          }
+        }
+
+        showAlert(200, `Chronologia została zapisana dla tematu ${topicName}`);
+      }
+
+      resetSpinner();
+      setTextMessageOK(`Chronologia została zapisana dla rozdziału ${topicsResponse.data.section.name}`);
       setMsgOKVisible(true);
     } catch (error: unknown) {
       handleApiError(error);
@@ -949,9 +1074,11 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     closedSubtopicsPrompt: promptClosedSubtopicsText,
     vocabluaryPrompt: promptStoriesText,
     wordsPrompt: promptWordsText,
-    chatPrompt: promptChatText,
+    chatAnswerPrompt: promptChatAnswerText,
+    chatQuestionPrompt: promptChatQuestionText,
     topicExpansionPrompt: promptTopicExpansionText,
-    topicFrequencyPrompt: promptTopicFrequencyText
+    topicFrequencyPrompt: promptTopicFrequencyText,
+    chronologyPrompt: promptChronologyText
   }) {
     try {
       const processedData = {
@@ -967,9 +1094,11 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
         vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
         wordsPrompt: (Array.isArray(data.wordsPrompt) && data.wordsPrompt[0] !== data.wordsPrompt[1]) ? data.wordsPrompt[0] : undefined,
-        chatPrompt: (Array.isArray(data.chatPrompt) && data.chatPrompt[0] !== data.chatPrompt[1]) ? data.chatPrompt[0] : undefined,
+        chatAnswerPrompt: (Array.isArray(data.chatAnswerPrompt) && data.chatAnswerPrompt[0] !== data.chatAnswerPrompt[1]) ? data.chatAnswerPrompt[0] : undefined,
+        chatQuestionPrompt: (Array.isArray(data.chatQuestionPrompt) && data.chatQuestionPrompt[0] !== data.chatQuestionPrompt[1]) ? data.chatQuestionPrompt[0] : undefined,
         topicExpansionPrompt: (Array.isArray(data.topicExpansionPrompt) && data.topicExpansionPrompt[0] !== data.topicExpansionPrompt[1]) ? data.topicExpansionPrompt[0] : undefined,
         topicFrequencyPrompt: (Array.isArray(data.topicFrequencyPrompt) && data.topicFrequencyPrompt[0] !== data.topicFrequencyPrompt[1]) ? data.topicFrequencyPrompt[0] : undefined,
+        chronologyPrompt: (Array.isArray(data.chronologyPrompt) && data.chronologyPrompt[0] !== data.chronologyPrompt[1]) ? data.chronologyPrompt[0] : undefined,
       };
 
       return await api.put(`/subjects/${subjectId}/sections/${sectionId}`, processedData);
@@ -1030,6 +1159,15 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           onConfirm={handleTopicFrequencyGenerate}
           onClose={handleTopicFrequencyPromptMsgCancel}
           visible={msgTopicFrequencyPromptVisible}
+        />
+
+        <Message 
+          message={`Czy na pewno chcesz ponownie wygenerować chronologię tematów dla przedmiotu ${subjectName}?`}
+          textConfirm="Tak"
+          textCancel="Nie"
+          onConfirm={handleChronologyGenerate}
+          onClose={handleChronologyPromptMsgCancel}
+          visible={msgChronologyPromptVisible}
         />
 
         <Message 
@@ -1151,33 +1289,63 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                 />
               </div>
               <div className="options-container">
-                {promptChatTextareaExpanded ?
+                {promptChatAnswerTextareaExpanded ?
                   <ChevronUp
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleChatPromptTextareaSize}
+                    onClick={toggleChatAnswerPromptTextareaSize}
                   /> :
                   <ChevronDown
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleChatPromptTextareaSize}
+                    onClick={toggleChatAnswerPromptTextareaSize}
                   />
                 }
-                <label htmlFor="promptChat" className="label">Chat Zadania:</label>
+                <label htmlFor="promptChatAnswer" className="label">Chat Odpowiedzi Zadania:</label>
                 <textarea
-                  id="promptChat"
-                  rows={promptChatTextareaRows}
-                  ref={promptChatTextareaRef}
+                  id="promptChatAnswer"
+                  rows={promptChatAnswerTextareaRows}
+                  ref={promptChatAnswerTextareaRef}
                   name="text-container"
-                  value={promptChatText[0]}
+                  value={promptChatAnswerText[0]}
                   onInput={(e) => {
-                    setPromptChatText([(e.target as HTMLTextAreaElement).value, promptChatText[1]])
+                    setPromptChatAnswerText([(e.target as HTMLTextAreaElement).value, promptChatAnswerText[1]])
                   }}
-                  className={`text-container ${promptChatTextOwn ? "own" : ""} ${(promptChatText[0] !== promptChatText[1]) ? ' changed' : ''}`}
+                  className={`text-container ${promptChatAnswerTextOwn ? "own" : ""} ${(promptChatAnswerText[0] !== promptChatAnswerText[1]) ? ' changed' : ''}`}
                   spellCheck={true}
-                  placeholder="Proszę napisać prompt do chatu zadania..."
+                  placeholder="Proszę napisać prompt do chatu odpowiedzi zadania..."
+                />
+              </div>
+              <div className="options-container">
+                {promptChatQuestionTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleChatQuestionPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleChatQuestionPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptChatQuestion" className="label">Chat Zapytania Zadania:</label>
+                <textarea
+                  id="promptChatQuestion"
+                  rows={promptChatQuestionTextareaRows}
+                  ref={promptChatQuestionTextareaRef}
+                  name="text-container"
+                  value={promptChatQuestionText[0]}
+                  onInput={(e) => {
+                    setPromptChatQuestionText([(e.target as HTMLTextAreaElement).value, promptChatQuestionText[1]])
+                  }}
+                  className={`text-container ${promptChatQuestionTextOwn ? "own" : ""} ${(promptChatQuestionText[0] !== promptChatQuestionText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt do chatu zapytania zadania..."
                 />
               </div>
               <div className="options-container">
@@ -1421,6 +1589,46 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
                   onClick={handleOpenMessageSubtopicsStatusGenerate}
                 >
                   Generuj Ważności
+                </button>
+              </div>
+              <br />
+              <div className="options-container">
+                {promptChronologyTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleChronologyPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleChronologyPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptChronology" className="label">Chronologia Tematu:</label>
+                <textarea
+                  id="promptChronology"
+                  rows={promptChronologyTextareaRows}
+                  ref={promptChronologyTextareaRef}
+                  name="text-container"
+                  value={promptChronologyText[0]}
+                  onInput={(e) => {
+                    setPromptChronologyText([(e.target as HTMLTextAreaElement).value, promptChronologyText[1]]);
+                  }}
+                  className={`text-container ${promptChronologyTextOwn ? "own" : ""} ${(promptChronologyText[0] !== promptChronologyText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt chronologii tematu..."
+                />
+              </div>
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageChronologyGenerate}
+                >
+                  Generuj Chronologię
                 </button>
               </div>
               <br />
