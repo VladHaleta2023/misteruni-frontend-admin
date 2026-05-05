@@ -39,3 +39,6 @@ main {
   word-break: break-word;
 }
 
+h1 {
+  font-size: 18px;
+}

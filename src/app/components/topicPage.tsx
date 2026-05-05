@@ -75,7 +75,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [subjectName, setSubjectName] = useState("");
   const [subjectType, setSubjectType] = useState("");
   const [sectionName, setSectionName] = useState("");
-  const [sectionType, setSectionType] = useState("");
+  const [topicType, setTopicType] = useState("");
   const [topicName, setTopicName] = useState("");
 
   const [frequencyText, setFrequencyText] = useState([0, 0]);
@@ -133,7 +133,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       if (subjectId === -1 || sectionId === -1 || topicId === -1) {
         setSubjectName("");
         setSectionName("");
-        setSectionType("");
+        setTopicType("");
         setTopicName("");
         setSubjectType("");
         setFrequencyText([0, 0]);
@@ -153,7 +153,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         if (response.data?.statusCode === 200) {
           setSubjectName(response.data.subject.name);
           setSectionName(response.data.section.name);
-          setSectionType(response.data.section.type);
+          setTopicType(response.data.topic.type);
           setTopicName(response.data.topic.name);
           setTypeTopicText([response.data.topic.type, response.data.topic.type]);
           setSubjectType(response.data.subject.type);
@@ -165,7 +165,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setTypeTopicText(["", ""]);
           setSectionName("");
           setSubjectName("");
-          setSectionType("");
+          setTopicType("");
           setTopicName("");
           setSubjectType("");
           setFrequencyText([0, 0]);
@@ -1020,9 +1020,9 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           ) : (
             <>
               <div className="options-container">
-                <label htmlFor="SectionType" className="label">Częstotliwość Tematu:</label>
+                <label htmlFor="Frequency" className="label">Częstotliwość Tematu:</label>
                 <input
-                    id="SectionType"
+                    id="Frequency"
                     name="text-container"
                     value={Number(frequencyText[0])}
                     onInput={(e) => {
@@ -1138,7 +1138,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 </div>
               </div>
               <br />
-              {sectionType !== "Stories" ? (
+              {topicType !== "Stories" ? (
               <>
                 <div style={{ margin: "4px 0px" }}>
                   <button
@@ -1191,7 +1191,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 </div>
                 <br />
               </>) : null}
-              {sectionType === "Stories" ? (<>
+              {topicType === "Stories" ? (<>
                 <div style={{ marginTop: "4px" }}>
                   <button
                     className="button"
@@ -1216,7 +1216,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 </button>
               </div>
               <br />
-              {sectionType !== "Stories" ? (
+              {topicType !== "Stories" ? (
               <div className="formTable">
                 <div
                   className="element elementTitle"
