@@ -73,7 +73,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [subtopicId, setSubtopicId] = useState(-1);
 
   const [subjectName, setSubjectName] = useState("");
-  const [subjectType, setSubjectType] = useState("");
+  const [difficultyTopic, setDifficultyTopic] = useState(["", ""]);
   const [sectionName, setSectionName] = useState("");
   const [topicType, setTopicType] = useState("");
   const [topicName, setTopicName] = useState("");
@@ -135,12 +135,12 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setSectionName("");
         setTopicType("");
         setTopicName("");
-        setSubjectType("");
         setFrequencyText([0, 0]);
         setLiteratureText(["", ""]);
         setInformationText(["", ""]);
         setNote("");
         setTypeTopicText(["", ""]);
+        setDifficultyTopic(["", ""]);
         resetSpinner();
         return;
       }
@@ -156,10 +156,10 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setTopicType(response.data.topic.type);
           setTopicName(response.data.topic.name);
           setTypeTopicText([response.data.topic.type, response.data.topic.type]);
-          setSubjectType(response.data.subject.type);
           setLiteratureText([response.data.topic.literature, response.data.topic.literature]);
           setInformationText([response.data.topic.information, response.data.topic.information]);
           setNote(response.data.topic.note);
+          setDifficultyTopic([response.data.topic.difficulty, response.data.topic.difficulty]);
           setFrequencyText([response.data.topic.frequency, response.data.topic.frequency]);
       } else {
           setTypeTopicText(["", ""]);
@@ -167,7 +167,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setSubjectName("");
           setTopicType("");
           setTopicName("");
-          setSubjectType("");
           setFrequencyText([0, 0]);
           setLiteratureText(["", ""]);
           setInformationText(["", ""]);
@@ -423,7 +422,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       let attempt: number = 0;
       let subtopics: [string, number][] = [];
       let errors: string[] = [];
-      const prompt: string = topicsResponse.data.topic.subtopicsPrompt;
+      const prompt: string = topicsResponse.data.subject.subtopicsPrompt;
       const MAX_ATTEMPTS = 2;
 
       while (changed === "true" && attempt <= MAX_ATTEMPTS) {
@@ -516,7 +515,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       let changed: string = "true";
       let attempt: number = 0;
       let errors: string[] = [];
-      const prompt: string = topicsResponse.data.topic.subtopicsStatusPrompt;
+      const prompt: string = topicsResponse.data.subject.subtopicsStatusPrompt;
       const MAX_ATTEMPTS = 2;
 
       while (changed === "true" && attempt <= MAX_ATTEMPTS) {
@@ -592,8 +591,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
     try {
       const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
-      const topic = topicResponse.data.topic;
-      const prompt: string = topic.topicExpansionPrompt;
+      const prompt: string = topicResponse.data.subject.topicExpansionPrompt;
 
       showSpinner(true, `Trwa generacja notatki tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
 
@@ -680,7 +678,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     try {
       const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
       const topic = topicResponse.data.topic;
-      const prompt: string = topic.topicFrequencyPrompt;
+      const prompt: string = topicResponse.data.subject.topicFrequencyPrompt;
 
       showSpinner(true, `Trwa generacja częstotliwości tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
 
@@ -750,8 +748,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
     try {
       const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
-      const topic = topicResponse.data.topic;
-      const prompt: string = topic.chronologyPrompt;
+      const prompt: string = topicResponse.data.subject.chronologyPrompt;
 
       showSpinner(true, `Trwa generacja chronologii tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
 
@@ -828,7 +825,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       let attempt: number = 0;
       let words: [string, number][] = [];
       let errors: string[] = [];
-      const prompt: string = topicsResponse.data.topic.wordsPrompt;
+      const prompt: string = topicsResponse.data.subject.wordsPrompt;
       const MAX_ATTEMPTS = 0;
 
       while (changed === "true" && attempt <= MAX_ATTEMPTS) {
@@ -906,7 +903,8 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     literatureText: literatureText,
     informationText: informationText,
     frequencyText: frequencyText,
-    typeTopicText: typeTopicText
+    typeTopicText: typeTopicText,
+    difficultyTopicText: difficultyTopic,
   }) {
     try {
       const processedData = {
@@ -914,6 +912,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         type: (Array.isArray(data.typeTopicText) && data.typeTopicText[0] !== data.typeTopicText[1]) ? data.typeTopicText[0] : undefined,
         literature: (Array.isArray(data.literatureText) && data.literatureText[0] !== data.literatureText[1]) ? data.literatureText[0] : undefined,
         frequency: (Array.isArray(data.frequencyText) && data.frequencyText[0] !== data.frequencyText[1]) ? data.frequencyText[0] : undefined,
+        difficulty: (Array.isArray(data.difficultyTopicText) && data.difficultyTopicText[0] !== data.difficultyTopicText[1]) ? data.difficultyTopicText[0] : undefined,
       };
 
       return await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, processedData);
@@ -1047,7 +1046,20 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                     placeholder="Proszę napisać typ tematu..."
                 />
               </div>
-              {subjectType == "Polski" ? (
+              <div className="options-container">
+                <label htmlFor="TopicDifficulty" className="label">Trudność:</label>
+                <input
+                    id="TopicDifficulty"
+                    name="text-container"
+                    value={difficultyTopic[0]}
+                    onInput={(e) => {
+                      setDifficultyTopic([(e.target as HTMLTextAreaElement).value, difficultyTopic[1]])
+                    }}
+                    className={`text-container own ${(difficultyTopic[0] !== difficultyTopic[1]) ? ' changed' : ''}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać trudność tematu..."
+                />
+              </div>
               <div className="options-container">
                 {promptLiteratureTextareaExpanded ?
                   <ChevronUp
@@ -1078,7 +1090,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                    placeholder="Proszę napisać literaturę..."
                 />
               </div>
-              ) : null}
               <div className="options-container">
                 {promptInformationTextareaExpanded ?
                   <ChevronUp
@@ -1138,71 +1149,66 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 </div>
               </div>
               <br />
-              {topicType !== "Stories" ? (
-              <>
-                <div style={{ margin: "4px 0px" }}>
-                  <button
-                    className="button"
-                    style={{ padding: "10px 54px" }}
-                    onClick={handleOpenMessageSubtopicsGenerate}
-                  >
-                    Generuj Podtematy
-                  </button>
-                </div>
-                <br />
-                <div style={{ margin: "4px 0px" }}>
-                  <button
-                    className="button"
-                    style={{ padding: "10px 54px" }}
-                    onClick={handleOpenMessageSubtopicsStatusGenerate}
-                  >
-                    Generuj Ważności
-                  </button>
-                </div>
-                <br />
-                <div style={{ marginTop: "4px" }}>
-                  <button
-                    className="button"
-                    style={{ padding: "10px 54px" }}
-                    onClick={handleOpenMessageChronologyGenerate}
-                  >
-                    Generuj Chronologie
-                  </button>
-                </div>
-                <br />
-                <div style={{ marginTop: "4px" }}>
-                  <button
-                    className="button"
-                    style={{ padding: "10px 54px" }}
-                    onClick={handleOpenMessageTopicFrequencyGenerate}
-                  >
-                    Generuj Częstotliwość
-                  </button>
-                </div>
-                <br />
-                <div style={{ marginTop: "4px" }}>
-                  <button
-                    className="button"
-                    style={{ padding: "10px 54px" }}
-                    onClick={handleOpenMessageTopicExpansionGenerate}
-                  >
-                    Generuj Notatkę
-                  </button>
-                </div>
-                <br />
-              </>) : null}
-              {topicType === "Stories" ? (<>
-                <div style={{ marginTop: "4px" }}>
-                  <button
-                    className="button"
-                    style={{ padding: "10px 54px" }}
-                    onClick={handleOpenMessageWordsGenerate}
-                  >
-                    Generuj Słowy Tematyczne
-                  </button>
-                </div>
-                <br />
-              </>) : null}
+              <div style={{ margin: "4px 0px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageSubtopicsGenerate}
+                >
+                  Generuj Podtematy
+                </button>
+              </div>
+              <br />
+              <div style={{ margin: "4px 0px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageSubtopicsStatusGenerate}
+                >
+                  Generuj Ważności
+                </button>
+              </div>
+              <br />
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageChronologyGenerate}
+                >
+                  Generuj Chronologie
+                </button>
+              </div>
+              <br />
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageTopicFrequencyGenerate}
+                >
+                  Generuj Częstotliwość
+                </button>
+              </div>
+              <br />
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageTopicExpansionGenerate}
+                >
+                  Generuj Notatkę
+                </button>
+              </div>
+              <br /> 
+              <div style={{ marginTop: "4px" }}>
+                <button
+                  className="button"
+                  style={{ padding: "10px 54px" }}
+                  onClick={handleOpenMessageWordsGenerate}
+                >
+                  Generuj Słowy Tematyczne
+                </button>
+              </div>
+              <br />
               <div style={{ margin: "4px 0px" }}>
                 <button
                   className="button"

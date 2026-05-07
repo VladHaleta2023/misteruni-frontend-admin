@@ -31,6 +31,7 @@ type Word = {
 
 type Topic = {
   id: number;
+  type: string;
   name: string;
   section: Section;
   subtopicsPrompt: string;
@@ -89,13 +90,18 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubtopicsText, setPromptSubtopicsText] = useState(["", ""]);
   const [promptSubtopicsStatusText, setPromptSubtopicsStatusText] = useState(["", ""]);
   const [promptQuestionText, setPromptQuestionText] = useState(["", ""]);
+  const [promptAudioQuestionText, setPromptAudioQuestionText] = useState(["", ""]);
+  const [promptWritingQuestionText, setPromptWritingQuestionText] = useState(["", ""]);
   const [promptSolutionGuideText, setPromptSolutionGuideText] = useState(["", ""]);
   const [promptVocabularyGuideText, setPromptVocabularyGuideText] = useState(["", ""]);
   const [promptAnswersText, setPromptAnswersText] = useState(["", ""]);
+  const [promptAudioClosedText, setPromptAudioClosedText] = useState(["", ""]);
+  const [promptWritingClosedText, setPromptWritingClosedText] = useState(["", ""]);
   const [promptClosedSubtopicsText, setPromptClosedSubtopicsText] = useState(["", ""]);
   const [promptStoriesText, setPromptStoriesText] = useState(["", ""]);
   const [promptWordsText, setPromptWordsText] = useState(["", ""]);
   const [promptLiteratureText, setPromptLiteratureText] = useState(["", ""]);
+  const [promptAudioChatText, setPromptAudioChatText] = useState(["", ""]);
   const [promptChatText, setPromptChatText] = useState(["", ""]);
   const [promptTopicExpansionText, setPromptTopicExpansionText] = useState(["", ""]);
   const [promptTopicFrequencyText, setPromptTopicFrequencyText] = useState(["", ""]);
@@ -107,13 +113,18 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptSubtopicsTextOwn, setPromptSubtopicsTextOwn] = useState(true);
   const [promptSubtopicsStatusTextOwn, setPromptSubtopicsStatusTextOwn] = useState(true);
   const [promptQuestionTextOwn, setPromptQuestionTextOwn] = useState(true);
+  const [promptAudioQuestionTextOwn, setPromptAudioQuestionTextOwn] = useState(true);
+  const [promptWritingQuestionTextOwn, setPromptWritingQuestionTextOwn] = useState(true);
   const [promptSolutionGuideTextOwn, setPromptSolutionGuideTextOwn] = useState(true);
   const [promptVocabularyGuideTextOwn, setPromptVocabularyGuideTextOwn] = useState(true);
   const [promptAnswersTextOwn, setPromptAnswersTextOwn] = useState(true);
+  const [promptAudioClosedTextOwn, setPromptAudioClosedTextOwn] = useState(true);
+  const [promptWritingClosedTextOwn, setPromptWritingClosedTextOwn] = useState(true);
   const [promptClosedSubtopicsTextOwn, setPromptClosedSubtopicsTextOwn] = useState(true);
   const [promptStoriesTextOwn, setPromptStoriesTextOwn] = useState(true);
   const [promptWordsTextOwn, setPromptWordsTextOwn] = useState(true);
   const [promptLiteratureTextOwn, setPromptLiteratureTextOwn] = useState(true);
+  const [promptAudioChatTextOwn, setPromptAudioChatTextOwn] = useState(true);
   const [promptChatTextOwn, setPromptChatTextOwn] = useState(true);
   const [promptTopicExpansionTextOwn, setPromptTopicExpansionTextOwn] = useState(true);
   const [promptTopicFrequencyTextOwn, setPromptTopicFrequencyTextOwn] = useState(true);
@@ -165,6 +176,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptQuestionTextareaExpanded, setPromptQuestionTextareaExpanded] = useState(false);
   const [promptQuestionTextareaRows, setPromptQuestionTextareaRows] = useState(5);
 
+  const promptAudioQuestionTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptAudioQuestionTextareaExpanded, setPromptAudioQuestionTextareaExpanded] = useState(false);
+  const [promptAudioQuestionTextareaRows, setPromptAudioQuestionTextareaRows] = useState(5);
+
+  const promptWritingQuestionTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptWritingQuestionTextareaExpanded, setPromptWritingQuestionTextareaExpanded] = useState(false);
+  const [promptWritingQuestionTextareaRows, setPromptWritingQuestionTextareaRows] = useState(5);
+
   const promptSolutionGuideTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptSolutionGuideTextareaExpanded, setPromptSolutionGuideTextareaExpanded] = useState(false);
   const [promptSolutionGuideTextareaRows, setPromptSolutionGuideTextareaRows] = useState(5);
@@ -181,6 +200,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptClosedSubtopicsTextareaExpanded, setPromptClosedSubtopicsTextareaExpanded] = useState(false);
   const [promptClosedSubtopicsTextareaRows, setPromptClosedSubtopicsTextareaRows] = useState(5);
 
+  const promptAudioClosedTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptAudioClosedTextareaExpanded, setPromptAudioClosedTextareaExpanded] = useState(false);
+  const [promptAudioClosedTextareaRows, setPromptAudioClosedTextareaRows] = useState(5);
+
+  const promptWritingClosedTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptWritingClosedTextareaExpanded, setPromptWritingClosedTextareaExpanded] = useState(false);
+  const [promptWritingClosedTextareaRows, setPromptWritingClosedTextareaRows] = useState(5);
+
   const promptStoriesTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptStoriesTextareaExpanded, setPromptStoriesTextareaExpanded] = useState(false);
   const [promptStoriesTextareaRows, setPromptStoriesTextareaRows] = useState(5);
@@ -196,6 +223,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const promptChatTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptChatTextareaExpanded, setPromptChatTextareaExpanded] = useState(false);
   const [promptChatTextareaRows, setPromptChatTextareaRows] = useState(5);
+
+  const promptAudioChatTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptAudioChatTextareaExpanded, setPromptAudioChatTextareaExpanded] = useState(false);
+  const [promptAudioChatTextareaRows, setPromptAudioChatTextareaRows] = useState(5);
 
   const promptTopicExpansionTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptTopicExpansionTextareaExpanded, setPromptTopicExpansionTextareaExpanded] = useState(false);
@@ -229,27 +260,37 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptSubtopicsText([response.data.subject.subtopicsPrompt, response.data.subject.subtopicsPrompt]);
           setPromptSubtopicsStatusText([response.data.subject.subtopicsStatusPrompt, response.data.subject.subtopicsStatusPrompt]);
           setPromptQuestionText([response.data.subject.questionPrompt, response.data.subject.questionPrompt]);
+          setPromptAudioQuestionText([response.data.subject.audioQuestionPrompt, response.data.subject.audioQuestionPrompt]);
+          setPromptWritingQuestionText([response.data.subject.writingQuestionPrompt, response.data.subject.writingQuestionPrompt]);
           setPromptSolutionGuideText([response.data.subject.solutionGuidePrompt, response.data.subject.solutionGuidePrompt]);
           setPromptVocabularyGuideText([response.data.subject.vocabularyGuidePrompt, response.data.subject.vocabularyGuidePrompt]);
           setPromptAnswersText([response.data.subject.answersPrompt, response.data.subject.answersPrompt]);
           setPromptStoriesText([response.data.subject.vocabluaryPrompt, response.data.subject.vocabluaryPrompt]);
           setPromptWordsText([response.data.subject.wordsPrompt, response.data.subject.wordsPrompt]);
           setPromptChatText([response.data.subject.chatPrompt, response.data.subject.chatPrompt]);
+          setPromptAudioChatText([response.data.subject.audioChatPrompt, response.data.subject.audioChatPrompt]);
           setPromptClosedSubtopicsText([response.data.subject.closedSubtopicsPrompt, response.data.subject.closedSubtopicsPrompt]);
+          setPromptAudioClosedText([response.data.subject.audioClosedPrompt, response.data.subject.audioClosedPrompt]);
+          setPromptWritingClosedText([response.data.subject.writingClosedPrompt, response.data.subject.writingClosedPrompt]);
           setPromptTopicExpansionText([response.data.subject.topicExpansionPrompt, response.data.subject.topicExpansionPrompt]);
           setPromptTopicFrequencyText([response.data.subject.topicFrequencyPrompt, response.data.subject.topicFrequencyPrompt]);
           setPromptChronologyText([response.data.subject.chronologyPrompt, response.data.subject.chronologyPrompt]);
           setPromptLiteratureText([response.data.subject.literaturePrompt, response.data.subject.literaturePrompt]);
           setPromptSubtopicsTextOwn(response.data.subject.subtopicsPromptOwn);
           setPromptSubtopicsStatusTextOwn(response.data.subject.subtopicsStatusPromptOwn);
-          setPromptClosedSubtopicsTextOwn(response.data.subject.closedSubtopicsPromptOwn)
+          setPromptClosedSubtopicsTextOwn(response.data.subject.closedSubtopicsPromptOwn);
+          setPromptAudioClosedTextOwn(response.data.subject.audioClosedPromptOwn)
+          setPromptWritingClosedTextOwn(response.data.subject.writingClosedPromptOwn)
           setPromptQuestionTextOwn(response.data.subject.questionPromptOwn);
+          setPromptAudioQuestionTextOwn(response.data.subject.audioQuestionPromptOwn);
+          setPromptWritingQuestionTextOwn(response.data.subject.writingQuestionPromptOwn);
           setPromptSolutionGuideTextOwn(response.data.subject.solutionGuidePromptOwn);
           setPromptVocabularyGuideTextOwn(response.data.subject.vocabularyGuidePromptOwn);
           setPromptAnswersTextOwn(response.data.subject.answersPromptOwn);
           setPromptStoriesTextOwn(response.data.subject.vocabluaryPromptOwn);
           setPromptWordsTextOwn(response.data.subject.wordsPromptOwn);
           setPromptChatTextOwn(response.data.subject.chatPromptOwn);
+          setPromptAudioChatTextOwn(response.data.subject.audioChatPromptOwn);
           setPromptTopicExpansionTextOwn(response.data.subject.topicExpansionPromptOwn);
           setPromptTopicFrequencyTextOwn(response.data.subject.topicFrequencyPromptOwn);
           setPromptChronologyTextOwn(response.data.subject.chronologyPromptOwn);
@@ -457,6 +498,32 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setPromptQuestionTextareaExpanded(prev => !prev);
   }
 
+  function toggleAudioQuestionPromptTextareaSize() {
+    if (promptAudioQuestionTextareaRef.current) {
+      if (!promptAudioQuestionTextareaExpanded) {
+        const rows = calculateRows(promptAudioQuestionTextareaRef.current);
+        setPromptAudioQuestionTextareaRows(rows);
+      } else {
+        setPromptAudioQuestionTextareaRows(5);
+      }
+    }
+
+    setPromptAudioQuestionTextareaExpanded(prev => !prev);
+  }
+
+  function toggleWritingQuestionPromptTextareaSize() {
+    if (promptWritingQuestionTextareaRef.current) {
+      if (!promptWritingQuestionTextareaExpanded) {
+        const rows = calculateRows(promptWritingQuestionTextareaRef.current);
+        setPromptWritingQuestionTextareaRows(rows);
+      } else {
+        setPromptWritingQuestionTextareaRows(5);
+      }
+    }
+
+    setPromptWritingQuestionTextareaExpanded(prev => !prev);
+  }
+
   function toggleSolutionGuidePromptTextareaSize() {
     if (promptSolutionGuideTextareaRef.current) {
       if (!promptSolutionGuideTextareaExpanded) {
@@ -535,6 +602,32 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     setPromptClosedSubtopicsTextareaExpanded(prev => !prev);
   }
 
+  function toggleAudioClosedPromptTextareaSize() {
+    if (promptAudioClosedTextareaRef.current) {
+      if (!promptAudioClosedTextareaExpanded) {
+        const rows = calculateRows(promptAudioClosedTextareaRef.current);
+        setPromptAudioClosedTextareaRows(rows);
+      } else {
+        setPromptAudioClosedTextareaRows(5);
+      }
+    }
+
+    setPromptAudioClosedTextareaExpanded(prev => !prev);
+  }
+
+  function toggleWritingClosedPromptTextareaSize() {
+    if (promptWritingClosedTextareaRef.current) {
+      if (!promptWritingClosedTextareaExpanded) {
+        const rows = calculateRows(promptWritingClosedTextareaRef.current);
+        setPromptWritingClosedTextareaRows(rows);
+      } else {
+        setPromptWritingClosedTextareaRows(5);
+      }
+    }
+
+    setPromptWritingClosedTextareaExpanded(prev => !prev);
+  }
+
   function toggleStoriesPromptTextareaSize() {
     if (promptStoriesTextareaRef.current) {
       if (!promptStoriesTextareaExpanded) {
@@ -585,6 +678,19 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
 
     setPromptChatTextareaExpanded(prev => !prev);
+  }
+
+  function toggleAudioChatPromptTextareaSize() {
+    if (promptAudioChatTextareaRef.current) {
+      if (!promptAudioChatTextareaExpanded) {
+        const rows = calculateRows(promptAudioChatTextareaRef.current);
+        setPromptAudioChatTextareaRows(rows);
+      } else {
+        setPromptAudioChatTextareaRows(5);
+      }
+    }
+
+    setPromptAudioChatTextareaExpanded(prev => !prev);
   }
 
   function toggleTopicExpansionPromptTextareaSize() {
@@ -689,7 +795,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     let lastName: string | null = null;
 
     try {
-      const sectionsResponse = await api.get<{ sections: Section[] }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
+      const sectionsResponse = await api.get<any>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
       const sections = sectionsResponse.data.sections;
 
       for (const section of sections) {
@@ -697,6 +803,9 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         const sectionSubtopics: SectionSubtopic[] = [];
 
         for (const topic of section.topics) {
+          if (topic.type !== "Stories" && topic.type !== "Writing")
+            continue;
+
           showSpinner(true, `Generacja podtematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topic.name}`);
 
           const topicId = topic.id;
@@ -704,7 +813,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           let attempt = 0;
           let subtopics: [string, number][] = [];
           let errors: string[] = [];
-          const prompt = topic.subtopicsPrompt;
+          const prompt = sectionsResponse.data.subject.subtopicsPrompt;
           const MAX_ATTEMPTS = 2;
 
           while (changed === "true" && attempt <= MAX_ATTEMPTS) {
@@ -815,7 +924,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     let lastName: string | null = null;
 
     try {
-      const sectionsResponse = await api.get<{ sections: Section[] }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
+      const sectionsResponse = await api.get<any>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
       const sections = sectionsResponse.data.sections;
 
       for (const section of sections) {
@@ -823,6 +932,9 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         const sectionSubtopics: SectionSubtopic[] = [];
 
         for (const topic of section.topics) {
+          if (topic.type === "Stories" || topic.type === "Writing")
+            continue;
+
           showSpinner(true, `Generacja ważności podtematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topic.name}`);
 
           const subtopicsStatusResponse = await api.get<{ subtopics: [string, string][] }>(
@@ -835,7 +947,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           let changed = "true";
           let attempt = 0;
           let errors: string[] = [];
-          const prompt = topic.subtopicsStatusPrompt;
+          const prompt = sectionsResponse.data.subject.subtopicsStatusPrompt;
           const MAX_ATTEMPTS = 2;
 
           while (changed === "true" && attempt <= MAX_ATTEMPTS) {
@@ -938,16 +1050,22 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     let lastName: string | null = null;
 
     try {
-      const sectionsResponse = await api.get<{ sections: Section[] }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
+      const sectionsResponse = await api.get<{
+        sections: Section[],
+        subject: any
+      }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
       const sections = sectionsResponse.data.sections;
 
       for (const section of sections) {
         let sectionFailed = false;
 
         for (const topic of section.topics) {
+          if (topic.type === "Stories" || topic.type === "Writing")
+            continue;
+
           const topicId = topic.id;
           const topicName = topic.name;
-          const prompt = topic.topicExpansionPrompt;
+          const prompt = sectionsResponse.data.subject.topicExpansionPrompt;
           const subtopics: string[] = topic.subtopics.map(sub => sub.name);
 
           showSpinner(
@@ -1069,7 +1187,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     let lastName: string | null = null;
 
     try {
-        const sectionsResponse = await api.get<{ sections: Section[] }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}&allSections=true`);
+        const sectionsResponse = await api.get<any>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}&allSections=true`);
         const sections = sectionsResponse.data.sections;
 
         for (const section of sections) {
@@ -1078,7 +1196,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
             for (const topic of section.topics) {
                 const topicId = topic.id;
                 const topicName = topic.name;
-                const prompt = topic.topicFrequencyPrompt;
+                const prompt = sectionsResponse.data.subject.topicFrequencyPrompt;
 
                 if (!prompt || prompt.trim() === '') {
                     showAlert(400, `Brak promptu do generacji częstotliwości dla tematu: ${topicName}`);
@@ -1182,16 +1300,19 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     let lastName: string | null = null;
 
     try {
-        const sectionsResponse = await api.get<{ sections: Section[] }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
+        const sectionsResponse = await api.get<any>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
         const sections = sectionsResponse.data.sections;
 
         for (const section of sections) {
             let sectionFailed = false;
 
             for (const topic of section.topics) {
+                if (topic.type === "Stories" || topic.type === "Writing")
+                  continue;
+
                 const topicId = topic.id;
                 const topicName = topic.name;
-                const prompt = topic.chronologyPrompt;
+                const prompt = sectionsResponse.data.subject.chronologyPrompt;
 
                 if (!prompt || prompt.trim() === '') {
                     showAlert(400, `Brak promptu do generacji chronologii dla tematu: ${topicName}`);
@@ -1296,7 +1417,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     let lastName: string | null = null;
 
     try {
-      const sectionsResponse = await api.get<{ sections: Section[] }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}&notStories=false`);
+      const sectionsResponse = await api.get<any>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
       const sections = sectionsResponse.data.sections;
 
       for (const section of sections) {
@@ -1304,6 +1425,9 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         const sectionWords: Word[] = [];
 
         for (const topic of section.topics) {
+          if (topic.type !== "Stories")
+            continue;
+
           showSpinner(true, `Generacja słów tematycznych dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topic.name}`);
 
           const topicId = topic.id;
@@ -1311,7 +1435,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           let attempt = 0;
           let words: [string, number][] = [];
           let errors: string[] = [];
-          const prompt = topic.wordsPrompt;
+          const prompt = sectionsResponse.data.subject.wordsPrompt;
           const MAX_ATTEMPTS = 0;
 
           while (changed === "true" && attempt <= MAX_ATTEMPTS) {
@@ -1566,13 +1690,18 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     subtopicsPrompt: promptSubtopicsText,
     subtopicsStatusPrompt: promptSubtopicsStatusText,
     questionPrompt: promptQuestionText,
+    audioQuestionPrompt: promptAudioQuestionText,
+    writingQuestionPrompt: promptWritingQuestionText,
     solutionGuidePrompt: promptSolutionGuideText,
     vocabularyGuidePrompt: promptVocabularyGuideText,
     answersPrompt: promptAnswersText,
     closedSubtopicsPrompt: promptClosedSubtopicsText,
+    audioClosedPrompt: promptAudioClosedText,
+    writingClosedPrompt: promptWritingClosedText,
     vocabluaryPrompt: promptStoriesText,
     wordsPrompt: promptWordsText,
     chatPrompt: promptChatText,
+    audioChatPrompt: promptAudioChatText,
     topicExpansionPrompt: promptTopicExpansionText,
     topicFrequencyPrompt: promptTopicFrequencyText,
     chronologyPrompt: promptChronologyText,
@@ -1587,13 +1716,18 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         subtopicsPrompt: (Array.isArray(data.subtopicsPrompt) && data.subtopicsPrompt[0] !== data.subtopicsPrompt[1]) ? data.subtopicsPrompt[0] : undefined,
         subtopicsStatusPrompt: (Array.isArray(data.subtopicsStatusPrompt) && data.subtopicsStatusPrompt[0] !== data.subtopicsStatusPrompt[1]) ? data.subtopicsStatusPrompt[0] : undefined,
         questionPrompt: (Array.isArray(data.questionPrompt) && data.questionPrompt[0] !== data.questionPrompt[1]) ? data.questionPrompt[0] : undefined,
+        audioQuestionPrompt: (Array.isArray(data.audioQuestionPrompt) && data.audioQuestionPrompt[0] !== data.audioQuestionPrompt[1]) ? data.audioQuestionPrompt[0] : undefined,
+        writingQuestionPrompt: (Array.isArray(data.writingQuestionPrompt) && data.writingQuestionPrompt[0] !== data.writingQuestionPrompt[1]) ? data.writingQuestionPrompt[0] : undefined,
         solutionGuidePrompt: (Array.isArray(data.solutionGuidePrompt) && data.solutionGuidePrompt[0] !== data.solutionGuidePrompt[1]) ? data.solutionGuidePrompt[0] : undefined,
         vocabularyGuidePrompt: (Array.isArray(data.vocabularyGuidePrompt) && data.vocabularyGuidePrompt[0] !== data.vocabularyGuidePrompt[1]) ? data.vocabularyGuidePrompt[0] : undefined,
         answersPrompt: (Array.isArray(data.answersPrompt) && data.answersPrompt[0] !== data.answersPrompt[1]) ? data.answersPrompt[0] : undefined,
         closedSubtopicsPrompt: (Array.isArray(data.closedSubtopicsPrompt) && data.closedSubtopicsPrompt[0] !== data.closedSubtopicsPrompt[1]) ? data.closedSubtopicsPrompt[0] : undefined,
+        audioClosedPrompt: (Array.isArray(data.audioClosedPrompt) && data.audioClosedPrompt[0] !== data.audioClosedPrompt[1]) ? data.audioClosedPrompt[0] : undefined,
+        writingClosedPrompt: (Array.isArray(data.writingClosedPrompt) && data.writingClosedPrompt[0] !== data.writingClosedPrompt[1]) ? data.writingClosedPrompt[0] : undefined,
         vocabluaryPrompt: (Array.isArray(data.vocabluaryPrompt) && data.vocabluaryPrompt[0] !== data.vocabluaryPrompt[1]) ? data.vocabluaryPrompt[0] : undefined,
         wordsPrompt: (Array.isArray(data.wordsPrompt) && data.wordsPrompt[0] !== data.wordsPrompt[1]) ? data.wordsPrompt[0] : undefined,
         chatPrompt: (Array.isArray(data.chatPrompt) && data.chatPrompt[0] !== data.chatPrompt[1]) ? data.chatPrompt[0] : undefined,
+        audioChatPrompt: (Array.isArray(data.audioChatPrompt) && data.audioChatPrompt[0] !== data.audioChatPrompt[1]) ? data.audioChatPrompt[0] : undefined,
         topicExpansionPrompt: (Array.isArray(data.topicExpansionPrompt) && data.topicExpansionPrompt[0] !== data.topicExpansionPrompt[1]) ? data.topicExpansionPrompt[0] : undefined,
         topicFrequencyPrompt: (Array.isArray(data.topicFrequencyPrompt) && data.topicFrequencyPrompt[0] !== data.topicFrequencyPrompt[1]) ? data.topicFrequencyPrompt[0] : undefined,
         chronologyPrompt: (Array.isArray(data.chronologyPrompt) && data.chronologyPrompt[0] !== data.chronologyPrompt[1]) ? data.chronologyPrompt[0] : undefined,
@@ -1879,6 +2013,66 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                 />
               </div>
               <div className="options-container">
+                {promptAudioQuestionTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleAudioQuestionPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleAudioQuestionPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptAudioQuestion" className="label">Tekst Audio Zadania:</label>
+                <textarea
+                  id="promptAudioQuestion"
+                  rows={promptAudioQuestionTextareaRows}
+                  ref={promptAudioQuestionTextareaRef}
+                  name="text-container"
+                  value={promptAudioQuestionText[0]}
+                  onInput={(e) => {
+                    setPromptAudioQuestionText([(e.target as HTMLTextAreaElement).value, promptAudioQuestionText[1]]);
+                  }}
+                  className={`text-container ${promptAudioQuestionTextOwn ? "own" : ""} ${(promptAudioQuestionText[0] !== promptAudioQuestionText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt tekst audio zadania..."
+                />
+              </div>
+              <div className="options-container">
+                {promptWritingQuestionTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleWritingQuestionPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleWritingQuestionPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptWritingQuestion" className="label">Tekst Writing Zadania:</label>
+                <textarea
+                  id="promptWritingQuestion"
+                  rows={promptWritingQuestionTextareaRows}
+                  ref={promptWritingQuestionTextareaRef}
+                  name="text-container"
+                  value={promptWritingQuestionText[0]}
+                  onInput={(e) => {
+                    setPromptWritingQuestionText([(e.target as HTMLTextAreaElement).value, promptWritingQuestionText[1]]);
+                  }}
+                  className={`text-container ${promptWritingQuestionTextOwn ? "own" : ""} ${(promptWritingQuestionText[0] !== promptWritingQuestionText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt tekst writing zadania..."
+                />
+              </div>
+              <div className="options-container">
                 {promptAnswersTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -1939,6 +2133,36 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                 />
               </div>
               <div className="options-container">
+                {promptAudioChatTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleAudioChatPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleAudioChatPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptAudioChat" className="label">Chat Audio Zadania:</label>
+                <textarea
+                  id="promptAudioChat"
+                  rows={promptAudioChatTextareaRows}
+                  ref={promptAudioChatTextareaRef}
+                  name="text-container"
+                  value={promptAudioChatText[0]}
+                  onInput={(e) => {
+                    setPromptAudioChatText([(e.target as HTMLTextAreaElement).value, promptAudioChatText[1]])
+                  }}
+                  className={`text-container ${promptAudioChatTextOwn ? "own" : ""} ${(promptAudioChatText[0] !== promptAudioChatText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt do chatu audio zadania..."
+                />
+              </div>
+              <div className="options-container">
                 {promptClosedSubtopicsTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -1966,6 +2190,66 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   className={`text-container ${promptClosedSubtopicsTextOwn ? "own" : ""} ${(promptClosedSubtopicsText[0] !== promptClosedSubtopicsText[1]) ? ' changed' : ''}`}
                   spellCheck={true}
                   placeholder="Proszę napisać prompt zamykania podtematów..."
+                />
+              </div>
+              <div className="options-container">
+                {promptAudioClosedTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleAudioClosedPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleAudioClosedPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptAudioClosed" className="label">Procenty Audio:</label>
+                <textarea
+                  id="promptAudioClosed"
+                  rows={promptAudioClosedTextareaRows}
+                  ref={promptAudioClosedTextareaRef}
+                  name="text-container"
+                  value={promptAudioClosedText[0]}
+                  onInput={(e) => {
+                    setPromptAudioClosedText([(e.target as HTMLTextAreaElement).value, promptAudioClosedText[1]])
+                  }}
+                  className={`text-container ${promptAudioClosedTextOwn ? "own" : ""} ${(promptAudioClosedText[0] !== promptAudioClosedText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt zamykania audio..."
+                />
+              </div>
+              <div className="options-container">
+                {promptWritingClosedTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleWritingClosedPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleWritingClosedPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptWritingClosed" className="label">Procenty Writing:</label>
+                <textarea
+                  id="promptWritingClosed"
+                  rows={promptWritingClosedTextareaRows}
+                  ref={promptWritingClosedTextareaRef}
+                  name="text-container"
+                  value={promptWritingClosedText[0]}
+                  onInput={(e) => {
+                    setPromptWritingClosedText([(e.target as HTMLTextAreaElement).value, promptWritingClosedText[1]])
+                  }}
+                  className={`text-container ${promptWritingClosedTextOwn ? "own" : ""} ${(promptWritingClosedText[0] !== promptWritingClosedText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt zamykania writing..."
                 />
               </div>
               <div className="options-container">
