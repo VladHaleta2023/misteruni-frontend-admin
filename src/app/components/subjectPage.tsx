@@ -2,7 +2,7 @@
 
 import "@/app/styles/components.css";
 import "@/app/styles/main.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import api from "@/app/utils/api";
 import { showAlert } from "@/app/scripts/showAlert";
 import Message from "@/app/components/message";
@@ -29,6 +29,12 @@ type Word = {
   words: [string, number][];
 }
 
+type TranslateWord = {
+  id: number;
+  text: string;
+  translate: string;
+}
+
 type Topic = {
   id: number;
   type: string;
@@ -46,6 +52,7 @@ type Topic = {
 type Section = {
   id: number;
   name: string;
+  type: string;
   partId: number;
   topics: Topic[]
 };
@@ -106,6 +113,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptTopicExpansionText, setPromptTopicExpansionText] = useState(["", ""]);
   const [promptTopicFrequencyText, setPromptTopicFrequencyText] = useState(["", ""]);
   const [promptChronologyText, setPromptChronologyText] = useState(["", ""]);
+  const [subjectExamTemplatesText, setSubjectExamTemplatesText] = useState(["", ""]);
+  const [promptExamText, setPromptExamText] = useState(["", ""]);
 
   const [msgOKVisible, setMsgOKVisible] = useState(false);
   const [textMessageOK, setTextMessageOK] = useState("");
@@ -129,6 +138,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptTopicExpansionTextOwn, setPromptTopicExpansionTextOwn] = useState(true);
   const [promptTopicFrequencyTextOwn, setPromptTopicFrequencyTextOwn] = useState(true);
   const [promptChronologyTextOwn, setPromptChronologyTextOwn] = useState(true);
+  const [promptExamTextOwn, setPromptExamTextOwn] = useState(true);
 
   const [subjectName, setSubjectName] = useState("");
 
@@ -151,6 +161,14 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [msgLiteraturePromptVisible, setMsgLiteraturePromptVisible] = useState(false);
   const [spinnerVisible, setSpinnerVisible] = useState(false);
   const [spinnerText, setSpinnerText] = useState("");
+
+  const subjectExamTemplatesTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [subjectExamTemplatesTextareaExpanded, setSubjectExamTemplatesTextareaExpanded] = useState(false);
+  const [subjectExamTemplatesTextareaRows, setSubjectExamTemplatesTextareaRows] = useState(5);
+
+  const promptExamTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptExamTextareaExpanded, setPromptExamTextareaExpanded] = useState(false);
+  const [promptExamTextareaRows, setPromptExamTextareaRows] = useState(5);
 
   const promptTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptTextareaExpanded, setPromptTextareaExpanded] = useState(false);
@@ -253,6 +271,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         const response = await api.get<any>(`/subjects/${subjectId}`);
         if (response.data?.statusCode === 200) {
           setSubjectPromptText([response.data.subject.prompt, response.data.subject.prompt]);
+          setSubjectExamTemplatesText([response.data.subject.examTemplates, response.data.subject.examTemplates]);
           setSubjectName(response.data.subject.name);
           setTypeSubjectText([response.data.subject.type, response.data.subject.type]);
           setAccountsSubjectText([response.data.subject.accounts, response.data.subject.accounts]);
@@ -276,6 +295,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptTopicFrequencyText([response.data.subject.topicFrequencyPrompt, response.data.subject.topicFrequencyPrompt]);
           setPromptChronologyText([response.data.subject.chronologyPrompt, response.data.subject.chronologyPrompt]);
           setPromptLiteratureText([response.data.subject.literaturePrompt, response.data.subject.literaturePrompt]);
+          setPromptExamText([response.data.subject.examPrompt, response.data.subject.examPrompt]);
           setPromptSubtopicsTextOwn(response.data.subject.subtopicsPromptOwn);
           setPromptSubtopicsStatusTextOwn(response.data.subject.subtopicsStatusPromptOwn);
           setPromptClosedSubtopicsTextOwn(response.data.subject.closedSubtopicsPromptOwn);
@@ -295,6 +315,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptTopicFrequencyTextOwn(response.data.subject.topicFrequencyPromptOwn);
           setPromptChronologyTextOwn(response.data.subject.chronologyPromptOwn);
           setPromptLiteratureTextOwn(response.data.subject.literaturePromptOwn);
+          setPromptExamTextOwn(response.data.subject.examPromptOwn);
         } else {
           showAlert(response.data.statusCode, response.data.message);
         }
@@ -457,6 +478,32 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
 
     setPromptTextareaExpanded(prev => !prev);
+  }
+
+  function toggleSubjectExamTemplatesTextareaSize() {
+    if (subjectExamTemplatesTextareaRef.current) {
+      if (!subjectExamTemplatesTextareaExpanded) {
+        const rows = calculateRows(subjectExamTemplatesTextareaRef.current);
+        setSubjectExamTemplatesTextareaRows(rows);
+      } else {
+        setSubjectExamTemplatesTextareaRows(5);
+      }
+    }
+
+    setSubjectExamTemplatesTextareaExpanded(prev => !prev);
+  }
+
+  function togglePromptExamTextareaSize() {
+    if (promptExamTextareaRef.current) {
+      if (!promptExamTextareaExpanded) {
+        const rows = calculateRows(promptExamTextareaRef.current);
+        setPromptExamTextareaRows(rows);
+      } else {
+        setPromptExamTextareaRows(5);
+      }
+    }
+
+    setPromptExamTextareaExpanded(prev => !prev);
   }
 
   function toggleAccountsPromptTextareaSize() {
@@ -803,7 +850,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         const sectionSubtopics: SectionSubtopic[] = [];
 
         for (const topic of section.topics) {
-          if (topic.type !== "Stories" && topic.type !== "Writing")
+          if (topic.type === "Stories" || topic.type === "Writing" || section.type === "Stories" || topic.type === "Stories")
             continue;
 
           showSpinner(true, `Generacja podtematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topic.name}`);
@@ -932,7 +979,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         const sectionSubtopics: SectionSubtopic[] = [];
 
         for (const topic of section.topics) {
-          if (topic.type === "Stories" || topic.type === "Writing")
+          if (topic.type === "Stories" || topic.type === "Writing" || section.type === "Stories" || topic.type === "Stories")
             continue;
 
           showSpinner(true, `Generacja ważności podtematów dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topic.name}`);
@@ -1060,7 +1107,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         let sectionFailed = false;
 
         for (const topic of section.topics) {
-          if (topic.type === "Stories" || topic.type === "Writing")
+          if (topic.type === "Stories" || topic.type === "Writing" || section.type === "Stories" || topic.type === "Stories")
             continue;
 
           const topicId = topic.id;
@@ -1307,7 +1354,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
             let sectionFailed = false;
 
             for (const topic of section.topics) {
-                if (topic.type === "Stories" || topic.type === "Writing")
+                if (topic.type === "Stories" || topic.type === "Writing" || section.type === "Stories" || topic.type === "Stories")
                   continue;
 
                 const topicId = topic.id;
@@ -1425,7 +1472,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         const sectionWords: Word[] = [];
 
         for (const topic of section.topics) {
-          if (topic.type !== "Stories")
+          if (topic.type !== "Stories" && section.type !== "Stories")
             continue;
 
           showSpinner(true, `Generacja słów tematycznych dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topic.name}`);
@@ -1509,6 +1556,60 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
             }))
           );
 
+          const translateWords: TranslateWord[] = await fetchWords(subjectId, topic.id);
+          let wordsCount = 1;
+
+          for (const word of translateWords) {
+            showSpinner(true, `Generacja tłumaczenia słowa ${wordsCount}/${translateWords.length} dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topic.name}`);
+
+            try {
+                let changed = "true";
+                let attempt = 0;
+                let errors: string[] = [];
+                let translate = "";
+                const MAX_ATTEMPTS = 2;
+                
+                while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+                    const response = await api.post<any>(
+                      `/subjects/${subjectId}/words/vocabluary-guide-generate`,
+                      {
+                        data: {
+                          text: word.text,
+                          translate: translate,
+                          changed: changed,
+                          attempt: attempt,
+                          errors: errors,
+                        },
+                        topicId: topic.id ?? null,
+                        sectionId: section.id ?? null,
+                      }
+                    );
+                    
+                    if (response.data?.statusCode === 200 || response.data?.statusCode === 201) {
+                      changed = response.data.changed;
+                      errors = response.data.errors;
+                      translate = response.data.translate;
+                      attempt = response.data.attempt;
+                      console.log(`Generowanie tłumaczenia: Próba ${attempt}`);
+                    } else {
+                      showAlert(400, "Nie udało się zgenerować tłumaczenia");
+                      break;
+                    }
+                }
+                
+                if (translate && translate !== "") {
+                  await api.put(
+                    `/subjects/${subjectId}/words/${word.id}/translate`,
+                    { translate: translate }
+                  );
+                }
+            } catch (error) {
+              console.error(`Błąd generowania tłumaczenia dla ${word.text}:`, error);
+            }
+            
+            wordsCount++;
+          }
+
           showAlert(200, `Słowy tematyczne zostały zapisane dla Rozdział: ${section.name}\nTemat: ${topic.name}`);
         }
 
@@ -1536,6 +1637,24 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
       setMsgWordsPromptVisible(true);
     }
   }
+
+  const fetchWords = useCallback(async (subjectId: number, topicId: number) => {
+    try {
+      const response = await api.post<any>(`/subjects/${subjectId}/words`, {
+        topicId
+      });
+
+      if (response.data?.statusCode === 200) {
+        return response.data.words;
+      } else {
+        showAlert(response.data.statusCode, response.data.message);
+        return [];
+      }
+    } catch (error) {
+      handleApiError(error);
+      return [];
+    }
+  }, []);
 
   async function handleLiteratureGenerate() {
     setMsgLiteraturePromptVisible(false);
@@ -1705,7 +1824,9 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     topicExpansionPrompt: promptTopicExpansionText,
     topicFrequencyPrompt: promptTopicFrequencyText,
     chronologyPrompt: promptChronologyText,
-    literaturePrompt: promptLiteratureText
+    literaturePrompt: promptLiteratureText,
+    examTemplates: subjectExamTemplatesText,
+    examPrompt: promptExamText
   }) {
     try {
       const processedData = {
@@ -1732,6 +1853,8 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         topicFrequencyPrompt: (Array.isArray(data.topicFrequencyPrompt) && data.topicFrequencyPrompt[0] !== data.topicFrequencyPrompt[1]) ? data.topicFrequencyPrompt[0] : undefined,
         chronologyPrompt: (Array.isArray(data.chronologyPrompt) && data.chronologyPrompt[0] !== data.chronologyPrompt[1]) ? data.chronologyPrompt[0] : undefined,
         literaturePrompt: (Array.isArray(data.literaturePrompt) && data.literaturePrompt[0] !== data.literaturePrompt[1]) ? data.literaturePrompt[0] : undefined,
+        examTemplates: (Array.isArray(data.examTemplates) && data.examTemplates[0] !== data.examTemplates[1]) ? data.examTemplates[0] : undefined,
+        examPrompt: (Array.isArray(data.examPrompt) && data.examPrompt[0] !== data.examPrompt[1]) ? data.examPrompt[0] : undefined
       };
 
       return await api.put(`/subjects/${subjectId}`, processedData);
@@ -1982,6 +2105,66 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   />
                 </div>
               </>) : null}
+              <div className="options-container">
+                {subjectExamTemplatesTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSubjectExamTemplatesTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleSubjectExamTemplatesTextareaSize}
+                  />
+                }
+                <label htmlFor="subjectExamTemplates" className="label">Przykłady Egzaminu:</label>
+                <textarea
+                  id="subjectExamTemplates"
+                  rows={subjectExamTemplatesTextareaRows}
+                  ref={subjectExamTemplatesTextareaRef}
+                  name="text-container"
+                  value={subjectExamTemplatesText[0]}
+                  onInput={(e) => {
+                    setSubjectExamTemplatesText([(e.target as HTMLTextAreaElement).value, subjectExamTemplatesText[1]]);
+                  }}
+                  className={`text-container own ${(subjectExamTemplatesText[0] !== subjectExamTemplatesText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać przykłady egzaminu..."
+                />
+              </div>
+              <div className="options-container">
+                {promptExamTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={togglePromptExamTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={togglePromptExamTextareaSize}
+                  />
+                }
+                <label htmlFor="promptExam" className="label">Wybór Tematów Egzaminu:</label>
+                <textarea
+                  id="promptExam"
+                  rows={promptExamTextareaRows}
+                  ref={promptExamTextareaRef}
+                  name="text-container"
+                  value={promptExamText[0]}
+                  onInput={(e) => {
+                    setPromptExamText([(e.target as HTMLTextAreaElement).value, promptExamText[1]]);
+                  }}
+                  className={`text-container own ${(promptExamText[0] !== promptExamText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt wyboru tematów egzaminu..."
+                />
+              </div>
               <div className="options-container">
                 {promptQuestionTextareaExpanded ?
                   <ChevronUp

@@ -2,7 +2,7 @@
 
 import "@/app/styles/components.css";
 import "@/app/styles/main.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import api from "@/app/utils/api";
 import { showAlert } from "@/app/scripts/showAlert";
 import Message from "@/app/components/message";
@@ -42,6 +42,12 @@ type ChronologyResponse = {
   errors: string[];
   attempt: number;
 };
+
+type TranslateWord = {
+  id: number;
+  text: string;
+  translate: string;
+}
 
 export default function SectionPage({ subjectId, sectionId }: SectionPageProps) {
   const [typeSectionText, setTypeSectionText] = useState(["", ""]);
@@ -765,6 +771,60 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           }
         }
 
+        const translateWords: TranslateWord[] = await fetchWords(subjectId, topicId);
+        let wordsCount = 1;
+
+        for (const word of translateWords) {
+          showSpinner(true, `Generacja tłumaczenia słowa ${wordsCount}/${translateWords.length} dla tematu ${topicsResponse.data.topics[i].name}`);
+
+          try {
+              let changed = "true";
+              let attempt = 0;
+              let errors: string[] = [];
+              let translate = "";
+              const MAX_ATTEMPTS = 2;
+              
+              while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+                  const response = await api.post<any>(
+                    `/subjects/${subjectId}/words/vocabluary-guide-generate`,
+                    {
+                      data: {
+                        text: word.text,
+                        translate: translate,
+                        changed: changed,
+                        attempt: attempt,
+                        errors: errors,
+                      },
+                      topicId: topicId ?? null,
+                      sectionId: sectionId ?? null,
+                    }
+                  );
+                  
+                  if (response.data?.statusCode === 200 || response.data?.statusCode === 201) {
+                    changed = response.data.changed;
+                    errors = response.data.errors;
+                    translate = response.data.translate;
+                    attempt = response.data.attempt;
+                    console.log(`Generowanie tłumaczenia: Próba ${attempt}`);
+                  } else {
+                    showAlert(400, "Nie udało się zgenerować tłumaczenia");
+                    break;
+                  }
+              }
+              
+              if (translate && translate !== "") {
+                await api.put(
+                  `/subjects/${subjectId}/words/${word.id}/translate`,
+                  { translate: translate }
+                );
+              }
+          } catch (error) {
+            console.error(`Błąd generowania tłumaczenia dla ${word.text}:`, error);
+          }
+          
+          wordsCount++;
+        }
+
         showAlert(200, `Słowy tematyczne zostały zapisane dla tematu ${topicsResponse.data.topics[i].name}`);
       }
 
@@ -777,6 +837,24 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
       resetSpinner();
     }
   }
+
+  const fetchWords = useCallback(async (subjectId: number, topicId: number) => {
+    try {
+      const response = await api.post<any>(`/subjects/${subjectId}/words`, {
+        topicId
+      });
+
+      if (response.data?.statusCode === 200) {
+        return response.data.words;
+      } else {
+        showAlert(response.data.statusCode, response.data.message);
+        return [];
+      }
+    } catch (error) {
+      handleApiError(error);
+      return [];
+    }
+  }, []);
 
   function handleOpenMessageSubtopicsStatusGenerate() {
     setMsgSubtopicsStatusPromptVisible(true);

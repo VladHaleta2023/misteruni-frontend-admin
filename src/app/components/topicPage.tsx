@@ -3,7 +3,7 @@
 import "@/app/styles/components.css";
 import "@/app/styles/formTable.css";
 import "@/app/styles/main.css";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import api from "@/app/utils/api";
 import { showAlert } from "@/app/scripts/showAlert";
 import Spinner from "@/app/components/spinner";
@@ -34,6 +34,7 @@ enum SubtopicDetailLevel {
 type Subtopic = {
   id: number;
   name: string;
+  importance: number;
   detailLevel: SubtopicDetailLevel
 }
 
@@ -60,6 +61,12 @@ type ChronologyResponse = {
   errors: string[];
   attempt: number;
 };
+
+type TranslateWord = {
+  id: number;
+  text: string;
+  translate: string;
+}
 
 export default function TopicPage({ subjectId, sectionId, topicId }: TopicPageProps) {
   const router = useRouter();
@@ -889,6 +896,60 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         }
       }
 
+      const translateWords: TranslateWord[] = await fetchWords(subjectId, topicId);
+      let wordsCount = 1;
+
+      for (const word of translateWords) {
+        showSpinner(true, `Generacja tłumaczenia słowa ${wordsCount}/${translateWords.length} dla tematu ${topicsResponse.data.topic.name}`);
+
+        try {
+            let changed = "true";
+            let attempt = 0;
+            let errors: string[] = [];
+            let translate = "";
+            const MAX_ATTEMPTS = 2;
+            
+            while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+                const response = await api.post<any>(
+                  `/subjects/${subjectId}/words/vocabluary-guide-generate`,
+                  {
+                    data: {
+                      text: word.text,
+                      translate: translate,
+                      changed: changed,
+                      attempt: attempt,
+                      errors: errors,
+                    },
+                    topicId: topicId ?? null,
+                    sectionId: sectionId ?? null,
+                  }
+                );
+                
+                if (response.data?.statusCode === 200 || response.data?.statusCode === 201) {
+                  changed = response.data.changed;
+                  errors = response.data.errors;
+                  translate = response.data.translate;
+                  attempt = response.data.attempt;
+                  console.log(`Generowanie tłumaczenia: Próba ${attempt}`);
+                } else {
+                  showAlert(400, "Nie udało się zgenerować tłumaczenia");
+                  break;
+                }
+            }
+            
+            if (translate && translate !== "") {
+              await api.put(
+                `/subjects/${subjectId}/words/${word.id}/translate`,
+                { translate: translate }
+              );
+            }
+        } catch (error) {
+          console.error(`Błąd generowania tłumaczenia dla ${word.text}:`, error);
+        }
+        
+        wordsCount++;
+      }
+
       resetSpinner();
       setTextMessageOK(`Słowy tematyczne zostały zapisane dla:\nRozdział: ${topicsResponse.data.section.name}\nTemat: ${topicsResponse.data.topic.name}`);
       setMsgOKVisible(true);
@@ -898,6 +959,24 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       resetSpinner();
     }
   }
+
+  const fetchWords = useCallback(async (subjectId: number, topicId: number) => {
+    try {
+      const response = await api.post<any>(`/subjects/${subjectId}/words`, {
+        topicId
+      });
+
+      if (response.data?.statusCode === 200) {
+        return response.data.words;
+      } else {
+        showAlert(response.data.statusCode, response.data.message);
+        return [];
+      }
+    } catch (error) {
+      handleApiError(error);
+      return [];
+    }
+  }, []);
 
   async function saveTopicData(data = {
     literatureText: literatureText,
@@ -1237,13 +1316,16 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                     <Plus size={28} />
                   </button>
                 </div>
-                {subtopics.map(({ id, name, detailLevel }) => (
+                {subtopics.map(({ id, name, detailLevel, importance }) => (
                     <div className="element" key={id}>
                       <div style={{ marginRight: "12px", fontWeight: "bold" }}>
                         {getDisplayLetter(detailLevel)}
                       </div>
                       <div className="text">
                         <FormatText content={name} />
+                      </div>
+                      <div className="text">
+                        {importance}
                       </div>
                       <button
                           id={String(id)}
