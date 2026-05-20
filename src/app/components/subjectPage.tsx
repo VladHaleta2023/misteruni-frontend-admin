@@ -92,6 +92,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
 
   const [subjectPromptText, setSubjectPromptText] = useState(["", ""]);
   const [typeSubjectText, setTypeSubjectText] = useState(["", ""]);
+  const [totalTimeText, setTotalTimeText] = useState(["", ""]);
   const [accountsSubjectText, setAccountsSubjectText] = useState(["", ""]);
   const [balanceSubjectText, setBalanceSubjectText] = useState(["", ""]);
   const [promptSubtopicsText, setPromptSubtopicsText] = useState(["", ""]);
@@ -138,7 +139,6 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptTopicExpansionTextOwn, setPromptTopicExpansionTextOwn] = useState(true);
   const [promptTopicFrequencyTextOwn, setPromptTopicFrequencyTextOwn] = useState(true);
   const [promptChronologyTextOwn, setPromptChronologyTextOwn] = useState(true);
-  const [promptExamTextOwn, setPromptExamTextOwn] = useState(true);
 
   const [subjectName, setSubjectName] = useState("");
 
@@ -274,6 +274,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setSubjectExamTemplatesText([response.data.subject.examTemplates, response.data.subject.examTemplates]);
           setSubjectName(response.data.subject.name);
           setTypeSubjectText([response.data.subject.type, response.data.subject.type]);
+          setTotalTimeText([String(response.data.subject.totalTimeSpent), String(response.data.subject.totalTimeSpent)]);
           setAccountsSubjectText([response.data.subject.accounts, response.data.subject.accounts]);
           setBalanceSubjectText([response.data.subject.balance, response.data.subject.balance]);
           setPromptSubtopicsText([response.data.subject.subtopicsPrompt, response.data.subject.subtopicsPrompt]);
@@ -315,7 +316,6 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptTopicFrequencyTextOwn(response.data.subject.topicFrequencyPromptOwn);
           setPromptChronologyTextOwn(response.data.subject.chronologyPromptOwn);
           setPromptLiteratureTextOwn(response.data.subject.literaturePromptOwn);
-          setPromptExamTextOwn(response.data.subject.examPromptOwn);
         } else {
           showAlert(response.data.statusCode, response.data.message);
         }
@@ -1802,6 +1802,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   }
 
   async function saveSubjectData(data = {
+    totalTimeSpent: totalTimeText,
     type: typeSubjectText,
     accounts: accountsSubjectText,
     balance: balanceSubjectText,
@@ -1830,6 +1831,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   }) {
     try {
       const processedData = {
+        totalTimeSpent: (Array.isArray(data.totalTimeSpent) && data.totalTimeSpent[0] !== data.totalTimeSpent[1]) ? Number(data.totalTimeSpent[0]) : undefined,
         type: (Array.isArray(data.type) && data.type[0] !== data.type[1]) ? data.type[0] : undefined,
         accounts: (Array.isArray(data.accounts) && data.accounts[0] !== data.accounts[1]) ? data.accounts[0] : undefined,
         balance: (Array.isArray(data.balance) && data.balance[0] !== data.balance[1]) ? data.balance[0] : undefined,
@@ -2040,6 +2042,20 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                     className={`text-container own ${(typeSubjectText[0] !== typeSubjectText[1]) ? ' changed' : ''}`}
                     spellCheck={true}
                     placeholder="Proszę napisać typ przedmiotu..."
+                />
+              </div>
+              <div className="options-container">
+                <label htmlFor="totalTime" className="label">Czas Egzaminu:</label>
+                <input
+                    id="totalTime"
+                    name="text-container"
+                    value={totalTimeText[0]}
+                    onInput={(e) => {
+                      setTotalTimeText([(e.target as HTMLTextAreaElement).value, totalTimeText[1]]);
+                    }}
+                    className={`text-container own ${(totalTimeText[0] !== totalTimeText[1]) ? ' changed' : ''}`}
+                    spellCheck={true}
+                    placeholder="Proszę napisać czas egzaminu w minutach..."
                 />
               </div>
               {typeSubjectText[0] == "Accounting" ? (
