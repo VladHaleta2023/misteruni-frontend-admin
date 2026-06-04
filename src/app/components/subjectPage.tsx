@@ -57,9 +57,16 @@ type Section = {
   topics: Topic[]
 };
 
+enum SubtopicDetailLevel {
+  BASIC = "BASIC",
+  EXPANDED = "EXPANDED"
+}
+
 type Subtopic = {
   id: number;
   name: string;
+  importance: number;
+  detailLevel: SubtopicDetailLevel
 };
 
 type TopicExpansionChunkResponse = {
@@ -1103,92 +1110,110 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
       }>(`/subjects/${subjectId}/sections/admin?minSectionPart=${minSectionPart}`);
       const sections = sectionsResponse.data.sections;
 
+      async function generateNoteForLevel(
+        sectionId: number,
+        topicId: number,
+        topicName: string,
+        level: "BASIC" | "EXPANDED",
+        prompt: string,
+        allSubtopics: { name: string; detailLevel: string }[]
+      ): Promise<string> {
+        let subtopicNames: string[] = [];
+
+        if (level === "BASIC") {
+          subtopicNames = allSubtopics
+            .filter(sub => sub.detailLevel === "BASIC")
+            .map(sub => sub.name);
+        } else {
+          subtopicNames = allSubtopics.map(sub => sub.name);
+        }
+
+        if (subtopicNames.length === 0) {
+          console.log(`Brak podtematów dla poziomu ${level} w temacie ${topicName}`);
+          return "";
+        }
+
+        const MAX_ATTEMPTS = 2;
+        const CHUNK_SIZE = 10;
+        const chunkNotes: string[] = [];
+        const errors: string[] = [];
+
+        const chunks: string[][] = [];
+        for (let i = 0; i < subtopicNames.length; i += CHUNK_SIZE) {
+          chunks.push(subtopicNames.slice(i, i + CHUNK_SIZE));
+        }
+
+        for (const subtopicChunk of chunks) {
+          let changed = "true";
+          let attempt = 0;
+          let chunkNote = "";
+
+          while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+            const topicExpansionResponse: { data: TopicExpansionChunkResponse } = await api.post(
+              `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/topic-expansion-generate`,
+              {
+                changed,
+                note: chunkNote,
+                errors,
+                attempt,
+                prompt,
+                subtopics: subtopicChunk,
+              }
+            );
+
+            const data: TopicExpansionChunkResponse = topicExpansionResponse.data;
+
+            if (data.statusCode === 201) {
+              changed = data.changed;
+              chunkNote = data.note ?? "";
+              attempt = data.attempt;
+              chunkNotes.push(chunkNote);
+            } else {
+              throw new Error(`Generation failed for chunk ${subtopicChunk.join(", ")}`);
+            }
+          }
+        }
+
+        return chunkNotes.join("\n\n");
+      }
+
       for (const section of sections) {
         let sectionFailed = false;
 
         for (const topic of section.topics) {
-          if (topic.type === "Stories" || topic.type === "Writing" || section.type === "Stories" || topic.type === "Stories")
-            continue;
+          if (topic.type === "Stories" || topic.type === "Writing" || section.type === "Stories") continue;
 
           const topicId = topic.id;
           const topicName = topic.name;
           const prompt = sectionsResponse.data.subject.topicExpansionPrompt;
-          const subtopics: string[] = topic.subtopics.map(sub => sub.name);
 
-          showSpinner(
-            true,
-            `Trwa generacja notatki tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topicName}`
-          );
+          const allSubtopics = topic.subtopics || [];
 
-          const MAX_ATTEMPTS = 2;
-          const CHUNK_SIZE = 10;
-          const chunkNotes: string[] = [];
-          const errors: string[] = [];
-
-          const chunks: string[][] = [];
-          for (let i = 0; i < subtopics.length; i += CHUNK_SIZE) {
-            chunks.push(subtopics.slice(i, i + CHUNK_SIZE));
-          }
-
-          for (const subtopicChunk of chunks) {
-            let changed = "true";
-            let attempt = 0;
-            let chunkNote = "";
-
-            while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-              const topicExpansionResponse: { data: TopicExpansionChunkResponse } = await api.post(
-                `/subjects/${subjectId}/sections/${section.id}/topics/${topicId}/subtopics/topic-expansion-generate`,
-                {
-                  changed,
-                  note: chunkNote,
-                  errors,
-                  attempt,
-                  prompt,
-                  subtopics: subtopicChunk,
-                }
-              );
-
-              const data: TopicExpansionChunkResponse = topicExpansionResponse.data;
-
-              if (data.statusCode === 201) {
-                changed = data.changed;
-                chunkNote = data.note ?? "";
-                attempt = data.attempt;
-                chunkNotes.push(chunkNote);
-              } else {
-                showAlert(
-                  400,
-                  `Nie udało się wygenerować notatki dla porcji podtematów:\n${subtopicChunk.join(", ")}`
-                );
-                sectionFailed = true;
-                break;
-              }
-            }
-
-            if (sectionFailed) break;
-          }
-
-          if (chunkNotes.length === 0) {
-            showAlert(
-              400,
-              `Nie udało się wygenerować pełnej notatki dla tematu ${topicName}`
-            );
+          if (allSubtopics.length === 0) {
+            showAlert(400, `Brak podtematów dla tematu ${topicName}. Najpierw wygeneruj podtematy.`);
             sectionFailed = true;
             break;
           }
 
-          const fullNote = chunkNotes.join("\n\n");
+          showSpinner(
+            true,
+            `Trwa generacja notatek (podstawowa + rozszerzona) dla:\nPrzedmiot: ${subjectName}\nRozdział: ${section.name}\nTemat: ${topicName}`
+          );
+
+          const basicNote = await generateNoteForLevel(section.id, topicId, topicName, "BASIC", prompt, allSubtopics);
+          const expandedNote = await generateNoteForLevel(section.id, topicId, topicName, "EXPANDED", prompt, allSubtopics);
 
           const MAX_DB_ATTEMPTS = 3;
           let dbAttempt = 0;
           let dbSuccess = false;
-    
+
           while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
             try {
               await api.put(`/subjects/${subjectId}/sections/${section.id}/topics/${topicId}`, {
-                note: fullNote
+                noteBasicLevel: basicNote,
+                noteExpandedLevel: expandedNote,
               });
-    
+
               dbSuccess = true;
             } catch (err) {
               dbAttempt++;
@@ -1197,7 +1222,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
             }
           }
 
-          showAlert(200, `Notatka została zapisana dla tematu ${topicName}`);
+          showAlert(200, `Notatki (podstawowa i rozszerzona) zostały zapisane dla tematu ${topicName}`);
         }
 
         if (!sectionFailed) {

@@ -26,9 +26,8 @@ type Word = {
 }
 
 enum SubtopicDetailLevel {
-  BASIC = "P",
-  EXPANDED = "R",
-  ACADEMIC = "A"
+  BASIC = "BASIC",
+  EXPANDED = "EXPANDED"
 }
 
 type Subtopic = {
@@ -95,14 +94,19 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
   const [promptInformationTextareaExpanded, setInformationTextareaExpanded] = useState(false);
   const [promptInformationTextareaRows, setInformationTextareaRows] = useState(5);
 
-  const [promptNoteExpanded, setPromptNoteExpanded] = useState(false);
-  const [noteHeight, setNoteHeight] = useState(160);
-  const noteRef = useRef<HTMLDivElement>(null);
+  const [promptBasicNoteExpanded, setPromptBasicNoteExpanded] = useState(false);
+  const [noteBasicHeight, setNoteBasicHeight] = useState(160);
+  const noteBasicRef = useRef<HTMLDivElement>(null);
+
+  const [promptExpandedNoteExpanded, setPromptExpandedNoteExpanded] = useState(false);
+  const [noteExpandedHeight, setNoteExpandedHeight] = useState(160);
+  const noteExpandedRef = useRef<HTMLDivElement>(null);
 
   const [literatureText, setLiteratureText] = useState(["", ""]);
   const [informationText, setInformationText] = useState(["", ""]);
   const [typeTopicText, setTypeTopicText] = useState(["", ""]);
-  const [note, setNote] = useState("");
+  const [noteBasicLevel, setNoteBasicLevel] = useState("");
+  const [noteExpandedLevel, setNoteExpandedLevel] = useState("");
   const [words, setWords] = useState<Word[]>([]);
 
   const [msgWordsPromptVisible, setMsgWordsPromptVisible] = useState(false);
@@ -145,7 +149,8 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         setFrequencyText([0, 0]);
         setLiteratureText(["", ""]);
         setInformationText(["", ""]);
-        setNote("");
+        setNoteBasicLevel("");
+        setNoteExpandedLevel("");
         setTypeTopicText(["", ""]);
         setDifficultyTopic(["", ""]);
         resetSpinner();
@@ -165,7 +170,8 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setTypeTopicText([response.data.topic.type, response.data.topic.type]);
           setLiteratureText([response.data.topic.literature, response.data.topic.literature]);
           setInformationText([response.data.topic.information, response.data.topic.information]);
-          setNote(response.data.topic.note);
+          setNoteBasicLevel(response.data.topic.noteBasicLevel);
+          setNoteExpandedLevel(response.data.topic.noteExpandedLevel);
           setDifficultyTopic([response.data.topic.difficulty, response.data.topic.difficulty]);
           setFrequencyText([response.data.topic.frequency, response.data.topic.frequency]);
       } else {
@@ -177,7 +183,8 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           setFrequencyText([0, 0]);
           setLiteratureText(["", ""]);
           setInformationText(["", ""]);
-          setNote("");
+          setNoteBasicLevel("");
+          setNoteExpandedLevel("");
           showAlert(response.data.statusCode, response.data.message);
         }
       } catch (error: unknown) {
@@ -358,15 +365,26 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     setInformationTextareaExpanded(prev => !prev);
   }
 
-  function toggleNoteTextareaSize() {
-    if (noteRef.current) {
-      if (!promptNoteExpanded) {
-        setNoteHeight(noteRef.current.scrollHeight);
+  function toggleNoteBasicTextareaSize() {
+    if (noteBasicRef.current) {
+      if (!promptBasicNoteExpanded) {
+        setNoteBasicHeight(noteBasicRef.current.scrollHeight);
       } else {
-        setNoteHeight(160);
+        setNoteBasicHeight(160);
       }
     }
-    setPromptNoteExpanded(prev => !prev);
+    setPromptBasicNoteExpanded(prev => !prev);
+  }
+
+  function toggleNoteExpandedTextareaSize() {
+    if (noteExpandedRef.current) {
+      if (!promptExpandedNoteExpanded) {
+        setNoteExpandedHeight(noteExpandedRef.current.scrollHeight);
+      } else {
+        setNoteExpandedHeight(160);
+      }
+    }
+    setPromptExpandedNoteExpanded(prev => !prev);
   }
 
   function handleOpenMessageTopicExpansionGenerate() {
@@ -600,55 +618,73 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
       const prompt: string = topicResponse.data.subject.topicExpansionPrompt;
 
-      showSpinner(true, `Trwa generacja notatki tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+      async function generateNoteForLevel(level: SubtopicDetailLevel): Promise<string> {
+        let subtopicNames: string[] = [];
+        
+        if (level === SubtopicDetailLevel.BASIC) {
+          subtopicNames = subtopics
+            .filter(sub => sub.detailLevel === SubtopicDetailLevel.BASIC)
+            .map(sub => sub.name);
+        } else {
+          subtopicNames = subtopics.map(sub => sub.name);
+        }
+        
+        if (subtopicNames.length === 0) {
+          return "";
+        }
 
-      const MAX_ATTEMPTS = 2;
-      const CHUNK_SIZE = 10;
+        const MAX_ATTEMPTS = 2;
+        const CHUNK_SIZE = 10;
+        let chunkNote = "";
+        const chunkNotes: string[] = [];
+        const errors: string[] = [];
 
-      let chunkNote = "";
-      const chunkNotes: string[] = []
-      const errors: string[] = [];
+        const chunks: string[][] = [];
+        for (let i = 0; i < subtopicNames.length; i += CHUNK_SIZE) {
+          chunks.push(subtopicNames.slice(i, i + CHUNK_SIZE));
+        }
 
-      const subtopicNames = subtopics.map(sub => sub.name);
+        for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+          const subtopicChunk = chunks[chunkIndex];
 
-      const chunks: string[][] = [];
-      for (let i = 0; i < subtopicNames.length; i += CHUNK_SIZE) {
-        chunks.push(subtopicNames.slice(i, i + CHUNK_SIZE));
-      }
+          let changed = "true";
+          let attempt = 0;
 
-      for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
-        const subtopicChunk = chunks[chunkIndex];
+          while (changed === "true" && attempt <= MAX_ATTEMPTS) {
+            const topicExpansionResponse: { data: TopicExpansionChunkResponse } = await api.post(
+              `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/topic-expansion-generate`,
+              {
+                changed,
+                note: chunkNote,
+                errors,
+                attempt,
+                prompt,
+                subtopics: subtopicChunk,
+              }
+            );
 
-        let changed = "true";
-        let attempt = 0;
+            const data: TopicExpansionChunkResponse = topicExpansionResponse.data;
 
-        while (changed === "true" && attempt <= MAX_ATTEMPTS) {
-          const topicExpansionResponse: { data: TopicExpansionChunkResponse } = await api.post(
-            `/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/topic-expansion-generate`,
-            {
-              changed,
-              note: chunkNote,
-              errors,
-              attempt,
-              prompt,
-              subtopics: subtopicChunk,
+            if (data.statusCode === 201) {
+              changed = data.changed;
+              chunkNote = data.note ?? "";
+              attempt = data.attempt;
+              chunkNotes.push(chunkNote);
+            } else {
+              showAlert(400, `Nie udało się wygenerować notatki dla poziomu ${level}, porcja: ${subtopicChunk.join(", ")}`);
+              throw new Error(`Generation failed for level ${level}`);
             }
-          );
-
-          const data: TopicExpansionChunkResponse = topicExpansionResponse.data;
-
-          if (data.statusCode === 201) {
-            changed = data.changed;
-            chunkNote = data.note ?? "";
-            attempt = data.attempt;
-
-            chunkNotes.push(chunkNote);
-          } else {
-            showAlert(400, `Nie udało się wygenerować notatki i częstotliwości dla porcji podtematów:\n${subtopicChunk.join(", ")}`);
-            break;
           }
         }
+
+        return chunkNotes.join("\n\n");
       }
+
+      showSpinner(true, `Trwa generacja notatki podstawowej dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+      const basicNote = await generateNoteForLevel(SubtopicDetailLevel.BASIC);
+
+      showSpinner(true, `Trwa generacja notatki rozszerzonej dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+      const expandedNote = await generateNoteForLevel(SubtopicDetailLevel.EXPANDED);
 
       const MAX_DB_ATTEMPTS = 3;
       let dbAttempt = 0;
@@ -657,7 +693,8 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
         try {
           await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, {
-            note: chunkNotes.join("\n\n")
+            noteBasicLevel: basicNote,
+            noteExpandedLevel: expandedNote,
           });
 
           dbSuccess = true;
@@ -669,8 +706,9 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       }
 
       resetSpinner();
-      setNote(chunkNotes.join("\n\n"));
-      setTextMessageOK(`Notatka została zapisana dla tematu ${topicName}`);
+      setNoteBasicLevel(basicNote);
+      setNoteExpandedLevel(expandedNote);
+      setTextMessageOK(`Obie notatki zostały zapisane dla tematu ${topicName}`);
       setMsgOKVisible(true);
     } catch (error: unknown) {
       handleApiError(error);
@@ -786,7 +824,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
           outputSubtopics = data.outputSubtopics ?? [];
           attempt = data.attempt;
         } else {
-          showAlert(400, `Nie udało się wygenerować częstotliwości dla porcji podtematów`);
+          showAlert(400, `Nie udało się wygenerować chronologii dla porcji podtematów`);
           break;
         }
       }
@@ -1004,7 +1042,6 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
     switch(level) {
       case "BASIC": return "P";
       case "EXPANDED": return "R";
-      case "ACADEMIC": return "A";
       default: return "";
     }
   };
@@ -1200,31 +1237,59 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
                 />
               </div>
               <div className="options-container">
-                {promptNoteExpanded ?
+                {promptBasicNoteExpanded ?
                   <ChevronUp
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleNoteTextareaSize}
+                    onClick={toggleNoteBasicTextareaSize}
                   /> :
                   <ChevronDown
                     size={28}
                     style={{top: "28px"}}
                     className="btnTextAreaOpen"
-                    onClick={toggleNoteTextareaSize}
+                    onClick={toggleNoteBasicTextareaSize}
                   />
                 }
-                <label htmlFor="promptNote" className="label">Notatka:</label>
+                <label htmlFor="promptNoteBasic" className="label">Notatka Podstawowa:</label>
                 <div
-                  ref={noteRef}
+                  ref={noteBasicRef}
                   style={{
-                    height: `${noteHeight}px`,
+                    height: `${noteBasicHeight}px`,
                     overflow: 'hidden',
                     userSelect: 'text',
                   }}
                   className={`text-container`}
                 >
-                  <FormatText content={note} />
+                  <FormatText content={noteBasicLevel} />
+                </div>
+              </div>
+              <div className="options-container">
+                {promptExpandedNoteExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleNoteExpandedTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleNoteExpandedTextareaSize}
+                  />
+                }
+                <label htmlFor="promptNoteExpanded" className="label">Notatka Rozszerzona:</label>
+                <div
+                  ref={noteExpandedRef}
+                  style={{
+                    height: `${noteExpandedHeight}px`,
+                    overflow: 'hidden',
+                    userSelect: 'text',
+                  }}
+                  className={`text-container`}
+                >
+                  <FormatText content={noteExpandedLevel} />
                 </div>
               </div>
               <br />

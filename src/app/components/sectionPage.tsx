@@ -14,11 +14,6 @@ type SectionPageProps = {
   sectionId: number;
 };
 
-type Subtopic = {
-  id: number;
-  name: string;
-}
-
 type TopicExpansionChunkResponse = {
   statusCode: number;
   changed: string;
@@ -412,31 +407,36 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
       const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
       const topics = topicsResponse.data.topics;
 
-      for (let topicIndex = 0; topicIndex < topics.length; topicIndex++) {
-        const topic = topics[topicIndex];
+      async function generateNoteForLevel(
+        topicId: number,
+        topicName: string,
+        level: "BASIC" | "EXPANDED",
+        prompt: string,
+        allSubtopics: { name: string; detailLevel: string }[]
+      ): Promise<string> {
+        let subtopicNames: string[] = [];
 
-        if (topic.type === "Stories" || topic.type === "Writing")
-          continue;
+        if (level === "BASIC") {
+          subtopicNames = allSubtopics
+            .filter(sub => sub.detailLevel === "BASIC")
+            .map(sub => sub.name);
+        } else {
+          subtopicNames = allSubtopics.map(sub => sub.name);
+        }
 
-        const topicId: number = topic.id;
-        const topicName: string = topic.name;
-        const prompt: string = topicsResponse.data.subject.topicExpansionPrompt;
-        const subtopics = topic.subtopics.map((sub: Subtopic) => sub.name);
-
-        showSpinner(
-          true,
-          `Trwa generacja notatki tematu dla:\nPrzedmiot: ${subjectName}\nRozdział: ${topicsResponse.data.section.name}\nTemat: ${topicName}`
-        );
+        if (subtopicNames.length === 0) {
+          console.log(`Brak podtematów dla poziomu ${level} w temacie ${topicName}`);
+          return "";
+        }
 
         const MAX_ATTEMPTS = 2;
         const CHUNK_SIZE = 10;
-
         const chunkNotes: string[] = [];
         const errors: string[] = [];
 
         const chunks: string[][] = [];
-        for (let i = 0; i < subtopics.length; i += CHUNK_SIZE) {
-          chunks.push(subtopics.slice(i, i + CHUNK_SIZE));
+        for (let i = 0; i < subtopicNames.length; i += CHUNK_SIZE) {
+          chunks.push(subtopicNames.slice(i, i + CHUNK_SIZE));
         }
 
         for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
@@ -466,16 +466,37 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
               attempt = data.attempt;
               chunkNotes.push(chunkNote);
             } else {
-              showAlert(
-                400,
-                `Nie udało się wygenerować notatki dla porcji podtematów:\n${subtopicChunk.join(", ")}`
-              );
-              break;
+              throw new Error(`Generation failed for chunk ${subtopicChunk.join(", ")}`);
             }
           }
         }
 
-        const fullNote = chunkNotes.join("\n\n");
+        return chunkNotes.join("\n\n");
+      }
+
+      for (let topicIndex = 0; topicIndex < topics.length; topicIndex++) {
+        const topic = topics[topicIndex];
+
+        if (topic.type === "Stories" || topic.type === "Writing") continue;
+
+        const topicId: number = topic.id;
+        const topicName: string = topic.name;
+        const prompt: string = topicsResponse.data.subject.topicExpansionPrompt;
+
+        const allSubtopics = topic.subtopics || [];
+
+        if (allSubtopics.length === 0) {
+          showAlert(400, `Brak podtematów dla tematu ${topicName}. Najpierw wygeneruj podtematy.`);
+          continue;
+        }
+
+        showSpinner(
+          true,
+          `Trwa generacja notatek (podstawowa + rozszerzona) dla:\nPrzedmiot: ${subjectName}\nRozdział: ${topicsResponse.data.section.name}\nTemat: ${topicName}`
+        );
+
+        const basicNote = await generateNoteForLevel(topicId, topicName, "BASIC", prompt, allSubtopics);
+        const expandedNote = await generateNoteForLevel(topicId, topicName, "EXPANDED", prompt, allSubtopics);
 
         const MAX_DB_ATTEMPTS = 3;
         let dbAttempt = 0;
@@ -484,7 +505,8 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
         while (dbAttempt < MAX_DB_ATTEMPTS && !dbSuccess) {
           try {
             await api.put(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`, {
-              note: fullNote
+              noteBasicLevel: basicNote,
+              noteExpandedLevel: expandedNote,
             });
 
             dbSuccess = true;
@@ -495,11 +517,11 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
           }
         }
 
-        showAlert(200, `Notatka została zapisana dla tematu ${topicName}`);
+        showAlert(200, `Notatki (podstawowa i rozszerzona) zostały zapisane dla tematu ${topicName}`);
       }
 
       resetSpinner();
-      setTextMessageOK(`Notatka została zapisana dla rozdziału ${topicsResponse.data.section.name}`);
+      setTextMessageOK(`Notatki zostały zapisane dla rozdziału ${topicsResponse.data.section.name}`);
       setMsgOKVisible(true);
     } catch (error: unknown) {
       handleApiError(error);
