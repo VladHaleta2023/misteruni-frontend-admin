@@ -224,7 +224,7 @@ export default function AddSubtopic() {
                             display: "flex",
                         }}>
                             <button
-                                className="button"
+                                className="btnOption"
                                 style={{ padding: "10px 24px", marginRight: "12px" }}
                                 onClick={handleAddSubtopicSubmit}
                                 >

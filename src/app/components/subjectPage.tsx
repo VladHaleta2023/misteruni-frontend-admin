@@ -40,12 +40,6 @@ type Topic = {
   type: string;
   name: string;
   section: Section;
-  subtopicsPrompt: string;
-  subtopicsStatusPrompt: string;
-  topicExpansionPrompt: string;
-  topicFrequencyPrompt: string;
-  chronologyPrompt: string;
-  wordsPrompt: string;
   subtopics: Subtopic[]
 };
 
@@ -119,8 +113,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptAudioChatText, setPromptAudioChatText] = useState(["", ""]);
   const [promptChatText, setPromptChatText] = useState(["", ""]);
   const [promptTopicExpansionText, setPromptTopicExpansionText] = useState(["", ""]);
+  const [promptTopicWritingExpansionText, setPromptTopicWritingExpansionText] = useState(["", ""]);
   const [promptTopicFrequencyText, setPromptTopicFrequencyText] = useState(["", ""]);
   const [promptChronologyText, setPromptChronologyText] = useState(["", ""]);
+  const [promptTheoryText, setPromptTheoryText] = useState(["", ""]);
   const [subjectExamTemplatesText, setSubjectExamTemplatesText] = useState(["", ""]);
   const [promptExamText, setPromptExamText] = useState(["", ""]);
 
@@ -144,8 +140,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptAudioChatTextOwn, setPromptAudioChatTextOwn] = useState(true);
   const [promptChatTextOwn, setPromptChatTextOwn] = useState(true);
   const [promptTopicExpansionTextOwn, setPromptTopicExpansionTextOwn] = useState(true);
+  const [promptTopicWritingExpansionTextOwn, setPromptTopicWritingExpansionTextOwn] = useState(true);
   const [promptTopicFrequencyTextOwn, setPromptTopicFrequencyTextOwn] = useState(true);
   const [promptChronologyTextOwn, setPromptChronologyTextOwn] = useState(true);
+  const [promptTheoryTextOwn, setPromptTheoryTextOwn] = useState(true);
 
   const [subjectName, setSubjectName] = useState("");
 
@@ -176,6 +174,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const promptExamTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptExamTextareaExpanded, setPromptExamTextareaExpanded] = useState(false);
   const [promptExamTextareaRows, setPromptExamTextareaRows] = useState(5);
+
+  const promptTheoryTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptTheoryTextareaExpanded, setPromptTheoryTextareaExpanded] = useState(false);
+  const [promptTheoryTextareaRows, setPromptTheoryTextareaRows] = useState(5);
 
   const promptTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptTextareaExpanded, setPromptTextareaExpanded] = useState(false);
@@ -257,6 +259,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
   const [promptTopicExpansionTextareaExpanded, setPromptTopicExpansionTextareaExpanded] = useState(false);
   const [promptTopicExpansionTextareaRows, setPromptTopicExpansionTextareaRows] = useState(5);
 
+  const promptTopicWritingExpansionTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [promptTopicWritingExpansionTextareaExpanded, setPromptTopicWritingExpansionTextareaExpanded] = useState(false);
+  const [promptTopicWritingExpansionTextareaRows, setPromptTopicWritingExpansionTextareaRows] = useState(5);
+
   const promptTopicFrequencyTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [promptTopicFrequencyTextareaExpanded, setPromptTopicFrequencyTextareaExpanded] = useState(false);
   const [promptTopicFrequencyTextareaRows, setPromptTopicFrequencyTextareaRows] = useState(5);
@@ -300,8 +306,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptAudioClosedText([response.data.subject.audioClosedPrompt, response.data.subject.audioClosedPrompt]);
           setPromptWritingClosedText([response.data.subject.writingClosedPrompt, response.data.subject.writingClosedPrompt]);
           setPromptTopicExpansionText([response.data.subject.topicExpansionPrompt, response.data.subject.topicExpansionPrompt]);
+          setPromptTopicWritingExpansionText([response.data.subject.topicWritingExpansionPrompt, response.data.subject.topicWritingExpansionPrompt]);
           setPromptTopicFrequencyText([response.data.subject.topicFrequencyPrompt, response.data.subject.topicFrequencyPrompt]);
           setPromptChronologyText([response.data.subject.chronologyPrompt, response.data.subject.chronologyPrompt]);
+          setPromptTheoryText([response.data.subject.theoryPrompt, response.data.subject.theoryPrompt]);
           setPromptLiteratureText([response.data.subject.literaturePrompt, response.data.subject.literaturePrompt]);
           setPromptExamText([response.data.subject.examPrompt, response.data.subject.examPrompt]);
           setPromptSubtopicsTextOwn(response.data.subject.subtopicsPromptOwn);
@@ -320,8 +328,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
           setPromptChatTextOwn(response.data.subject.chatPromptOwn);
           setPromptAudioChatTextOwn(response.data.subject.audioChatPromptOwn);
           setPromptTopicExpansionTextOwn(response.data.subject.topicExpansionPromptOwn);
+          setPromptTopicWritingExpansionTextOwn(response.data.subject.topicWritingExpansionPromptOwn);
           setPromptTopicFrequencyTextOwn(response.data.subject.topicFrequencyPromptOwn);
           setPromptChronologyTextOwn(response.data.subject.chronologyPromptOwn);
+          setPromptTheoryTextOwn(response.data.subject.theoryPromptOwn);
           setPromptLiteratureTextOwn(response.data.subject.literaturePromptOwn);
         } else {
           showAlert(response.data.statusCode, response.data.message);
@@ -511,6 +521,19 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
 
     setPromptExamTextareaExpanded(prev => !prev);
+  }
+
+  function toggleTheoryPromptTextareaSize() {
+    if (promptTheoryTextareaRef.current) {
+      if (!promptTheoryTextareaExpanded) {
+        const rows = calculateRows(promptTheoryTextareaRef.current);
+        setPromptTheoryTextareaRows(rows);
+      } else {
+        setPromptTheoryTextareaRows(5);
+      }
+    }
+
+    setPromptTheoryTextareaExpanded(prev => !prev);
   }
 
   function toggleAccountsPromptTextareaSize() {
@@ -758,6 +781,19 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     }
 
     setPromptTopicExpansionTextareaExpanded(prev => !prev);
+  }
+
+  function toggleTopicWritingExpansionPromptTextareaSize() {
+    if (promptTopicWritingExpansionTextareaRef.current) {
+      if (!promptTopicWritingExpansionTextareaExpanded) {
+        const rows = calculateRows(promptTopicWritingExpansionTextareaRef.current);
+        setPromptTopicWritingExpansionTextareaRows(rows);
+      } else {
+        setPromptTopicWritingExpansionTextareaRows(5);
+      }
+    }
+
+    setPromptTopicWritingExpansionTextareaExpanded(prev => !prev);
   }
 
   function toggleTopicFrequencyPromptTextareaSize() {
@@ -1181,13 +1217,27 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         let sectionFailed = false;
 
         for (const topic of section.topics) {
-          if (topic.type === "Stories" || topic.type === "Writing" || section.type === "Stories") continue;
+          if (topic.type === "Stories" || section.type === "Stories") continue;
 
           const topicId = topic.id;
           const topicName = topic.name;
-          const prompt = sectionsResponse.data.subject.topicExpansionPrompt;
+          let prompt = sectionsResponse.data.subject.topicExpansionPrompt;
 
-          const allSubtopics = topic.subtopics || [];
+          if (topic.type === "Writing") {
+            prompt = sectionsResponse.data.subject.topicWritingExpansionPrompt;
+          }
+
+          let allSubtopics = topic.subtopics || [];
+
+          if (topic.type === "Writing" && allSubtopics.length === 0) {
+            allSubtopics = [{
+              id: 1,
+              name: "Pisanie wypracowań i form użytkowych",
+              importance: 100,
+              detailLevel: SubtopicDetailLevel.BASIC
+            }];
+            console.log(`Utworzono sztuczny podtemat dla Writing: ${topicName}`);
+          }
 
           if (allSubtopics.length === 0) {
             showAlert(400, `Brak podtematów dla tematu ${topicName}. Najpierw wygeneruj podtematy.`);
@@ -1425,7 +1475,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                     } else {
                         showAlert(
                           400,
-                          `Nie udało się wygenerować częstotliwości dla tematu: ${topicName}`
+                          `Nie udało się wygenerować chronologii dla tematu: ${topicName}`
                         );
                         sectionFailed = true;
                         break;
@@ -1450,7 +1500,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   }
                 }
 
-                showAlert(200, `Częstotliwość została zapisana dla tematu ${topicName}`);
+                showAlert(200, `Chronologia została zapisana dla tematu ${topicName}`);
             }
 
             if (!sectionFailed) {
@@ -1848,8 +1898,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
     chatPrompt: promptChatText,
     audioChatPrompt: promptAudioChatText,
     topicExpansionPrompt: promptTopicExpansionText,
+    topicWritingExpansionPrompt: promptTopicWritingExpansionText,
     topicFrequencyPrompt: promptTopicFrequencyText,
     chronologyPrompt: promptChronologyText,
+    theoryPrompt: promptTheoryText,
     literaturePrompt: promptLiteratureText,
     examTemplates: subjectExamTemplatesText,
     examPrompt: promptExamText
@@ -1877,8 +1929,10 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
         chatPrompt: (Array.isArray(data.chatPrompt) && data.chatPrompt[0] !== data.chatPrompt[1]) ? data.chatPrompt[0] : undefined,
         audioChatPrompt: (Array.isArray(data.audioChatPrompt) && data.audioChatPrompt[0] !== data.audioChatPrompt[1]) ? data.audioChatPrompt[0] : undefined,
         topicExpansionPrompt: (Array.isArray(data.topicExpansionPrompt) && data.topicExpansionPrompt[0] !== data.topicExpansionPrompt[1]) ? data.topicExpansionPrompt[0] : undefined,
+        topicWritingExpansionPrompt: (Array.isArray(data.topicWritingExpansionPrompt) && data.topicWritingExpansionPrompt[0] !== data.topicWritingExpansionPrompt[1]) ? data.topicWritingExpansionPrompt[0] : undefined,
         topicFrequencyPrompt: (Array.isArray(data.topicFrequencyPrompt) && data.topicFrequencyPrompt[0] !== data.topicFrequencyPrompt[1]) ? data.topicFrequencyPrompt[0] : undefined,
         chronologyPrompt: (Array.isArray(data.chronologyPrompt) && data.chronologyPrompt[0] !== data.chronologyPrompt[1]) ? data.chronologyPrompt[0] : undefined,
+        theoryPrompt: (Array.isArray(data.theoryPrompt) && data.theoryPrompt[0] !== data.theoryPrompt[1]) ? data.theoryPrompt[0] : undefined,
         literaturePrompt: (Array.isArray(data.literaturePrompt) && data.literaturePrompt[0] !== data.literaturePrompt[1]) ? data.literaturePrompt[0] : undefined,
         examTemplates: (Array.isArray(data.examTemplates) && data.examTemplates[0] !== data.examTemplates[1]) ? data.examTemplates[0] : undefined,
         examPrompt: (Array.isArray(data.examPrompt) && data.examPrompt[0] !== data.examPrompt[1]) ? data.examPrompt[0] : undefined
@@ -2327,6 +2381,36 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                 />
               </div>
               <div className="options-container">
+                {promptTheoryTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleTheoryPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleTheoryPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptChatTheory" className="label">Czat Teorii:</label>
+                <textarea
+                  id="promptChatTheory"
+                  rows={promptTheoryTextareaRows}
+                  ref={promptTheoryTextareaRef}
+                  name="text-container"
+                  value={promptTheoryText[0]}
+                  onInput={(e) => {
+                    setPromptTheoryText([(e.target as HTMLTextAreaElement).value, promptTheoryText[1]])
+                  }}
+                  className={`text-container ${promptTheoryTextOwn ? "own" : ""} ${(promptTheoryText[0] !== promptTheoryText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt do czatu teorii..."
+                />
+              </div>
+              <div className="options-container">
                 {promptChatTextareaExpanded ?
                   <ChevronUp
                     size={28}
@@ -2341,7 +2425,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                     onClick={toggleChatPromptTextareaSize}
                   />
                 }
-                <label htmlFor="promptChat" className="label">Chat Zadania:</label>
+                <label htmlFor="promptChat" className="label">Czat Zadania:</label>
                 <textarea
                   id="promptChat"
                   rows={promptChatTextareaRows}
@@ -2353,7 +2437,7 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   }}
                   className={`text-container ${promptChatTextOwn ? "own" : ""} ${(promptChatText[0] !== promptChatText[1]) ? ' changed' : ''}`}
                   spellCheck={true}
-                  placeholder="Proszę napisać prompt do chatu zadania..."
+                  placeholder="Proszę napisać prompt do czatu zadania..."
                 />
               </div>
               <div className="options-container">
@@ -2794,6 +2878,36 @@ export default function SubjectPage({ subjectId }: SubjectPageProps) {
                   className={`text-container ${promptTopicExpansionTextOwn ? "own" : ""} ${(promptTopicExpansionText[0] !== promptTopicExpansionText[1]) ? ' changed' : ''}`}
                   spellCheck={true}
                   placeholder="Proszę napisać prompt notatki tematu..."
+                />
+              </div>
+              <div className="options-container">
+                {promptTopicWritingExpansionTextareaExpanded ?
+                  <ChevronUp
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleTopicWritingExpansionPromptTextareaSize}
+                  /> :
+                  <ChevronDown
+                    size={28}
+                    style={{top: "28px"}}
+                    className="btnTextAreaOpen"
+                    onClick={toggleTopicWritingExpansionPromptTextareaSize}
+                  />
+                }
+                <label htmlFor="promptTopicWritingExpansion" className="label">Notatka Writing Tematu:</label>
+                <textarea
+                  id="promptTopicWritingExpansion"
+                  rows={promptTopicWritingExpansionTextareaRows}
+                  ref={promptTopicWritingExpansionTextareaRef}
+                  name="text-container"
+                  value={promptTopicWritingExpansionText[0]}
+                  onInput={(e) => {
+                    setPromptTopicWritingExpansionText([(e.target as HTMLTextAreaElement).value, promptTopicWritingExpansionText[1]]);
+                  }}
+                  className={`text-container ${promptTopicWritingExpansionTextOwn ? "own" : ""} ${(promptTopicWritingExpansionText[0] !== promptTopicWritingExpansionText[1]) ? ' changed' : ''}`}
+                  spellCheck={true}
+                  placeholder="Proszę napisać prompt notatki writing tematu..."
                 />
               </div>
               <div style={{ marginTop: "4px" }}>

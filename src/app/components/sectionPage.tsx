@@ -146,18 +146,6 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     }
   }
 
-  function calculateRows(textarea: HTMLTextAreaElement): number {
-    const style = getComputedStyle(textarea);
-    const fontSize = parseFloat(style.fontSize);
-    const lineHeight = parseFloat(style.lineHeight) || fontSize * 1.6;
-    const paddingTop = parseFloat(style.paddingTop || "0");
-    const paddingBottom = parseFloat(style.paddingBottom || "0");
-    const totalPadding = paddingTop + paddingBottom;
-
-    const rows = Math.ceil((textarea.scrollHeight - totalPadding) / lineHeight);
-    return rows;
-  }
-
   function handleOpenMessageSaveSectionData() {
     setMsgSectionDataVisible(true);
   }
@@ -406,6 +394,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
     try {
       const topicsResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics`);
       const topics = topicsResponse.data.topics;
+      const subject = topicsResponse.data.subject;
 
       async function generateNoteForLevel(
         topicId: number,
@@ -477,13 +466,27 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
       for (let topicIndex = 0; topicIndex < topics.length; topicIndex++) {
         const topic = topics[topicIndex];
 
-        if (topic.type === "Stories" || topic.type === "Writing") continue;
+        if (topic.type === "Stories") continue;
 
         const topicId: number = topic.id;
         const topicName: string = topic.name;
-        const prompt: string = topicsResponse.data.subject.topicExpansionPrompt;
 
-        const allSubtopics = topic.subtopics || [];
+        let prompt = subject.topicExpansionPrompt;
+        if (topic.type === "Writing") {
+          prompt = subject.topicWritingExpansionPrompt || prompt;
+        }
+
+        let allSubtopics = topic.subtopics || [];
+
+        if (topic.type === "Writing" && allSubtopics.length === 0) {
+          allSubtopics = [{
+            id: 1,
+            name: "Pisanie wypracowań i form użytkowych",
+            importance: 100,
+            detailLevel: "BASIC"
+          }];
+          console.log(`Utworzono sztuczny podtemat dla Writing: ${topicName}`);
+        }
 
         if (allSubtopics.length === 0) {
           showAlert(400, `Brak podtematów dla tematu ${topicName}. Najpierw wygeneruj podtematy.`);
@@ -673,7 +676,7 @@ export default function SectionPage({ subjectId, sectionId }: SectionPageProps) 
             } else {
               showAlert(
                 400,
-                `Nie udało się wygenerować częstotliwości dla tematu: ${topicName}`
+                `Nie udało się wygenerować chronologii dla tematu: ${topicName}`
               );
               break;
             }

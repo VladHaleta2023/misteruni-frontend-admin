@@ -296,20 +296,19 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
   async function handleDeleteSubtopic() {
     setMsgSubtopicDeleteVisible(false);
-
     showSpinner(true, "Trwa usuwanie podtematu...");
     
     try {
-        const response = await api.delete<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/${subtopicId}`);
-
-        showAlert(response?.data.statusCode, response?.data.message);
-
-        setSubtopics(prev => prev.filter(sub => sub.id !== subtopicId));
+      const response = await api.delete<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}/subtopics/${subtopicId}`);
+      showAlert(response?.data.statusCode, response?.data.message);
+      setSubtopics(prev => prev.filter(sub => sub.id !== subtopicId));
     }
     catch (error: unknown) {
       handleApiError(error);
+    }
+    finally {
       setTimeout(() => {
-          resetSpinner();
+        resetSpinner();
       }, 2000);
     }
   }
@@ -616,17 +615,41 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
 
     try {
       const topicResponse = await api.get<any>(`/subjects/${subjectId}/sections/${sectionId}/topics/${topicId}`);
-      const prompt: string = topicResponse.data.subject.topicExpansionPrompt;
+      const topic = topicResponse.data.topic;
+      const subject = topicResponse.data.subject;
+
+      let prompt = subject.topicExpansionPrompt;
+      if (topic.type === "Writing") {
+        prompt = subject.topicWritingExpansionPrompt || prompt;
+      }
+
+      let currentSubtopics = [...subtopics];
+
+      if (topic.type === "Writing" && currentSubtopics.length === 0) {
+        currentSubtopics = [{
+          id: 1,
+          name: "Pisanie wypracowań i form użytkowych",
+          importance: 100,
+          detailLevel: SubtopicDetailLevel.BASIC
+        }];
+        console.log(`Utworzono sztuczny podtemat dla Writing: ${topic.name}`);
+      }
+
+      if (currentSubtopics.length === 0) {
+        showAlert(400, `Brak podtematów dla tematu ${topic.name}. Najpierw wygeneruj podtematy.`);
+        resetSpinner();
+        return;
+      }
 
       async function generateNoteForLevel(level: SubtopicDetailLevel): Promise<string> {
         let subtopicNames: string[] = [];
         
         if (level === SubtopicDetailLevel.BASIC) {
-          subtopicNames = subtopics
+          subtopicNames = currentSubtopics
             .filter(sub => sub.detailLevel === SubtopicDetailLevel.BASIC)
             .map(sub => sub.name);
         } else {
-          subtopicNames = subtopics.map(sub => sub.name);
+          subtopicNames = currentSubtopics.map(sub => sub.name);
         }
         
         if (subtopicNames.length === 0) {
@@ -680,10 +703,10 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
         return chunkNotes.join("\n\n");
       }
 
-      showSpinner(true, `Trwa generacja notatki podstawowej dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+      showSpinner(true, `Trwa generacja notatki podstawowej dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topic.name}`);
       const basicNote = await generateNoteForLevel(SubtopicDetailLevel.BASIC);
 
-      showSpinner(true, `Trwa generacja notatki rozszerzonej dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topicName}`);
+      showSpinner(true, `Trwa generacja notatki rozszerzonej dla:\nPrzedmiot: ${subjectName}\nRozdział: ${sectionName}\nTemat: ${topic.name}`);
       const expandedNote = await generateNoteForLevel(SubtopicDetailLevel.EXPANDED);
 
       const MAX_DB_ATTEMPTS = 3;
@@ -708,7 +731,7 @@ export default function TopicPage({ subjectId, sectionId, topicId }: TopicPagePr
       resetSpinner();
       setNoteBasicLevel(basicNote);
       setNoteExpandedLevel(expandedNote);
-      setTextMessageOK(`Obie notatki zostały zapisane dla tematu ${topicName}`);
+      setTextMessageOK(`Obie notatki zostały zapisane dla tematu ${topic.name}`);
       setMsgOKVisible(true);
     } catch (error: unknown) {
       handleApiError(error);
